@@ -697,6 +697,70 @@ select.filter-select {
 }
 select.filter-select:focus { border-color: var(--green); }
 
+/* REPORTS */
+.report-day {
+  border: 1px solid var(--border);
+  margin-bottom: 1px;
+  background: var(--bg2);
+}
+.report-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: background 0.1s;
+  user-select: none;
+}
+.report-day-header:hover { background: var(--bg3); }
+.report-day-header.open { background: var(--bg3); border-bottom: 1px solid var(--border); }
+.rdh-left { display: flex; align-items: center; gap: 16px; }
+.rdh-date { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: 1px; }
+.rdh-meta { font-size: 10px; color: var(--muted2); }
+.rdh-flags { display: flex; gap: 6px; }
+.rdh-toggle { color: var(--muted); font-size: 12px; font-weight: 700; }
+.report-day-body { display: none; padding: 0; }
+.report-day-body.open { display: block; }
+.report-game {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 18px;
+}
+.report-game:last-child { border-bottom: none; }
+.rg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.rg-matchup { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px; }
+.rg-time { font-size: 10px; color: var(--muted); }
+.rg-rec { font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+.rg-rec.go { color: var(--green); }
+.rg-rec.pass { color: var(--muted2); }
+.rg-rec.parlay { color: var(--yellow); }
+.rg-points { display: flex; flex-direction: column; gap: 4px; }
+.rg-point { font-size: 10px; color: var(--muted2); padding-left: 12px; position: relative; }
+.rg-point::before { content: '▸'; position: absolute; left: 0; color: var(--green); }
+.rg-point.neg::before { color: var(--red); }
+.rg-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 10px;
+}
+.rg-stat { background: var(--bg3); padding: 8px 10px; }
+.rg-stat-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.rg-stat-val { font-size: 11px; font-weight: 700; }
+.rg-pick-logged {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--green);
+  background: var(--green-dim);
+  font-size: 10px;
+  color: var(--green);
+  font-weight: 700;
+}
+
 @media(max-width:768px){
   .metric-grid-6,.metric-grid-8{grid-template-columns:repeat(3,1fr);}
   .metric-grid-4{grid-template-columns:repeat(2,1fr);}
@@ -732,6 +796,7 @@ select.filter-select:focus { border-color: var(--green); }
     <button class="nav-btn" onclick="switchTab('today',this)">Today</button>
     <button class="nav-btn" onclick="switchTab('history',this)">History</button>
     <button class="nav-btn" onclick="switchTab('trends',this)">Trends</button>
+    <button class="nav-btn" onclick="switchTab('reports',this)">Reports</button>
   </nav>
   <div class="header-stats" id="header-stats"></div>
 </div>
@@ -946,12 +1011,8 @@ select.filter-select:focus { border-color: var(--green); }
         <span>📊 Matchup Machine (CSV/XLSX)</span>
         <span id="matchup-status" class="status-empty">EMPTY</span>
       </div>
-      <input type="file" id="matchup-file" accept=".xlsx,.csv" onchange="handleMatchupFile(this)" style="display:none">
-      <div class="upload-box" id="drop-matchup"
-        onclick="document.getElementById('matchup-file').click()"
-        ondragover="e=>{e.preventDefault();this.style.borderColor='var(--green)'}"
-        ondragleave="this.style.borderColor='var(--border2)'"
-        ondrop="handleDrop(event,'matchup')">
+      <input type="file" id="matchup-file" accept=".xlsx,.csv" style="display:none">
+      <div class="upload-box" id="drop-matchup">
         <div class="upload-icon">📁</div>
         <div class="upload-text">Click or drag & drop</div>
         <div class="upload-sub">Matchup Machine CSV/XLSX</div>
@@ -962,12 +1023,8 @@ select.filter-select:focus { border-color: var(--green); }
         <span>⚾ Pitcher Projections (CSV)</span>
         <span id="pitcher-status" class="status-empty">EMPTY</span>
       </div>
-      <input type="file" id="pitcher-file" accept=".xlsx,.csv" onchange="handlePitcherFile(this)" style="display:none">
-      <div class="upload-box" id="drop-pitcher"
-        onclick="document.getElementById('pitcher-file').click()"
-        ondragover="e=>{e.preventDefault();this.style.borderColor='var(--green)'}"
-        ondragleave="this.style.borderColor='var(--border2)'"
-        ondrop="handleDrop(event,'pitcher')">
+      <input type="file" id="pitcher-file" accept=".xlsx,.csv" style="display:none">
+      <div class="upload-box" id="drop-pitcher">
         <div class="upload-icon">📁</div>
         <div class="upload-text">Click or drag & drop</div>
         <div class="upload-sub">Pitcher Projections CSV</div>
@@ -978,12 +1035,8 @@ select.filter-select:focus { border-color: var(--green); }
         <span>🌤 Park Factors (CSV)</span>
         <span id="park-status" class="status-empty">EMPTY</span>
       </div>
-      <input type="file" id="park-file" accept=".csv" onchange="handleParkFile(this)" style="display:none">
-      <div class="upload-box" id="drop-park"
-        onclick="document.getElementById('park-file').click()"
-        ondragover="e=>{e.preventDefault();this.style.borderColor='var(--green)'}"
-        ondragleave="this.style.borderColor='var(--border2)'"
-        ondrop="handleDrop(event,'park')">
+      <input type="file" id="park-file" accept=".csv" style="display:none">
+      <div class="upload-box" id="drop-park">
         <div class="upload-icon">📁</div>
         <div class="upload-text">Click or drag & drop</div>
         <div class="upload-sub">Park Factors CSV</div>
@@ -1071,6 +1124,26 @@ select.filter-select:focus { border-color: var(--green); }
     </table>
   </div>
 
+</div>
+</div>
+
+<!-- ===== REPORTS ===== -->
+<div class="tab-content" id="tab-reports">
+<div class="page">
+  <div class="section-header">
+    <div class="section-title">Saved Daily Reports</div>
+    <div class="flex" style="gap:8px">
+      <span style="font-size:10px;color:var(--muted)">Reports auto-save when you generate. Click any date to expand.</span>
+      <button onclick="clearAllReports()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;letter-spacing:1px">CLEAR ALL</button>
+    </div>
+  </div>
+  <div id="reports-list">
+    <div class="empty-state">
+      <div class="e-icon">📋</div>
+      <div class="e-text">No Reports Saved Yet</div>
+      <div class="e-sub">Generate a report on the Today tab — it will be saved here automatically</div>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -1908,6 +1981,10 @@ function updateStatus(inputId, statusId) {
   const el = document.getElementById(statusId);
   el.textContent = v ? 'READY' : 'EMPTY';
   el.className = v ? 'status-ready' : 'status-empty';
+  if (inputId === 'sim-paste') {
+    if (v) localStorage.setItem('harriSimPaste', v);
+    else localStorage.removeItem('harriSimPaste');
+  }
   checkDataBanner();
 }
 
@@ -1928,6 +2005,10 @@ function clearAllData() {
   document.getElementById('park-status').textContent = 'EMPTY';
   document.getElementById('park-status').className = 'status-empty';
   matchupData=[]; pitcherData=[]; parkData=[]; gameSimData=[];
+  localStorage.removeItem('harriSimPaste');
+  localStorage.removeItem('harriMatchupData');
+  localStorage.removeItem('harriPitcherData');
+  localStorage.removeItem('harriParkData');
   document.getElementById('data-loaded-banner').style.display = 'none';
   document.getElementById('watchlist-section').style.display = 'none';
   document.getElementById('games-header').style.display = 'none';
@@ -1949,6 +2030,8 @@ function handleMatchupFile(input) {
       return obj;
     });
     checkDataBanner();
+    localStorage.setItem('harriMatchupData', JSON.stringify(matchupData));
+    checkDataBanner();
     showToast('Matchup data loaded');
   };
   reader.readAsText(file);
@@ -1967,6 +2050,7 @@ function handlePitcherFile(input) {
       headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
       return obj;
     });
+    localStorage.setItem('harriPitcherData', JSON.stringify(pitcherData));
     checkDataBanner();
     showToast('Pitcher data loaded');
   };
@@ -1986,24 +2070,46 @@ function handleParkFile(input) {
       headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
       return obj;
     });
+    localStorage.setItem('harriParkData', JSON.stringify(parkData));
     buildWatchlists();
     showToast('Park factors loaded');
   };
   reader.readAsText(file);
 }
 
-function handleDrop(e, type) {
-  e.preventDefault();
-  e.stopPropagation();
-  const el = e.currentTarget;
-  el.style.borderColor = 'var(--border2)';
-  const file = e.dataTransfer.files[0];
-  if (!file) return;
-  // Create a fake input and trigger the right handler
-  const fakeInput = { files: [file] };
-  if (type === 'matchup') handleMatchupFile(fakeInput);
-  else if (type === 'pitcher') handlePitcherFile(fakeInput);
-  else if (type === 'park') handleParkFile(fakeInput);
+function setupDropZone(boxId, fileId, handler) {
+  const box = document.getElementById(boxId);
+  const input = document.getElementById(fileId);
+  if (!box || !input) return;
+
+  // Single click handler
+  box.addEventListener('click', () => input.click());
+
+  // File input change
+  input.addEventListener('change', () => {
+    if (input.files[0]) handler({files: input.files});
+  });
+
+  // Drag events
+  box.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    box.style.borderColor = 'var(--green)';
+    box.style.background = 'var(--green-dim)';
+  });
+  box.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    box.style.borderColor = 'var(--border2)';
+    box.style.background = 'var(--bg)';
+  });
+  box.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    box.style.borderColor = 'var(--border2)';
+    box.style.background = 'var(--bg)';
+    const file = e.dataTransfer.files[0];
+    if (file) handler({files: [file]});
+  });
 }
 
 function parseCSV(line) {
@@ -2392,11 +2498,31 @@ function savePick(idx, away, home) {
         <button class="result-btn rb-win" id="spftw-${pidx}" onclick="setTodayRes(${pidx},'ft',1)">FT W</button>
         <button class="result-btn rb-loss" id="spftl-${pidx}" onclick="setTodayRes(${pidx},'ft',0)">FT L</button>
         <button class="result-btn rb-push" id="spftp-${pidx}" onclick="setTodayRes(${pidx},'ft',2)">FT P</button>
+        <button class="result-btn" style="background:transparent;border:1px solid var(--red);color:var(--red);margin-left:8px" onclick="deletePick(${pidx},${idx})">✕ REMOVE</button>
       </div>
     </div>`;
   showToast(`Saved: ${pick}`);
   buildTicker();
   buildHeaderStats();
+}
+
+function deletePick(pidx, gameIdx) {
+  todayPicks.splice(pidx, 1);
+  localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+  // Remove the saved pick UI
+  const el = document.getElementById('sp-' + pidx);
+  if (el) el.parentElement.innerHTML = '';
+  // Clear the saved-gameIdx div
+  const savedEl = document.getElementById('saved-' + gameIdx);
+  if (savedEl) savedEl.innerHTML = '';
+  // Reset pick type selection
+  selectedTypes[gameIdx] = null;
+  document.querySelectorAll('#ptg-' + gameIdx + ' .pick-type-btn').forEach(b => b.className = 'pick-type-btn');
+  // Re-index remaining picks
+  renderDashboard();
+  buildTicker();
+  buildHeaderStats();
+  showToast('Pick removed');
 }
 
 function setTodayRes(pidx, side, val) {
@@ -2438,6 +2564,7 @@ async function processAllData() {
   } catch(e){}
 
   renderGames(gameSimData);
+  saveReport(gameSimData);
   showToast(`Report ready — ${gameSimData.length} games`);
 }
 
@@ -2482,6 +2609,7 @@ function switchTab(tab,btn) {
   if(tab==='dashboard'){renderDashboard();}
   if(tab==='history'){renderHistory();}
   if(tab==='trends'){renderTrends();}
+  if(tab==='reports'){renderReports();}
   if(tab==='today'){
     document.getElementById('today-title').textContent=`Today's Slate — ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}`;
   }
@@ -2494,7 +2622,221 @@ document.addEventListener('DOMContentLoaded',()=>{
   buildTicker();
   buildHeaderStats();
   renderDashboard();
+
+  // Wire up all upload/drop zones
+  setupDropZone('drop-matchup', 'matchup-file', handleMatchupFile);
+  setupDropZone('drop-pitcher', 'pitcher-file', handlePitcherFile);
+  setupDropZone('drop-park', 'park-file', handleParkFile);
+
+  // Restore sim paste and regenerate report if saved
+  const savedSim = localStorage.getItem('harriSimPaste');
+  const savedMatchup = localStorage.getItem('harriMatchupData');
+  const savedPitcher = localStorage.getItem('harriPitcherData');
+  const savedPark = localStorage.getItem('harriParkData');
+
+  if (savedSim) {
+    document.getElementById('sim-paste').value = savedSim;
+    document.getElementById('sim-status').textContent = 'READY';
+    document.getElementById('sim-status').className = 'status-ready';
+    checkDataBanner();
+  }
+  if (savedMatchup) {
+    matchupData = JSON.parse(savedMatchup);
+    document.getElementById('matchup-status').textContent = '✓ Restored';
+    document.getElementById('matchup-status').className = 'status-ready';
+  }
+  if (savedPitcher) {
+    pitcherData = JSON.parse(savedPitcher);
+    document.getElementById('pitcher-status').textContent = '✓ Restored';
+    document.getElementById('pitcher-status').className = 'status-ready';
+  }
+  if (savedPark) {
+    parkData = JSON.parse(savedPark);
+    document.getElementById('park-status').textContent = '✓ Restored';
+    document.getElementById('park-status').className = 'status-ready';
+    buildWatchlists();
+  }
+  if (savedSim) {
+    // Auto-regenerate without fetching odds again
+    gameSimData = parseSimText(savedSim);
+    renderGames(gameSimData);
+    document.getElementById('games-header').style.display = 'flex';
+    document.getElementById('today-title').textContent = 'Today\'s Slate — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  }
 });
+
+// ============================================================
+// REPORTS — SAVE & RENDER
+// ============================================================
+
+function saveReport(games) {
+  const dateKey = new Date().toLocaleDateString('en-US', {
+    weekday:'long', month:'long', day:'numeric', year:'numeric'
+  });
+  const dateShort = new Date().toLocaleDateString('en-US', {
+    month:'2-digit', day:'2-digit', year:'2-digit'
+  });
+
+  // Build report data
+  const report = {
+    date: dateKey,
+    dateShort,
+    timestamp: Date.now(),
+    games: games.map(g => {
+      const park = getPark(g.away, g.home);
+      const matchup = getMatchupSummary(g.away, g.home);
+      const harri = harriAnalyze(g, park, matchup);
+      const parkPct = park ? (park['Runs %'] || '') : g.parkRuns;
+      return {
+        away: g.away,
+        home: g.home,
+        time: g.time,
+        awaySP: g.awaySP,
+        homeSP: g.homeSP,
+        awayWinPct: g.awayWinPct,
+        homeWinPct: g.homeWinPct,
+        awayML: g.awayML,
+        homeML: g.homeML,
+        awayRuns: g.awayRuns,
+        homeRuns: g.homeRuns,
+        awayF5Lead: g.awayF5Lead,
+        homeF5Lead: g.homeF5Lead,
+        awayF5Runs: g.awayF5Runs,
+        homeF5Runs: g.homeF5Runs,
+        parkPct,
+        totalLine: g.totalLine,
+        rec: harri.rec,
+        recClass: harri.recClass,
+        flags: harri.flags,
+        points: harri.points,
+      };
+    }),
+    picks: todayPicks.filter(p => p.isToday),
+    overWatch: parkData.filter(r => parseFloat((r['Runs %']||'').replace('%','').replace('+','')) >= 7).map(r => r['Game'] || ''),
+    underWatch: parkData.filter(r => parseFloat((r['Runs %']||'').replace('%','').replace('+','')) <= -7).map(r => r['Game'] || ''),
+  };
+
+  // Load existing reports
+  const existing = JSON.parse(localStorage.getItem('harriReports') || '[]');
+  // Replace if same date exists
+  const idx = existing.findIndex(r => r.dateShort === dateShort);
+  if (idx >= 0) existing[idx] = report;
+  else existing.unshift(report);
+  // Keep last 30 days
+  const trimmed = existing.slice(0, 30);
+  localStorage.setItem('harriReports', JSON.stringify(trimmed));
+  console.log('Report saved for', dateKey);
+}
+
+function renderReports() {
+  const reports = JSON.parse(localStorage.getItem('harriReports') || '[]');
+  const container = document.getElementById('reports-list');
+
+  if (!reports.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="e-icon">📋</div>
+      <div class="e-text">No Reports Saved Yet</div>
+      <div class="e-sub">Generate a report on the Today tab — it saves here automatically</div>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = reports.map((report, ri) => {
+    const flagged = report.games.filter(g => g.recClass === 'go').length;
+    const passes = report.games.filter(g => g.recClass === 'pass').length;
+    const parlays = report.games.filter(g => g.recClass === 'parlay').length;
+    const picksLogged = report.picks ? report.picks.length : 0;
+
+    const gamesHtml = report.games.map((g, gi) => {
+      const gap = Math.abs(g.awayRuns - g.homeRuns);
+      const f5gap = Math.abs(g.awayF5Lead - g.homeF5Lead);
+      const parkColor = g.parkPct && g.parkPct.startsWith('+') ? 'var(--green)' : g.parkPct && g.parkPct.startsWith('-') ? 'var(--red)' : 'var(--muted2)';
+
+      // Find any logged pick for this game
+      const loggedPick = report.picks ? report.picks.find(p =>
+        p.pick.toLowerCase().includes(g.away.toLowerCase().slice(0,3)) ||
+        p.pick.toLowerCase().includes(g.home.toLowerCase().slice(0,3))
+      ) : null;
+
+      return `<div class="report-game">
+        <div class="rg-header">
+          <div>
+            <div class="rg-matchup">${g.away} @ ${g.home}</div>
+            <div class="rg-time">${g.time || '—'} · ${g.awaySP || '—'} vs ${g.homeSP || '—'} · Park: <span style="color:${parkColor}">${g.parkPct || '—'}</span></div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:10px;color:var(--muted2)">Sim: ${g.away} ${g.awayWinPct.toFixed(1)}% / ${g.home} ${g.homeWinPct.toFixed(1)}%</div>
+            <div style="font-size:10px;color:var(--muted2)">ML: ${g.awayML || '—'} / ${g.homeML || '—'}</div>
+          </div>
+        </div>
+        <div class="rg-rec ${g.recClass}">${g.rec}</div>
+        <div class="rg-points">
+          ${(g.points||[]).map(p => `<div class="rg-point ${p.cls}">${p.t}</div>`).join('')}
+        </div>
+        <div class="rg-stats">
+          <div class="rg-stat">
+            <div class="rg-stat-label">Pitcher Gap</div>
+            <div class="rg-stat-val" style="color:${gap>=0.8?'var(--green)':gap>=0.5?'var(--yellow)':'var(--muted2)'}">${gap.toFixed(2)}R</div>
+          </div>
+          <div class="rg-stat">
+            <div class="rg-stat-label">F5 Lead Δ</div>
+            <div class="rg-stat-val" style="color:${f5gap>=15?'var(--green)':f5gap>=8?'var(--yellow)':'var(--muted2)'}">${f5gap.toFixed(1)}%</div>
+          </div>
+          <div class="rg-stat">
+            <div class="rg-stat-label">F5 Proj</div>
+            <div class="rg-stat-val">${(g.awayF5Runs+g.homeF5Runs).toFixed(2)}</div>
+          </div>
+          <div class="rg-stat">
+            <div class="rg-stat-label">Total Proj</div>
+            <div class="rg-stat-val">${(g.awayRuns+g.homeRuns).toFixed(2)}</div>
+          </div>
+        </div>
+        ${loggedPick ? `<div class="rg-pick-logged">✓ PICKED: ${loggedPick.pick.toUpperCase()} — ${loggedPick.type.toUpperCase()} ${loggedPick.notes ? '· ' + loggedPick.notes : ''}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    return `<div class="report-day" id="rd-${ri}">
+      <div class="report-day-header" onclick="toggleReport(${ri})">
+        <div class="rdh-left">
+          <div class="rdh-date">${report.date}</div>
+          <div class="rdh-meta">${report.games.length} games · ${flagged} flagged · ${picksLogged} picks logged</div>
+          ${report.overWatch && report.overWatch.length ? `<span class="badge badge-green">⬆ ${report.overWatch.length} over</span>` : ''}
+          ${report.underWatch && report.underWatch.length ? `<span class="badge badge-red">⬇ ${report.underWatch.length} under</span>` : ''}
+        </div>
+        <div class="rdh-toggle" id="rdt-${ri}">▼</div>
+      </div>
+      <div class="report-day-body" id="rdb-${ri}">
+        ${report.overWatch && report.overWatch.length ? `
+          <div style="padding:10px 18px;border-bottom:1px solid var(--border);font-size:10px">
+            <span style="color:var(--green);font-weight:700;letter-spacing:1px">⬆ OVER WATCH: </span>
+            <span style="color:var(--muted2)">${report.overWatch.join(' · ')}</span>
+          </div>` : ''}
+        ${report.underWatch && report.underWatch.length ? `
+          <div style="padding:10px 18px;border-bottom:1px solid var(--border);font-size:10px">
+            <span style="color:var(--red);font-weight:700;letter-spacing:1px">⬇ UNDER WATCH: </span>
+            <span style="color:var(--muted2)">${report.underWatch.join(' · ')}</span>
+          </div>` : ''}
+        ${gamesHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleReport(ri) {
+  const body = document.getElementById('rdb-' + ri);
+  const toggle = document.getElementById('rdt-' + ri);
+  const header = body.previousElementSibling;
+  body.classList.toggle('open');
+  header.classList.toggle('open');
+  toggle.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+function clearAllReports() {
+  if (!confirm('Clear all saved reports?')) return;
+  localStorage.removeItem('harriReports');
+  renderReports();
+  showToast('All reports cleared');
+}
 
 window.addEventListener('resize',()=>{
   if(document.getElementById('tab-dashboard').classList.contains('active')) drawPnlChart();
