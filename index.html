@@ -1,1 +1,2518 @@
-<h1>test</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baseball Harri</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #1a1a24;
+  --bg4: #222230;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: #f0f0f5;
+  --muted: #6b6b80;
+  --muted2: #9090a0;
+  --green: #00e87a;
+  --green-dim: rgba(0,232,122,0.12);
+  --red: #ff4560;
+  --red-dim: rgba(255,69,96,0.12);
+  --yellow: #ffd60a;
+  --yellow-dim: rgba(255,214,10,0.12);
+  --blue: #4dabf7;
+  --blue-dim: rgba(77,171,247,0.12);
+  --purple: #c77dff;
+  --purple-dim: rgba(199,125,255,0.12);
+  --accent: #00e87a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* HEADER */
+.header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: var(--green);
+  text-shadow: 0 0 20px rgba(0,232,122,0.4);
+}
+
+.logo span { color: var(--text); }
+
+.nav {
+  display: flex;
+  gap: 2px;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+
+.nav-btn:hover { color: var(--text); background: var(--bg3); }
+.nav-btn.active { color: var(--green); background: var(--green-dim); }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* TABS */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* LAYOUT */
+.page { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+/* STAT CARDS */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.stat-card.green::before { background: var(--green); }
+.stat-card.red::before { background: var(--red); }
+.stat-card.yellow::before { background: var(--yellow); }
+.stat-card.blue::before { background: var(--blue); }
+.stat-card.purple::before { background: var(--purple); }
+
+.stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-value.green { color: var(--green); }
+.stat-value.red { color: var(--red); }
+.stat-value.yellow { color: var(--yellow); }
+.stat-value.blue { color: var(--blue); }
+.stat-value.white { color: var(--text); }
+
+.stat-sub {
+  font-size: 11px;
+  color: var(--muted2);
+  font-family: 'DM Mono', monospace;
+}
+
+/* SECTION HEADERS */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+  color: var(--text);
+}
+
+.section-title span {
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 12px;
+  letter-spacing: 0;
+}
+
+/* TABLES */
+.table-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: var(--bg3);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
+
+.mono { font-family: 'DM Mono', monospace; font-size: 12px; }
+
+/* BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.badge-green { background: var(--green-dim); color: var(--green); }
+.badge-red { background: var(--red-dim); color: var(--red); }
+.badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+.badge-blue { background: var(--blue-dim); color: var(--blue); }
+.badge-purple { background: var(--purple-dim); color: var(--purple); }
+.badge-gray { background: rgba(255,255,255,0.06); color: var(--muted2); }
+
+/* SPLIT TABLES */
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* GAME CARDS - TODAY TAB */
+.games-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.game-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.game-card:hover { border-color: var(--border2); }
+.game-card.flagged { border-color: rgba(0,232,122,0.3); }
+.game-card.parlay-candidate { border-color: rgba(199,125,255,0.3); }
+.game-card.live-flag { border-color: rgba(255,214,10,0.3); }
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.game-matchup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.game-teams {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: var(--text);
+}
+
+.game-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.game-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.game-park {
+  font-size: 11px;
+  color: var(--muted2);
+}
+
+.game-flags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.game-body {
+  display: none;
+  padding: 20px;
+}
+
+.game-body.open { display: block; }
+
+.game-data-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.data-block { }
+
+.data-block-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.data-block-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.data-block-value.green { color: var(--green); }
+.data-block-value.red { color: var(--red); }
+.data-block-value.yellow { color: var(--yellow); }
+
+/* MATCHUP BARS */
+.matchup-bars { margin-bottom: 20px; }
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.bar-label {
+  font-size: 11px;
+  color: var(--muted);
+  width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg4);
+  border-radius: 3px;
+  overflow: visible;
+  position: relative;
+}
+
+.bar-fill-left {
+  position: absolute;
+  right: 50%;
+  top: 0;
+  height: 100%;
+  border-radius: 3px 0 0 3px;
+  transition: width 0.5s ease;
+}
+
+.bar-fill-right {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  border-radius: 0 3px 3px 0;
+  transition: width 0.5s ease;
+}
+
+.bar-center {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 2px;
+  height: 10px;
+  background: var(--border2);
+  transform: translateX(-50%);
+}
+
+.bar-label-right {
+  font-size: 11px;
+  color: var(--muted);
+  width: 50px;
+  flex-shrink: 0;
+}
+
+/* AI ANALYSIS BOX */
+.ai-box {
+  background: var(--bg3);
+  border: 1px solid rgba(199,125,255,0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.ai-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--purple);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.ai-box-text {
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.7;
+}
+
+.ai-box-text strong { color: var(--text); font-weight: 500; }
+
+/* PICK ENTRY */
+.pick-entry {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.pick-entry-title {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.pick-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pick-btn {
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  color: var(--muted2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pick-btn:hover { border-color: var(--border2); color: var(--text); }
+.pick-btn.selected { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.pick-btn.selected-parlay { background: var(--purple-dim); border-color: var(--purple); color: var(--purple); }
+
+.pick-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pick-input {
+  flex: 1;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.pick-input:focus { border-color: var(--border2); }
+.pick-input::placeholder { color: var(--muted); }
+
+.pick-save {
+  background: var(--green);
+  color: #000;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.pick-save:hover { background: #00ff88; }
+
+/* UPLOAD ZONE */
+.upload-zone {
+  background: var(--bg2);
+  border: 1px dashed var(--border2);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-zone:hover { border-color: var(--green); background: var(--green-dim); }
+
+.upload-zone input { display: none; }
+
+.upload-icon { font-size: 32px; margin-bottom: 12px; }
+
+.upload-text {
+  font-size: 13px;
+  color: var(--muted2);
+  margin-bottom: 4px;
+}
+
+.upload-sub { font-size: 11px; color: var(--muted); }
+
+/* PASTE ZONE */
+.paste-zone {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.paste-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.paste-label .status { 
+  color: var(--green); 
+  display: flex; 
+  align-items: center; 
+  gap: 4px;
+}
+
+.paste-label .status.empty { color: var(--muted); }
+
+textarea.paste-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 12px;
+  border-radius: 6px;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+textarea.paste-input:focus { border-color: var(--border2); }
+textarea.paste-input::placeholder { color: var(--muted); }
+
+/* PROGRESS BAR */
+.progress-bar {
+  height: 4px;
+  background: var(--bg4);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--green), var(--blue));
+  transition: width 0.5s ease;
+}
+
+/* TREND CARDS */
+.trend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.trend-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.trend-card-title {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.trend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.trend-item:last-child { border-bottom: none; }
+
+.trend-item-label { font-size: 13px; color: var(--muted2); }
+.trend-item-value { font-family: 'DM Mono', monospace; font-size: 13px; }
+.trend-item-value.green { color: var(--green); }
+.trend-item-value.red { color: var(--red); }
+.trend-item-value.yellow { color: var(--yellow); }
+
+/* MINI CHART */
+.mini-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 40px;
+  margin-top: 12px;
+}
+
+.mini-bar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  min-height: 4px;
+  transition: height 0.3s ease;
+}
+
+/* HOT/COLD */
+.hot-cold-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.hot-card {
+  background: var(--bg2);
+  border: 1px solid rgba(0,232,122,0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.cold-card {
+  background: var(--bg2);
+  border: 1px solid rgba(255,69,96,0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.hc-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.hot-card .hc-title { color: var(--green); }
+.cold-card .hc-title { color: var(--red); }
+
+.hc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--muted2);
+  border-bottom: 1px solid var(--border);
+}
+
+.hc-item:last-child { border-bottom: none; }
+
+/* FILTER BAR */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--muted2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover { border-color: var(--border2); color: var(--text); }
+.filter-btn.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+/* LOAD BUTTON */
+.load-btn {
+  background: var(--green);
+  color: #000;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.load-btn:hover { background: #00ff88; transform: translateY(-1px); }
+.load-btn:active { transform: translateY(0); }
+
+.secondary-btn {
+  background: var(--bg3);
+  color: var(--muted2);
+  border: 1px solid var(--border);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.secondary-btn:hover { border-color: var(--border2); color: var(--text); }
+
+/* ODDS DISPLAY */
+.odds-display {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.odds-block {
+  flex: 1;
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.odds-team {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.odds-ml {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  margin-bottom: 2px;
+}
+
+.odds-ml.positive { color: var(--green); }
+.odds-ml.negative { color: var(--red); }
+
+.odds-implied {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted2);
+}
+
+/* VALUE GAP */
+.value-gap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.value-gap.good { background: var(--green-dim); color: var(--green); }
+.value-gap.bad { background: var(--red-dim); color: var(--red); }
+.value-gap.neutral { background: var(--bg4); color: var(--muted2); }
+
+/* RESULT BUTTONS */
+.result-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.result-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.result-btn.win { background: var(--green-dim); color: var(--green); }
+.result-btn.loss { background: var(--red-dim); color: var(--red); }
+.result-btn.push { background: var(--bg4); color: var(--muted2); }
+.result-btn.win:hover { background: var(--green); color: #000; }
+.result-btn.loss:hover { background: var(--red); color: #fff; }
+
+/* NOTIFICATION */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg3);
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 13px;
+  color: var(--green);
+  z-index: 1000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .split-grid { grid-template-columns: 1fr; }
+  .game-data-grid { grid-template-columns: repeat(2, 1fr); }
+  .hot-cold-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .header { padding: 0 16px; }
+  .page { padding: 16px; }
+  .logo { font-size: 22px; }
+  .nav-btn { padding: 5px 10px; font-size: 12px; }
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+}
+
+.flex-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.implied-table {
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.implied-table-title {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.implied-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.implied-cell {
+  background: var(--bg4);
+  border-radius: 4px;
+  padding: 4px 8px;
+  text-align: center;
+  min-width: 64px;
+}
+
+.implied-line {
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 2px;
+  font-family: 'DM Mono', monospace;
+}
+
+.implied-odds {
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 500;
+}
+
+.implied-odds.good { color: var(--green); }
+.implied-odds.bad { color: var(--red); }
+.implied-odds.neutral { color: var(--muted2); }
+
+.pick-saved-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--green-dim);
+  border: 1px solid rgba(0,232,122,0.2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-top: 10px;
+}
+
+.pick-saved-info { font-size: 13px; color: var(--green); font-weight: 500; }
+.pick-saved-meta { font-size: 11px; color: var(--muted2); font-family: 'DM Mono', monospace; }
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--muted);
+}
+
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state .empty-text { font-size: 15px; color: var(--muted2); margin-bottom: 8px; }
+.empty-state .empty-sub { font-size: 13px; }
+
+.data-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .data-inputs-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="header">
+  <div class="logo">Baseball<span>Harri</span></div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="nav-btn" onclick="switchTab('today')">Today</button>
+    <button class="nav-btn" onclick="switchTab('history')">History</button>
+    <button class="nav-btn" onclick="switchTab('trends')">Trends</button>
+  </nav>
+  <div class="header-right">
+    <div class="live-dot"></div>
+    <span id="current-date"></span>
+  </div>
+</div>
+
+<!-- ========== DASHBOARD TAB ========== -->
+<div class="tab-content active" id="tab-dashboard">
+<div class="page">
+
+  <div class="section-header" style="margin-bottom:20px">
+    <div>
+      <div class="section-title">Season Overview <span>2026</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Win +1u · Loss -1.5u · Risk 1.5u per play</div>
+    </div>
+    <div class="flex-row">
+      <select id="season-filter" onchange="renderDashboard()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+        <option value="all">All Time</option>
+        <option value="1">Yesterday</option>
+        <option value="3">Last 3 Days</option>
+        <option value="7">Last 7 Days</option>
+        <option value="30">Last 30 Days</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- F5 / FT SPLIT -->
+  <div class="split-grid">
+    <!-- F5 -->
+    <div>
+      <div style="font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:12px;">⚡ First 5 Innings</div>
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card green">
+          <div class="stat-label">Record</div>
+          <div class="stat-value green" id="f5-record">—</div>
+          <div class="stat-sub" id="f5-pct">—%</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Units</div>
+          <div class="stat-value" id="f5-units" style="color:var(--green)">—</div>
+          <div class="stat-sub" id="f5-roi">ROI —%</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">ML</div>
+          <div class="stat-value blue" id="f5-ml-record">—</div>
+          <div class="stat-sub" id="f5-ml-pct">—%</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">Overs</div>
+          <div class="stat-value yellow" id="f5-over-record">—</div>
+          <div class="stat-sub" id="f5-over-pct">—%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FT -->
+    <div>
+      <div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:12px;">🔵 Full Game</div>
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card red">
+          <div class="stat-label">Record</div>
+          <div class="stat-value red" id="ft-record">—</div>
+          <div class="stat-sub" id="ft-pct">—%</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Units</div>
+          <div class="stat-value" id="ft-units" style="color:var(--red)">—</div>
+          <div class="stat-sub" id="ft-roi">ROI —%</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">ML</div>
+          <div class="stat-value blue" id="ft-ml-record">—</div>
+          <div class="stat-sub" id="ft-ml-pct">—%</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">Overs</div>
+          <div class="stat-value yellow" id="ft-over-record">—</div>
+          <div class="stat-sub" id="ft-over-pct">—%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAILY BREAKDOWN TABLE -->
+  <div class="section-header">
+    <div class="section-title">Daily Breakdown</div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>F5 Record</th>
+          <th>F5 Units</th>
+          <th>F5 Win%</th>
+          <th>FT Record</th>
+          <th>FT Units</th>
+          <th>FT Win%</th>
+          <th>Picks</th>
+          <th>Day Change</th>
+        </tr>
+      </thead>
+      <tbody id="daily-table-body"></tbody>
+    </table>
+  </div>
+
+  <!-- BET TYPE BREAKDOWN -->
+  <div class="section-header">
+    <div class="section-title">By Bet Type <span>F5</span></div>
+  </div>
+
+  <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+    <div class="stat-card blue">
+      <div class="stat-label">Moneyline F5</div>
+      <div class="stat-value blue" id="bt-ml-record">—</div>
+      <div class="stat-sub" id="bt-ml-stats">—% · — units</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">Overs F5</div>
+      <div class="stat-value yellow" id="bt-over-record">—</div>
+      <div class="stat-sub" id="bt-over-stats">—% · — units</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">Unders F5</div>
+      <div class="stat-value purple" id="bt-under-record">—</div>
+      <div class="stat-sub" id="bt-under-stats">—% · — units</div>
+    </div>
+  </div>
+
+  <!-- STREAK -->
+  <div class="section-header">
+    <div class="section-title">Current Streak</div>
+  </div>
+  <div class="table-wrap" style="padding:20px">
+    <div id="streak-display" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted2)">Loading...</div>
+  </div>
+
+</div>
+</div>
+
+<!-- ========== TODAY TAB ========== -->
+<div class="tab-content" id="tab-today">
+<div class="page">
+
+  <div class="section-header" style="margin-bottom:20px">
+    <div>
+      <div class="section-title">Today's Slate <span id="today-date-label"></span></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Load your BallparkPal data to generate Harri's analysis</div>
+    </div>
+    <button class="load-btn" onclick="processAllData()">⚡ Generate Report</button>
+  </div>
+
+  <!-- DATA INPUTS -->
+  <div class="data-inputs-grid">
+    <div class="paste-zone">
+      <div class="paste-label">
+        <span>🎯 Game Simulations (paste)</span>
+        <span class="status empty" id="sim-status">Empty</span>
+      </div>
+      <textarea class="paste-input" id="sim-paste" placeholder="Paste BallparkPal Game Simulations page here..." rows="4" oninput="checkInputs()"></textarea>
+    </div>
+
+    <div class="paste-zone">
+      <div class="paste-label">
+        <span>⚾ Pitcher Stats (paste)</span>
+        <span class="status empty" id="pitcher-status">Empty</span>
+      </div>
+      <textarea class="paste-input" id="pitcher-paste" placeholder="Paste BallparkPal Pitcher Stats page here..." rows="4" oninput="checkInputs()"></textarea>
+    </div>
+  </div>
+
+  <div class="data-inputs-grid">
+    <div class="paste-zone">
+      <div class="paste-label">
+        <span>📊 Matchup Machine (CSV)</span>
+        <span class="status empty" id="matchup-status">Empty</span>
+      </div>
+      <label style="cursor:pointer;display:block">
+        <input type="file" id="matchup-file" accept=".xlsx,.csv" onchange="handleMatchupFile(this)" style="display:none">
+        <div style="background:var(--bg3);border:1px dashed var(--border2);border-radius:6px;padding:24px;text-align:center;transition:all 0.2s" 
+             onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border2)'">
+          <div style="font-size:24px;margin-bottom:6px">📁</div>
+          <div style="font-size:12px;color:var(--muted2)">Upload Matchups CSV/XLSX</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">From BallparkPal Export Center</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="paste-zone">
+      <div class="paste-label">
+        <span>🌤 Park Factors (CSV)</span>
+        <span class="status empty" id="park-status">Empty</span>
+      </div>
+      <label style="cursor:pointer;display:block">
+        <input type="file" id="park-file" accept=".csv" onchange="handleParkFile(this)" style="display:none">
+        <div style="background:var(--bg3);border:1px dashed var(--border2);border-radius:6px;padding:24px;text-align:center;transition:all 0.2s"
+             onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border2)'">
+          <div style="font-size:24px;margin-bottom:6px">📁</div>
+          <div style="font-size:12px;color:var(--muted2)">Upload Park Factors CSV</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">From BallparkPal Export Center</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- WATCHLISTS -->
+  <div id="watchlist-section" style="display:none;margin-bottom:24px">
+    <div class="split-grid">
+      <div style="background:var(--bg2);border:1px solid rgba(0,232,122,0.2);border-radius:12px;padding:16px">
+        <div style="font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:10px">⬆️ Over Watch</div>
+        <div id="over-watch-list" style="font-size:13px;color:var(--muted2)">—</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid rgba(255,69,96,0.2);border-radius:12px;padding:16px">
+        <div style="font-size:11px;color:var(--red);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:10px">⬇️ Under Watch</div>
+        <div id="under-watch-list" style="font-size:13px;color:var(--muted2)">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE ODDS STATUS -->
+  <div id="odds-status-bar" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:12px;color:var(--muted2);display:flex;align-items:center;gap:8px">
+    <div class="live-dot"></div>
+    <span>Hard Rock odds loaded via The Odds API</span>
+  </div>
+
+  <!-- GAMES -->
+  <div class="games-grid" id="games-container">
+    <div class="empty-state">
+      <div class="empty-icon">⚾</div>
+      <div class="empty-text">No data loaded yet</div>
+      <div class="empty-sub">Paste your BallparkPal data above and hit Generate Report</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ========== HISTORY TAB ========== -->
+<div class="tab-content" id="tab-history">
+<div class="page">
+
+  <div class="section-header">
+    <div class="section-title">Pick History</div>
+    <button class="secondary-btn" onclick="exportCSV()">Export CSV</button>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterHistory('all', this)">All</button>
+    <button class="filter-btn" onclick="filterHistory('ml', this)">ML</button>
+    <button class="filter-btn" onclick="filterHistory('over', this)">Overs</button>
+    <button class="filter-btn" onclick="filterHistory('under', this)">Unders</button>
+    <button class="filter-btn" onclick="filterHistory('f5', this)">F5 Only</button>
+    <button class="filter-btn" onclick="filterHistory('ft', this)">FT Only</button>
+    <button class="filter-btn" onclick="filterHistory('win', this)">Wins</button>
+    <button class="filter-btn" onclick="filterHistory('loss', this)">Losses</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Pick</th>
+          <th>Type</th>
+          <th>F5</th>
+          <th>FT</th>
+          <th>F5 Units</th>
+          <th>FT Units</th>
+          <th>Notes</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="history-table-body"></tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<!-- ========== TRENDS TAB ========== -->
+<div class="tab-content" id="tab-trends">
+<div class="page">
+
+  <div class="section-header">
+    <div class="section-title">Intelligence & Trends</div>
+  </div>
+
+  <!-- HOT / COLD -->
+  <div class="hot-cold-grid">
+    <div class="hot-card">
+      <div class="hc-title">🔥 Hot Right Now</div>
+      <div id="hot-trends"></div>
+    </div>
+    <div class="cold-card">
+      <div class="hc-title">❄️ Failing / Avoid</div>
+      <div id="cold-trends"></div>
+    </div>
+  </div>
+
+  <!-- TREND CARDS -->
+  <div class="trend-grid" id="trend-cards"></div>
+
+  <!-- VALUE GAP TRACKER -->
+  <div class="section-header">
+    <div class="section-title">Sim vs Market Accuracy</div>
+  </div>
+  <div class="table-wrap" style="padding:20px">
+    <div id="sim-accuracy" style="font-size:13px;color:var(--muted2)">
+      Track games where sim and market diverged — coming as you log more picks.
+    </div>
+  </div>
+
+  <!-- ADJUSTED P/L -->
+  <div class="section-header" style="margin-top:24px">
+    <div class="section-title">Adjusted P/L <span>vs actual vegas odds</span></div>
+  </div>
+  <div class="table-wrap" style="padding:20px">
+    <div id="adjusted-pl" style="font-size:13px;color:var(--muted2)">
+      Log odds with your picks to see how flat -150 compares to actual line P/L.
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// ============================================================
+// DATA — SEEDED FROM GOOGLE SHEET IMPORT
+// ============================================================
+
+const ODDS_API_KEY = '33ef59fa637cca8a9d74f86bb6e22e21';
+
+// Excel serial date to JS Date
+function excelDateToDate(serial) {
+  if (!serial) return null;
+  const utc_days = Math.floor(serial - 25569);
+  const utc_value = utc_days * 86400;
+  return new Date(utc_value * 1000);
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+}
+
+function todayStr() {
+  const d = new Date();
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+}
+
+// ============================================================
+// HISTORICAL DATA (seeded from Google Sheet)
+// ============================================================
+
+let picks = [
+  // Date 46168 = Apr 7, 2024
+  {date:46168,type:'over',pick:'braves / red sox o4.5 / 8',f5:0,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'brewers',f5:1,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'pirates',f5:1,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'yankees',f5:1,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'blue jays',f5:1,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'rays',f5:0,ft:0,notes:''},
+  {date:46169,type:'over',pick:'braves / red sox o4 / 8',f5:1,ft:null,notes:''},
+  {date:46169,type:'ml',pick:'rangers',f5:null,ft:0,notes:''},
+  {date:46169,type:'over',pick:'cubs / pirates o5 / 9',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'mariners',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'guardians',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'phillies',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'orioles',f5:1,ft:1,notes:''},
+  {date:46169,type:'over',pick:'orioles / rays o5 / 9',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'mets',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'dodgers',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'twins',f5:0,ft:0,notes:''},
+  {date:46169,type:'ml',pick:'yankees',f5:1,ft:1,notes:''},
+  {date:46170,type:'ml',pick:'white sox',f5:1,ft:1,notes:''},
+  {date:46170,type:'over',pick:'white sox / twins o4 / 7.5',f5:1,ft:1,notes:''},
+  {date:46170,type:'over',pick:'braves / red sox o3.5 / 6.5',f5:1,ft:1,notes:'low line'},
+  {date:46170,type:'ml',pick:'blue jays',f5:null,ft:1,notes:''},
+  {date:46170,type:'ml',pick:'pirates',f5:0,ft:0,notes:''},
+  {date:46170,type:'ml',pick:'rangers',f5:0,ft:0,notes:''},
+  {date:46171,type:'over',pick:'braves / reds o5 / 9.5',f5:1,ft:1,notes:''},
+  {date:46171,type:'over',pick:'rockies / giants 5.5 / 10.5',f5:0,ft:1,notes:''},
+  {date:46171,type:'ml',pick:'marlins',f5:0,ft:0,notes:''},
+  {date:46171,type:'over',pick:'padres / nationals o5 / 9.5',f5:1,ft:1,notes:''},
+  {date:46171,type:'ml',pick:'red sox',f5:0,ft:0,notes:''},
+  {date:46171,type:'ml',pick:'tigers',f5:1,ft:0,notes:''},
+  {date:46171,type:'ml',pick:'angels',f5:1,ft:0,notes:''},
+  {date:46172,type:'over',pick:'braves o5 / 9.5',f5:1,ft:0,notes:''},
+  {date:46172,type:'ml',pick:'braves',f5:1,ft:1,notes:''},
+  {date:46172,type:'ml',pick:'cubs',f5:null,ft:1,notes:''},
+  {date:46172,type:'over',pick:'giants / rockies o6.5 / 11.5',f5:0,ft:0,notes:''},
+  {date:46172,type:'over',pick:'yankees / athletics o5 / 9.5',f5:0,ft:1,notes:''},
+  {date:46172,type:'under',pick:'phillies / dodgers u8.5',f5:1,ft:1,notes:''},
+  {date:46172,type:'under',pick:'dbacks / mariners u6.5',f5:1,ft:1,notes:''},
+  {date:46173,type:'over',pick:'padres / nationals o4 / 8.5',f5:0,ft:0,notes:'like'},
+  {date:46173,type:'under',pick:'marlins / mets u4 / 7.5',f5:0,ft:0,notes:'like'},
+  {date:46173,type:'ml',pick:'rays',f5:1,ft:1,notes:'like'},
+  {date:46173,type:'under',pick:'red sox / guards u3.5 / 6.5',f5:0,ft:0,notes:'like'},
+  {date:46173,type:'ml',pick:'guardians',f5:1,ft:0,notes:'like; 40 odds diff'},
+  {date:46173,type:'over',pick:'royals / rangers o4 / 8.5',f5:1,ft:1,notes:'like; batter net score no, rest yes'},
+  {date:46173,type:'under',pick:'giants / rockies u5.5 / 11.5',f5:0,ft:0,notes:'like; weird'},
+  {date:46173,type:'over',pick:'yankees / athletics o10.5',f5:1,ft:1,notes:'like; weird'},
+  {date:46173,type:'ml',pick:'cubs',f5:null,ft:null,notes:'like'},
+  {date:46173,type:'over',pick:'cubs / cardinals o4 / 8.5',f5:1,ft:0,notes:'like; green / red'},
+  {date:46173,type:'ml',pick:'padres',f5:0,ft:0,notes:'like+'},
+  {date:46173,type:'ml',pick:'pirates',f5:1,ft:1,notes:'like+'},
+  {date:46173,type:'under',pick:'tigers / white sox u4 / 8.5',f5:1,ft:1,notes:'like+'},
+  {date:46173,type:'ml',pick:'brewers',f5:1,ft:1,notes:'like+'},
+  {date:46173,type:'ml',pick:'rockies',f5:0,ft:0,notes:'like+; 40 odds diff'},
+  {date:46173,type:'ml',pick:'mariners',f5:1,ft:1,notes:'like+'},
+  {date:46173,type:'ml',pick:'dodgers',f5:1,ft:1,notes:'like+'},
+  {date:46174,type:'ml',pick:'angels',f5:1,ft:0,notes:''},
+  {date:46174,type:'ml',pick:'dodgers',f5:1,ft:0,notes:''},
+  {date:46174,type:'ml',pick:'mariners',f5:null,ft:1,notes:''},
+  {date:46175,type:'ml',pick:'marlins',f5:1,ft:1,notes:'pitcher change push'},
+  {date:46175,type:'ml',pick:'yankees',f5:0,ft:0,notes:'big fav'},
+  {date:46175,type:'ml',pick:'royals',f5:1,ft:0,notes:''},
+  {date:46175,type:'ml',pick:'white sox',f5:0,ft:0,notes:''},
+  {date:46175,type:'under',pick:'giants / brewers u4 / 7.5',f5:1,ft:0,notes:'f5 only'},
+  {date:46175,type:'ml',pick:'dbacks',f5:0,ft:0,notes:'fade dodgers twice in a row? live dodger ft'},
+  {date:46175,type:'ml',pick:'brewers',f5:1,ft:1,notes:'f5 looks good, ft -200, implied -140'},
+  {date:46175,type:'ml',pick:'angels',f5:0,ft:0,notes:''},
+];
+
+// Today's picks (new session)
+let todayPicks = JSON.parse(localStorage.getItem('todayPicks') || '[]');
+let allPicks = [...picks, ...todayPicks];
+
+// ============================================================
+// CALCULATIONS
+// ============================================================
+
+function calcStats(pickList, period) {
+  let filtered = pickList;
+  
+  if (period && period !== 'all') {
+    const days = parseInt(period);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    filtered = pickList.filter(p => {
+      const d = p.date > 1000000 ? new Date(p.date) : excelDateToDate(p.date);
+      return d && d >= cutoff;
+    });
+  }
+
+  const calcSide = (side) => {
+    let w=0,l=0,pu=0,units=0;
+    filtered.forEach(p => {
+      const r = side === 'f5' ? p.f5 : p.ft;
+      if (r === 1) { w++; units += 1; }
+      else if (r === 0) { l++; units -= 1.5; }
+      else if (r === 2) { pu++; }
+    });
+    const total = w + l;
+    const pct = total > 0 ? (w/total*100).toFixed(1) : '—';
+    const roi = total > 0 ? (units / (total * 1.5) * 100).toFixed(1) : '—';
+    return {w, l, pu, units: units.toFixed(1), pct, roi, total};
+  };
+
+  const calcByType = (type, side) => {
+    const sub = filtered.filter(p => p.type === type);
+    return calcSide.call({picks: sub}, side);
+  };
+
+  // F5 by type
+  const f5 = calcSide('f5');
+  const ft = calcSide('ft');
+
+  // by type
+  const f5ml = (() => {
+    let w=0,l=0,pu=0,units=0;
+    filtered.filter(p=>p.type==='ml').forEach(p=>{
+      if(p.f5===1){w++;units+=1;}
+      else if(p.f5===0){l++;units-=1.5;}
+      else if(p.f5===2){pu++;}
+    });
+    const total=w+l;
+    return {w,l,pu,units:units.toFixed(1),pct:total>0?(w/total*100).toFixed(1):'—',total};
+  })();
+
+  const f5over = (() => {
+    let w=0,l=0,pu=0,units=0;
+    filtered.filter(p=>p.type==='over').forEach(p=>{
+      if(p.f5===1){w++;units+=1;}
+      else if(p.f5===0){l++;units-=1.5;}
+      else if(p.f5===2){pu++;}
+    });
+    const total=w+l;
+    return {w,l,pu,units:units.toFixed(1),pct:total>0?(w/total*100).toFixed(1):'—',total};
+  })();
+
+  const f5under = (() => {
+    let w=0,l=0,pu=0,units=0;
+    filtered.filter(p=>p.type==='under').forEach(p=>{
+      if(p.f5===1){w++;units+=1;}
+      else if(p.f5===0){l++;units-=1.5;}
+      else if(p.f5===2){pu++;}
+    });
+    const total=w+l;
+    return {w,l,pu,units:units.toFixed(1),pct:total>0?(w/total*100).toFixed(1):'—',total};
+  })();
+
+  // FT by type
+  const ftml = (() => {
+    let w=0,l=0,pu=0,units=0;
+    filtered.filter(p=>p.type==='ml').forEach(p=>{
+      if(p.ft===1){w++;units+=1;}
+      else if(p.ft===0){l++;units-=1.5;}
+      else if(p.ft===2){pu++;}
+    });
+    const total=w+l;
+    return {w,l,pu,units:units.toFixed(1),pct:total>0?(w/total*100).toFixed(1):'—',total};
+  })();
+
+  const ftover = (() => {
+    let w=0,l=0,pu=0,units=0;
+    filtered.filter(p=>p.type==='over').forEach(p=>{
+      if(p.ft===1){w++;units+=1;}
+      else if(p.ft===0){l++;units-=1.5;}
+      else if(p.ft===2){pu++;}
+    });
+    const total=w+l;
+    return {w,l,pu,units:units.toFixed(1),pct:total>0?(w/total*100).toFixed(1):'—',total};
+  })();
+
+  return {f5, ft, f5ml, f5over, f5under, ftml, ftover};
+}
+
+function getDailyBreakdown() {
+  const byDate = {};
+  allPicks.forEach(p => {
+    const k = p.date;
+    if (!byDate[k]) byDate[k] = [];
+    byDate[k].push(p);
+  });
+  return byDate;
+}
+
+function calcDayStats(dayPicks) {
+  let f5w=0,f5l=0,f5u=0,f5units=0;
+  let ftw=0,ftl=0,ftu=0,ftunits=0;
+  
+  dayPicks.forEach(p => {
+    if(p.f5===1){f5w++;f5units+=1;}
+    else if(p.f5===0){f5l++;f5units-=1.5;}
+    else if(p.f5===2){f5u++;}
+    
+    if(p.ft===1){ftw++;ftunits+=1;}
+    else if(p.ft===0){ftl++;ftunits-=1.5;}
+    else if(p.ft===2){ftu++;}
+  });
+  
+  return {
+    f5w,f5l,f5u,f5units:f5units.toFixed(1),
+    ftw,ftl,ftu,ftunits:ftunits.toFixed(1),
+    count:dayPicks.length,
+    f5pct: (f5w+f5l)>0?((f5w/(f5w+f5l))*100).toFixed(0)+'%':'—',
+    ftpct: (ftw+ftl)>0?((ftw/(ftw+ftl))*100).toFixed(0)+'%':'—',
+  };
+}
+
+// ============================================================
+// RENDER DASHBOARD
+// ============================================================
+
+function renderDashboard() {
+  const period = document.getElementById('season-filter').value;
+  allPicks = [...picks, ...todayPicks];
+  const s = calcStats(allPicks, period);
+
+  // F5
+  const f5color = parseFloat(s.f5.units) >= 0 ? 'green' : 'red';
+  document.getElementById('f5-record').textContent = `${s.f5.w}-${s.f5.l}`;
+  document.getElementById('f5-record').className = `stat-value ${f5color}`;
+  document.getElementById('f5-pct').textContent = `${s.f5.pct}% win rate`;
+  document.getElementById('f5-units').textContent = (parseFloat(s.f5.units)>=0?'+':'')+s.f5.units+'u';
+  document.getElementById('f5-units').className = `stat-value ${f5color}`;
+  document.getElementById('f5-roi').textContent = `ROI ${s.f5.roi}%`;
+
+  // FT
+  const ftcolor = parseFloat(s.ft.units) >= 0 ? 'green' : 'red';
+  document.getElementById('ft-record').textContent = `${s.ft.w}-${s.ft.l}`;
+  document.getElementById('ft-record').className = `stat-value ${ftcolor}`;
+  document.getElementById('ft-pct').textContent = `${s.ft.pct}% win rate`;
+  document.getElementById('ft-units').textContent = (parseFloat(s.ft.units)>=0?'+':'')+s.ft.units+'u';
+  document.getElementById('ft-units').className = `stat-value ${ftcolor}`;
+  document.getElementById('ft-roi').textContent = `ROI ${s.ft.roi}%`;
+
+  // F5 ML/Over cards
+  document.getElementById('f5-ml-record').textContent = `${s.f5ml.w}-${s.f5ml.l}`;
+  document.getElementById('f5-ml-pct').textContent = `${s.f5ml.pct}%`;
+  document.getElementById('f5-over-record').textContent = `${s.f5over.w}-${s.f5over.l}`;
+  document.getElementById('f5-over-pct').textContent = `${s.f5over.pct}%`;
+
+  // FT ML/Over cards
+  document.getElementById('ft-ml-record').textContent = `${s.ftml.w}-${s.ftml.l}`;
+  document.getElementById('ft-ml-pct').textContent = `${s.ftml.pct}%`;
+  document.getElementById('ft-over-record').textContent = `${s.ftover.w}-${s.ftover.l}`;
+  document.getElementById('ft-over-pct').textContent = `${s.ftover.pct}%`;
+
+  // Bet type breakdown
+  document.getElementById('bt-ml-record').textContent = `${s.f5ml.w}-${s.f5ml.l}`;
+  document.getElementById('bt-ml-stats').textContent = `${s.f5ml.pct}% · ${s.f5ml.units}u`;
+  document.getElementById('bt-over-record').textContent = `${s.f5over.w}-${s.f5over.l}`;
+  document.getElementById('bt-over-stats').textContent = `${s.f5over.pct}% · ${s.f5over.units}u`;
+  document.getElementById('bt-under-record').textContent = `${s.f5under.w}-${s.f5under.l}`;
+  document.getElementById('bt-under-stats').textContent = `${s.f5under.pct}% · ${s.f5under.units}u`;
+
+  // Daily table
+  renderDailyTable();
+
+  // Streak
+  renderStreak();
+}
+
+function renderDailyTable() {
+  const byDate = getDailyBreakdown();
+  const dates = Object.keys(byDate).sort((a,b) => b-a);
+  const tbody = document.getElementById('daily-table-body');
+  
+  let prevUnits = null;
+  const rows = dates.map(dateKey => {
+    const d = byDate[dateKey];
+    const s = calcDayStats(d);
+    const dateObj = dateKey > 1000000 ? new Date(parseInt(dateKey)) : excelDateToDate(parseFloat(dateKey));
+    const dateStr = formatDate(dateObj);
+    
+    const f5unitsNum = parseFloat(s.f5units);
+    const f5color = f5unitsNum > 0 ? 'var(--green)' : f5unitsNum < 0 ? 'var(--red)' : 'var(--muted2)';
+    const ftunitsNum = parseFloat(s.ftunits);
+    const ftcolor = ftunitsNum > 0 ? 'var(--green)' : ftunitsNum < 0 ? 'var(--red)' : 'var(--muted2)';
+    
+    return {dateStr, s, f5color, ftcolor, f5unitsNum};
+  });
+
+  tbody.innerHTML = rows.map((r, i) => {
+    const change = i < rows.length-1 ? (r.f5unitsNum - rows[i+1].f5unitsNum).toFixed(1) : null;
+    const changeStr = change !== null ? `<span style="color:${parseFloat(change)>=0?'var(--green)':'var(--red)'};">${parseFloat(change)>=0?'+':''}${change}u</span>` : '—';
+    return `<tr>
+      <td class="mono">${r.dateStr}</td>
+      <td><span style="font-weight:500">${r.s.f5w}-${r.s.f5l}</span>${r.s.f5u>0?` <span style="color:var(--muted);font-size:11px;">${r.s.f5u}P</span>`:''}</td>
+      <td class="mono" style="color:${r.f5color}">${parseFloat(r.s.f5units)>=0?'+':''}${r.s.f5units}u</td>
+      <td class="mono" style="color:var(--muted2)">${r.s.f5pct}</td>
+      <td><span style="font-weight:500">${r.s.ftw}-${r.s.ftl}</span>${r.s.ftu>0?` <span style="color:var(--muted);font-size:11px;">${r.s.ftu}P</span>`:''}</td>
+      <td class="mono" style="color:${r.ftcolor}">${parseFloat(r.s.ftunits)>=0?'+':''}${r.s.ftunits}u</td>
+      <td class="mono" style="color:var(--muted2)">${r.s.ftpct}</td>
+      <td><span class="badge badge-gray">${r.s.count}</span></td>
+      <td>${changeStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderStreak() {
+  const recent = allPicks.filter(p => p.f5 !== null && p.f5 !== undefined).slice(-20).reverse();
+  let streak = 0, streakType = null;
+  for (const p of recent) {
+    const r = p.f5;
+    if (r === null || r === undefined || r === 2) continue;
+    if (streakType === null) { streakType = r; streak = 1; }
+    else if (r === streakType) { streak++; }
+    else break;
+  }
+  
+  const el = document.getElementById('streak-display');
+  if (streakType === 1) {
+    el.innerHTML = `<span style="color:var(--green);font-size:18px;font-weight:600;">🔥 ${streak}-Game F5 Win Streak</span>`;
+  } else if (streakType === 0) {
+    el.innerHTML = `<span style="color:var(--red);font-size:18px;font-weight:600;">❄️ ${streak}-Game F5 Loss Streak</span>`;
+  } else {
+    el.innerHTML = `<span style="color:var(--muted2)">No streak data</span>`;
+  }
+}
+
+// ============================================================
+// RENDER HISTORY
+// ============================================================
+
+let historyFilter = 'all';
+
+function renderHistory(filter) {
+  historyFilter = filter || historyFilter;
+  allPicks = [...picks, ...todayPicks];
+  
+  let filtered = [...allPicks].reverse();
+  
+  if (historyFilter === 'ml') filtered = filtered.filter(p => p.type === 'ml');
+  else if (historyFilter === 'over') filtered = filtered.filter(p => p.type === 'over');
+  else if (historyFilter === 'under') filtered = filtered.filter(p => p.type === 'under');
+  else if (historyFilter === 'f5') filtered = filtered.filter(p => p.f5 !== null && p.f5 !== undefined);
+  else if (historyFilter === 'ft') filtered = filtered.filter(p => p.ft !== null && p.ft !== undefined);
+  else if (historyFilter === 'win') filtered = filtered.filter(p => p.f5 === 1);
+  else if (historyFilter === 'loss') filtered = filtered.filter(p => p.f5 === 0);
+
+  const tbody = document.getElementById('history-table-body');
+  
+  tbody.innerHTML = filtered.map((p, i) => {
+    const dateObj = p.date > 1000000 ? new Date(p.date) : excelDateToDate(parseFloat(p.date));
+    const dateStr = formatDate(dateObj);
+    
+    const f5badge = p.f5 === 1 ? '<span class="badge badge-green">W</span>' : 
+                    p.f5 === 0 ? '<span class="badge badge-red">L</span>' : 
+                    p.f5 === 2 ? '<span class="badge badge-gray">P</span>' : '—';
+    const ftbadge = p.ft === 1 ? '<span class="badge badge-green">W</span>' : 
+                    p.ft === 0 ? '<span class="badge badge-red">L</span>' : 
+                    p.ft === 2 ? '<span class="badge badge-gray">P</span>' : '—';
+    
+    const f5units = p.f5 === 1 ? '<span style="color:var(--green)">+1.0u</span>' : 
+                    p.f5 === 0 ? '<span style="color:var(--red)">-1.5u</span>' : '—';
+    const ftunits = p.ft === 1 ? '<span style="color:var(--green)">+1.0u</span>' : 
+                    p.ft === 0 ? '<span style="color:var(--red)">-1.5u</span>' : '—';
+    
+    const typeBadge = p.type === 'ml' ? 'badge-blue' : p.type === 'over' ? 'badge-yellow' : 'badge-purple';
+    
+    return `<tr>
+      <td class="mono" style="color:var(--muted2)">${dateStr}</td>
+      <td style="font-weight:500;max-width:200px">${p.pick}</td>
+      <td><span class="badge ${typeBadge}">${p.type.toUpperCase()}</span></td>
+      <td>${f5badge}</td>
+      <td>${ftbadge}</td>
+      <td class="mono">${f5units}</td>
+      <td class="mono">${ftunits}</td>
+      <td style="color:var(--muted2);font-size:12px;max-width:200px">${p.notes || '—'}</td>
+      <td>
+        <div class="result-btns">
+          <button class="result-btn win" onclick="updateResult(${i}, 'f5', 1)">F5 W</button>
+          <button class="result-btn loss" onclick="updateResult(${i}, 'f5', 0)">F5 L</button>
+          <button class="result-btn push" onclick="updateResult(${i}, 'f5', 2)">P</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterHistory(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory(type);
+}
+
+function updateResult(idx, side, result) {
+  // For today's picks
+  showToast('Result updated ✓');
+}
+
+// ============================================================
+// RENDER TRENDS
+// ============================================================
+
+function renderTrends() {
+  allPicks = [...picks, ...todayPicks];
+  const s = calcStats(allPicks, 'all');
+  const s7 = calcStats(allPicks, '7');
+  const s30 = calcStats(allPicks, '30');
+
+  // Hot trends
+  const hotItems = [];
+  const coldItems = [];
+
+  if (parseFloat(s.f5.pct) > 60) hotItems.push({label:'F5 Overall', value:`${s.f5.pct}% win rate`});
+  if (parseFloat(s.f5ml.pct) > 60) hotItems.push({label:'F5 Moneyline', value:`${s.f5ml.pct}% win rate`});
+  if (parseFloat(s.f5over.pct) > 60) hotItems.push({label:'F5 Overs', value:`${s.f5over.pct}% win rate`});
+  if (parseFloat(s.f5under.pct) > 60) hotItems.push({label:'F5 Unders', value:`${s.f5under.pct}% win rate`});
+  
+  if (parseFloat(s.ft.pct) < 50) coldItems.push({label:'Full Game Overall', value:`${s.ft.pct}% win rate`});
+  if (parseFloat(s.ftml.pct) < 50) coldItems.push({label:'FT Moneyline', value:`${s.ftml.pct}% win rate`});
+
+  document.getElementById('hot-trends').innerHTML = hotItems.length > 0 ? 
+    hotItems.map(i => `<div class="hc-item"><span>${i.label}</span><span style="color:var(--green);font-family:'DM Mono',monospace;font-size:12px">${i.value}</span></div>`).join('') :
+    '<div style="color:var(--muted);font-size:13px">No hot trends yet</div>';
+
+  document.getElementById('cold-trends').innerHTML = coldItems.length > 0 ?
+    coldItems.map(i => `<div class="hc-item"><span>${i.label}</span><span style="color:var(--red);font-family:'DM Mono',monospace;font-size:12px">${i.value}</span></div>`).join('') :
+    '<div style="color:var(--muted);font-size:13px">No failing trends</div>';
+
+  // Trend cards
+  document.getElementById('trend-cards').innerHTML = `
+    <div class="trend-card">
+      <div class="trend-card-title">F5 vs FT — Unit Gap</div>
+      <div class="trend-item">
+        <span class="trend-item-label">F5 Units</span>
+        <span class="trend-item-value ${parseFloat(s.f5.units)>=0?'green':'red'}">${parseFloat(s.f5.units)>=0?'+':''}${s.f5.units}u</span>
+      </div>
+      <div class="trend-item">
+        <span class="trend-item-label">FT Units</span>
+        <span class="trend-item-value ${parseFloat(s.ft.units)>=0?'green':'red'}">${parseFloat(s.ft.units)>=0?'+':''}${s.ft.units}u</span>
+      </div>
+      <div class="trend-item">
+        <span class="trend-item-label">Swing</span>
+        <span class="trend-item-value yellow">${(parseFloat(s.f5.units)-parseFloat(s.ft.units)).toFixed(1)}u</span>
+      </div>
+      <div class="trend-item">
+        <span class="trend-item-label">Verdict</span>
+        <span class="trend-item-value green">Stick to F5 only</span>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-card-title">Last 7 Days</div>
+      <div class="trend-item">
+        <span class="trend-item-label">F5 Record</span>
+        <span class="trend-item-value">${s7.f5.w}-${s7.f5.l}</span>
+      </div>
+      <div class="trend-item">
+        <span class="trend-item-label">F5 Units</span>
+        <span class="trend-item-value ${parseFloat(s7.f5.units)>=0?'green':'red'}">${parseFloat(s7.f5.units)>=0?'+':''}${s7.f5.units}u</span>
+      </div>
+      <div class="trend-item">
+        <span class="trend-item-label">Win Rate</span>
+        <span class="trend-item-value ${parseFloat(s7.f5.pct)>=55?'green':parseFloat(s7.f5.pct)<45?'red':'yellow'}">${s7.f5.pct}%</span>
+      </div>
+      <div class="trend-item">
+        <span class="trend-item-label">ROI</span>
+        <span class="trend-item-value ${parseFloat(s7.f5.roi)>=0?'green':'red'}">${s7.f5.roi}%</span>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-card-title">Bet Type Breakdown (F5)</div>
+      <div class="trend-item">
+        <span class="trend-item-label">ML</span>
+        <span class="trend-item-value ${parseFloat(s.f5ml.pct)>=55?'green':parseFloat(s.f5ml.pct)<45?'red':'yellow'}">${s.f5ml.pct}% (${s.f5ml.units}u)</span>
+      </div>
+      <div class="trend-item">
+        <span class="trend-item-label">Overs</span>
+        <span class="trend-item-value ${parseFloat(s.f5over.pct)>=55?'green':parseFloat(s.f5over.pct)<45?'red':'yellow'}">${s.f5over.pct}% (${s.f5over.units}u)</span>
+      </div>
+      <div class="trend-item">
+        <span class="trend-item-label">Unders</span>
+        <span class="trend-item-value ${parseFloat(s.f5under.pct)>=55?'green':parseFloat(s.f5under.pct)<45?'red':'yellow'}">${s.f5under.pct}% (${s.f5under.units}u)</span>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-card-title">Confidence Tags</div>
+      ${renderConfidenceTrend()}
+    </div>
+  `;
+}
+
+function renderConfidenceTrend() {
+  const likePlus = allPicks.filter(p => p.notes && p.notes.includes('like+'));
+  const like = allPicks.filter(p => p.notes && p.notes.includes('like') && !p.notes.includes('like+'));
+  
+  const calcConf = (arr) => {
+    let w=0,l=0;
+    arr.forEach(p => { if(p.f5===1)w++; else if(p.f5===0)l++; });
+    return {w,l,pct:(w+l)>0?(w/(w+l)*100).toFixed(0):'—'};
+  };
+
+  const lp = calcConf(likePlus);
+  const l = calcConf(like);
+
+  return `
+    <div class="trend-item">
+      <span class="trend-item-label">like+</span>
+      <span class="trend-item-value ${parseFloat(lp.pct)>=55?'green':'yellow'}">${lp.pct}% (${lp.w}-${lp.l})</span>
+    </div>
+    <div class="trend-item">
+      <span class="trend-item-label">like</span>
+      <span class="trend-item-value ${parseFloat(l.pct)>=55?'green':'yellow'}">${l.pct}% (${l.w}-${l.l})</span>
+    </div>
+    <div class="trend-item">
+      <span class="trend-item-label">Insight</span>
+      <span class="trend-item-value" style="font-size:11px;color:var(--muted2)">Does like+ outperform like?</span>
+    </div>
+  `;
+}
+
+// ============================================================
+// TODAY TAB — DATA PROCESSING
+// ============================================================
+
+let gameSimData = [];
+let pitcherData = [];
+let matchupData = [];
+let parkData = [];
+let oddsData = [];
+
+function checkInputs() {
+  const sim = document.getElementById('sim-paste').value.trim();
+  const pitcher = document.getElementById('pitcher-paste').value.trim();
+  
+  document.getElementById('sim-status').textContent = sim ? '✓ Ready' : 'Empty';
+  document.getElementById('sim-status').className = sim ? 'status' : 'status empty';
+  document.getElementById('pitcher-status').textContent = pitcher ? '✓ Ready' : 'Empty';
+  document.getElementById('pitcher-status').className = pitcher ? 'status' : 'status empty';
+}
+
+function handleMatchupFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('matchup-status').textContent = `✓ ${file.name}`;
+  document.getElementById('matchup-status').className = 'status';
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    // Parse CSV
+    const text = e.target.result;
+    const lines = text.split('\n').filter(l => l.trim());
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g,''));
+    matchupData = lines.slice(1).map(line => {
+      const vals = parseCSVLine(line);
+      const obj = {};
+      headers.forEach((h,i) => obj[h] = vals[i] || '');
+      return obj;
+    });
+    showToast('Matchup data loaded ✓');
+  };
+  reader.readAsText(file);
+}
+
+function handleParkFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('park-status').textContent = `✓ ${file.name}`;
+  document.getElementById('park-status').className = 'status';
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    const lines = text.split('\n').filter(l => l.trim());
+    const headers = lines[0].split(',').map(h => h.trim().replace(/["\uFEFF]/g,''));
+    parkData = lines.slice(1).map(line => {
+      const vals = parseCSVLine(line);
+      const obj = {};
+      headers.forEach((h,i) => obj[h] = (vals[i]||'').trim().replace(/"/g,''));
+      return obj;
+    });
+    buildWatchlists();
+    showToast('Park factors loaded ✓');
+  };
+  reader.readAsText(file);
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') { inQuotes = !inQuotes; }
+    else if (line[i] === ',' && !inQuotes) { result.push(current); current = ''; }
+    else { current += line[i]; }
+  }
+  result.push(current);
+  return result;
+}
+
+function buildWatchlists() {
+  const overWatch = [];
+  const underWatch = [];
+  
+  parkData.forEach(row => {
+    const runPct = row['Runs %'] || row['Runs %\r'] || '';
+    const game = row['Game'] || '';
+    const pct = parseFloat(runPct.replace('%','').replace('+',''));
+    
+    if (!isNaN(pct)) {
+      if (pct >= 7) overWatch.push(`${game.trim()} (${runPct})`);
+      else if (pct <= -7) underWatch.push(`${game.trim()} (${runPct})`);
+    }
+  });
+
+  document.getElementById('watchlist-section').style.display = 'block';
+  document.getElementById('over-watch-list').innerHTML = overWatch.length > 0 ? 
+    overWatch.map(g => `<div style="padding:4px 0;border-bottom:1px solid var(--border)">${g}</div>`).join('') : 
+    '<span style="color:var(--muted)">Nothing notable today</span>';
+  document.getElementById('under-watch-list').innerHTML = underWatch.length > 0 ?
+    underWatch.map(g => `<div style="padding:4px 0;border-bottom:1px solid var(--border)">${g}</div>`).join('') :
+    '<span style="color:var(--muted)">Nothing notable today</span>';
+}
+
+function parseGameSims(text) {
+  const games = [];
+  // Split by time pattern
+  const blocks = text.split(/(?=\d+:\d+\s*\n.*Details)/);
+  
+  // Alternative: parse by looking for team @ team patterns
+  const gamePattern = /([A-Za-z\s]+)\s*@\s*([A-Za-z\s]+)\s*\n([A-Za-z\s\.]+)\s*\n.*?Starter.*?\n([A-Za-z\s\.]+)\s*\n([\d\.]+)\s*\nRuns\s*\n([\d\.]+)/gs;
+  
+  let match;
+  const simText = text;
+  
+  // Parse implied over/under table
+  const gameBlocks = text.split(/(?=\n[A-Z][a-z]+ [A-Za-z]+\s*\n@\s*\n)/);
+  
+  // Simpler line-by-line parse
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  
+  let i = 0;
+  while (i < lines.length) {
+    // Look for @ pattern
+    if (lines[i] === '@' && i > 0 && i < lines.length - 1) {
+      const awayTeam = lines[i-1];
+      const homeTeam = lines[i+1];
+      
+      // Find starters, runs, win%, ML, F5, implied table
+      let game = {
+        away: awayTeam,
+        home: homeTeam,
+        awaySP: '',
+        homeSP: '',
+        awayRuns: 0,
+        homeRuns: 0,
+        awayWinPct: 0,
+        homeWinPct: 0,
+        awayML: '',
+        homeML: '',
+        awayF5Runs: 0,
+        homeF5Runs: 0,
+        awayF5Lead: 0,
+        homeF5Lead: 0,
+        impliedLines: [],
+        totalLine: '',
+        totalOver: '',
+        totalUnder: '',
+        park: '',
+        parkRuns: '',
+        time: '',
+        lineups: ''
+      };
+      
+      // Scan ahead for data
+      let j = i + 2;
+      while (j < Math.min(i + 60, lines.length)) {
+        const l = lines[j];
+        
+        if (l === 'Starter' && !game.awaySP) {
+          game.awaySP = lines[j-1] || '';
+          game.homeSP = lines[j+1] || '';
+        }
+        if (l === 'Runs' && !game.awayRuns) {
+          game.awayRuns = parseFloat(lines[j-1]) || 0;
+          game.homeRuns = parseFloat(lines[j+1]) || 0;
+        }
+        if (l === 'Win' && !game.awayWinPct) {
+          const prev = lines[j-1] || '';
+          const next = lines[j+1] || '';
+          game.awayWinPct = parseFloat(prev.replace(/[()%+-]/g,'')) || 0;
+          game.homeWinPct = parseFloat(next.replace(/[()%+-]/g,'')) || 0;
+        }
+        if (l === 'ML') {
+          game.awayML = lines[j-1] || '';
+          game.homeML = lines[j+1] || '';
+        }
+        if (l === 'F5 Runs' && !game.awayF5Runs) {
+          game.awayF5Runs = parseFloat(lines[j-1]) || 0;
+          game.homeF5Runs = parseFloat(lines[j+1]) || 0;
+        }
+        if (l === 'F5 Lead' && !game.awayF5Lead) {
+          const prev = lines[j-1] || '';
+          const next = lines[j+1] || '';
+          game.awayF5Lead = parseFloat(prev.replace(/[()%+]/g,'')) || 0;
+          game.homeF5Lead = parseFloat(next.replace(/[()%+]/g,'')) || 0;
+        }
+        if (l === 'Total') {
+          game.totalUnder = lines[j-1] || '';
+          game.totalOver = lines[j+1] || '';
+        }
+        if (l.includes('Runs:')) {
+          game.park = l.split('|')[0].trim();
+          game.parkRuns = l.match(/Runs: ([+-]?\d+%)/)?.[1] || '';
+        }
+        if (l.match(/^\d+:\d+$/)) game.time = l;
+        if (l.includes('Lineups')) game.lineups = l;
+        
+        // Implied table — look for the line numbers
+        if (l.match(/^5\.5\s+6\.5/) || l.match(/5\.5.*6\.5.*7\.5/)) {
+          game.impliedLines = l.split(/\s+/).map(x => x.trim()).filter(x => x.match(/\d/));
+        }
+        const oddsLine = lines[j];
+        if (oddsLine && oddsLine.match(/^[-+]\d{3}$|^-\d{3}$|^\+\d{3}$/) && game.impliedLines.length > 0) {
+          if (!game.impliedOdds) game.impliedOdds = [];
+        }
+        
+        // Stop at next game
+        if (j > i+2 && lines[j] === '@') break;
+        if (l === 'Details' && j > i + 10) break;
+        j++;
+      }
+      
+      if (game.away && game.home && (game.awayML || game.awaySP)) {
+        games.push(game);
+      }
+      i = j;
+    } else {
+      i++;
+    }
+  }
+  return games;
+}
+
+function parsePitcherStats(text) {
+  const pitchers = {};
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  
+  lines.forEach(line => {
+    // Look for lines with team abbreviation and pitcher name
+    const parts = line.split(/\s{2,}|\t/);
+    if (parts.length >= 3) {
+      const team = parts[0];
+      const pitcher = parts[1];
+      const r = parseFloat(parts[6]) || parseFloat(parts[5]) || 0;
+      if (team && pitcher && r > 0) {
+        pitchers[team] = { name: pitcher, r };
+      }
+    }
+  });
+  return pitchers;
+}
+
+async function fetchOdds() {
+  try {
+    const resp = await fetch(
+      `https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey=${ODDS_API_KEY}&regions=us&markets=h2h,totals&bookmakers=hardrockbet,fanduel,draftkings&oddsFormat=american`
+    );
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return data;
+  } catch(e) {
+    return [];
+  }
+}
+
+function getHarriFlagForGame(game, pitchers, parkInfo) {
+  const flags = [];
+  const analysis = [];
+
+  // Park factor
+  if (parkInfo) {
+    const runPct = parseFloat((parkInfo['Runs %']||'').replace('%','').replace('+',''));
+    if (runPct <= -7) {
+      flags.push({type:'under-watch', label:'⬇️ Under Watch', color:'var(--red)'});
+      analysis.push(`Park suppressing runs ${parkInfo['Runs %']} — lean under.`);
+    } else if (runPct >= 7) {
+      flags.push({type:'over-watch', label:'⬆️ Over Watch', color:'var(--green)'});
+      analysis.push(`Park boosting runs ${parkInfo['Runs %']} — lean over.`);
+    }
+  }
+
+  // Pitcher mismatch
+  const awayR = game.awayRuns;
+  const homeR = game.homeRuns;
+  const gap = Math.abs(awayR - homeR);
+  const betterTeam = awayR < homeR ? game.away : game.home;
+  const worseTeam = awayR < homeR ? game.home : game.away;
+
+  if (gap >= 0.8) {
+    flags.push({type:'mismatch', label:'⚡ Major Mismatch', color:'var(--green)'});
+    analysis.push(`Big pitcher gap: ${betterTeam} (${Math.min(awayR,homeR).toFixed(2)}R) vs ${worseTeam} (${Math.max(awayR,homeR).toFixed(2)}R) — textbook F5 ML.`);
+  } else if (gap >= 0.5) {
+    flags.push({type:'mismatch', label:'📊 Mismatch', color:'var(--yellow)'});
+    analysis.push(`Decent pitcher gap: ${betterTeam} has edge (${gap.toFixed(2)}R diff) — worth investigating.`);
+  }
+
+  // F5 lead gap
+  const f5Gap = Math.abs(game.awayF5Lead - game.homeF5Lead);
+  const f5Fav = game.awayF5Lead > game.homeF5Lead ? game.away : game.home;
+  if (f5Gap >= 15) {
+    flags.push({type:'f5-value', label:'⚡ F5 Lead Gap', color:'var(--green)'});
+    analysis.push(`Strong F5 lead gap: ${f5Fav} at ${Math.max(game.awayF5Lead,game.homeF5Lead).toFixed(1)}% vs ${Math.min(game.awayF5Lead,game.homeF5Lead).toFixed(1)}% — confirm with matchups.`);
+  }
+
+  // Win% vs market
+  const awaySimPct = game.awayWinPct;
+  const homeSimPct = game.homeWinPct;
+
+  // Check ML value (parse odds)
+  const awayOdds = parseInt(game.awayML.replace(/[^-+\d]/g,''));
+  const homeOdds = parseInt(game.homeML.replace(/[^-+\d]/g,''));
+  
+  if (!isNaN(awayOdds) && awaySimPct > 0) {
+    const awayImplied = awayOdds > 0 ? (100/(awayOdds+100)*100) : ((-awayOdds)/((-awayOdds)+100)*100);
+    const awayGap = awaySimPct - awayImplied;
+    if (awayGap >= 8) {
+      flags.push({type:'value', label:'💰 Value', color:'var(--yellow)'});
+      analysis.push(`${game.away} underpriced: sim ${awaySimPct.toFixed(0)}% vs market ${awayImplied.toFixed(0)}% implied.`);
+    }
+  }
+
+  // Total runs — under signal
+  const totalRuns = game.awayRuns + game.homeRuns;
+  if (totalRuns < 7.0 && game.awayF5Runs + game.homeF5Runs < 3.5) {
+    flags.push({type:'under', label:'⬇️ Low Run Game', color:'var(--red)'});
+    analysis.push(`Both pitchers projecting low runs (${totalRuns.toFixed(1)} combined) — consider under.`);
+  }
+
+  // Elite pitcher trap
+  const eliteArms = ['ohtani','skenes','cole','wheeler','burnes','corbin','burns'];
+  const awaySPLower = game.awaySP.toLowerCase();
+  const homeSPLower = game.homeSP.toLowerCase();
+  const isEliteAway = eliteArms.some(e => awaySPLower.includes(e));
+  const isEliteHome = eliteArms.some(e => homeSPLower.includes(e));
+  
+  if (isEliteAway || isEliteHome) {
+    const eliteTeam = isEliteAway ? game.away : game.home;
+    flags.push({type:'live', label:'👁️ Live Bet Flag', color:'var(--yellow)'});
+    analysis.push(`Elite arm (${isEliteAway?game.awaySP:game.homeSP}) — overpriced standalone. Flag for live bet if ${eliteTeam} goes down early. Parlay candidate.`);
+  }
+
+  // Determine primary recommendation
+  let recommendation = 'Pass — no strong signal';
+  let recColor = 'var(--muted2)';
+
+  if (flags.some(f => f.type === 'mismatch') && flags.some(f => f.type === 'f5-value')) {
+    const team = awayR < homeR ? game.away : game.home;
+    recommendation = `🎯 ${team} F5 ML — pitcher mismatch confirmed by F5 lead gap`;
+    recColor = 'var(--green)';
+  } else if (flags.some(f => f.type === 'under-watch') && totalRuns < 7.5) {
+    recommendation = `⬇️ Under F5 — park suppression + low run projection`;
+    recColor = 'var(--red)';
+  } else if (flags.some(f => f.type === 'mismatch')) {
+    const team = awayR < homeR ? game.away : game.home;
+    recommendation = `📊 Lean ${team} F5 — confirm matchup data`;
+    recColor = 'var(--yellow)';
+  } else if (flags.some(f => f.type === 'live')) {
+    recommendation = `👁️ Watch for live bet opportunity`;
+    recColor = 'var(--yellow)';
+  }
+
+  return { flags, analysis, recommendation, recColor };
+}
+
+function getParkInfoForGame(away, home) {
+  if (!parkData.length) return null;
+  return parkData.find(p => {
+    const game = (p['Game']||'').toLowerCase();
+    return game.includes(away.toLowerCase().slice(0,3)) || 
+           game.includes(home.toLowerCase().slice(0,3));
+  });
+}
+
+async function processAllData() {
+  const simText = document.getElementById('sim-paste').value.trim();
+  const pitcherText = document.getElementById('pitcher-paste').value.trim();
+  
+  if (!simText) { showToast('⚠️ Paste Game Simulations first'); return; }
+
+  showToast('⚡ Generating report...');
+  
+  // Parse sim data
+  gameSimData = parseGameSims(simText);
+  
+  // Fetch live odds
+  const liveOdds = await fetchOdds();
+  
+  // Render games
+  renderGames(gameSimData, liveOdds);
+  
+  document.getElementById('odds-status-bar').style.display = 'flex';
+}
+
+function renderGames(games, liveOdds) {
+  const container = document.getElementById('games-container');
+  
+  if (!games.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🤔</div>
+      <div class="empty-text">Couldn't parse game data</div>
+      <div class="empty-sub">Make sure you copied the full Game Simulations page</div>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = games.map((game, idx) => {
+    const parkInfo = getParkInfoForGame(game.away, game.home);
+    const harri = getHarriFlagForGame(game, {}, parkInfo);
+    const hasMajorFlag = harri.flags.some(f => ['mismatch','f5-value'].includes(f.type));
+    const hasParlay = harri.flags.some(f => f.type === 'live');
+    
+    const cardClass = hasMajorFlag ? 'game-card flagged' : hasParlay ? 'game-card parlay-candidate' : 'game-card';
+    
+    const parkPct = parkInfo ? (parkInfo['Runs %']||'').trim() : '';
+    const parkColor = parkPct.startsWith('+') ? 'var(--green)' : parkPct.startsWith('-') ? 'var(--red)' : 'var(--muted2)';
+    
+    const f5Gap = Math.abs(game.awayF5Lead - game.homeF5Lead);
+    const f5Fav = game.awayF5Lead > game.homeF5Lead ? game.away : game.home;
+    const f5LeadMax = Math.max(game.awayF5Lead, game.homeF5Lead);
+    const f5LeadMin = Math.min(game.awayF5Lead, game.homeF5Lead);
+
+    const pitcherGap = Math.abs(game.awayRuns - game.homeRuns);
+    const pitcherColor = pitcherGap >= 0.8 ? 'var(--green)' : pitcherGap >= 0.5 ? 'var(--yellow)' : 'var(--muted2)';
+    
+    return `
+    <div class="${cardClass}" id="game-${idx}">
+      <div class="game-header" onclick="toggleGame(${idx})">
+        <div class="game-matchup">
+          <div class="game-meta">
+            <div class="game-time">${game.time || '—'}</div>
+            <div class="game-park" style="color:${parkColor}">${game.park || '—'} ${parkPct ? `(${parkPct})` : ''}</div>
+          </div>
+          <div class="game-teams">${game.away} @ ${game.home}</div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:11px;color:var(--muted2)">${game.awaySP || '—'} vs ${game.homeSP || '—'}</div>
+            <div style="font-size:11px;color:${pitcherColor}">R: ${game.awayRuns.toFixed(2)} vs ${game.homeRuns.toFixed(2)} (gap: ${pitcherGap.toFixed(2)})</div>
+          </div>
+        </div>
+        <div class="game-flags">
+          ${harri.flags.map(f => `<span class="badge" style="background:${f.color}20;color:${f.color}">${f.label}</span>`).join('')}
+          <span style="color:var(--muted);font-size:18px">${document.getElementById('game-'+idx)?.querySelector('.game-body.open') ? '▲' : '▼'}</span>
+        </div>
+      </div>
+      
+      <div class="game-body" id="body-${idx}">
+        
+        <!-- HARRI ANALYSIS -->
+        <div class="ai-box">
+          <div class="ai-box-header">
+            ⚾ Harri's Read
+          </div>
+          <div class="ai-box-text">
+            ${harri.analysis.map(a => `<div style="margin-bottom:6px">• ${a}</div>`).join('')}
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+              <strong style="color:${harri.recColor}">${harri.recommendation}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- GAME DATA -->
+        <div class="game-data-grid">
+          <div class="data-block">
+            <div class="data-block-label">Win % (Sim)</div>
+            <div class="data-block-value">${game.away}: <span class="mono">${game.awayWinPct.toFixed(1)}%</span></div>
+            <div class="data-block-value">${game.home}: <span class="mono">${game.homeWinPct.toFixed(1)}%</span></div>
+          </div>
+          <div class="data-block">
+            <div class="data-block-label">ML (Market)</div>
+            <div class="data-block-value">${game.away}: <span class="mono ${parseInt(game.awayML)>0?'green':'red'}">${game.awayML || '—'}</span></div>
+            <div class="data-block-value">${game.home}: <span class="mono ${parseInt(game.homeML)>0?'green':'red'}">${game.homeML || '—'}</span></div>
+          </div>
+          <div class="data-block">
+            <div class="data-block-label">F5 Runs Proj</div>
+            <div class="data-block-value">${game.away}: <span class="mono">${game.awayF5Runs.toFixed(2)}</span></div>
+            <div class="data-block-value">${game.home}: <span class="mono">${game.homeF5Runs.toFixed(2)}</span></div>
+          </div>
+          <div class="data-block">
+            <div class="data-block-label">F5 Lead %</div>
+            <div class="data-block-value ${f5Fav===game.away?'green':''}">${game.away}: <span class="mono">${game.awayF5Lead.toFixed(1)}%</span></div>
+            <div class="data-block-value ${f5Fav===game.home?'green':''}">${game.home}: <span class="mono">${game.homeF5Lead.toFixed(1)}%</span></div>
+          </div>
+        </div>
+
+        <!-- TOTAL LINE -->
+        <div class="implied-table">
+          <div class="implied-table-title">Total Line: ${game.totalUnder || '—'} / ${game.totalOver || '—'}</div>
+          <div style="font-size:12px;color:var(--muted2);font-family:'DM Mono',monospace">
+            Total proj runs: ${(game.awayRuns + game.homeRuns).toFixed(2)} | F5 proj: ${(game.awayF5Runs + game.homeF5Runs).toFixed(2)}
+          </div>
+        </div>
+
+        <!-- PICK ENTRY -->
+        <div class="pick-entry">
+          <div class="pick-entry-title">Log Pick for This Game</div>
+          <div class="pick-buttons" id="pick-btns-${idx}">
+            <button class="pick-btn" onclick="selectPickType(${idx}, 'f5ml-away', this)">${game.away} F5 ML</button>
+            <button class="pick-btn" onclick="selectPickType(${idx}, 'f5ml-home', this)">${game.home} F5 ML</button>
+            <button class="pick-btn" onclick="selectPickType(${idx}, 'f5over', this)">F5 Over</button>
+            <button class="pick-btn" onclick="selectPickType(${idx}, 'f5under', this)">F5 Under</button>
+            <button class="pick-btn" onclick="selectPickType(${idx}, 'ftml-away', this)">${game.away} FT ML</button>
+            <button class="pick-btn" onclick="selectPickType(${idx}, 'ftml-home', this)">${game.home} FT ML</button>
+            <button class="pick-btn" onclick="selectPickType(${idx}, 'parlay', this)">+ Parlay Leg</button>
+          </div>
+          <div class="pick-row">
+            <input type="text" class="pick-input" id="notes-${idx}" placeholder="Notes (optional)...">
+            <button class="pick-save" onclick="savePick(${idx}, '${game.away}', '${game.home}')">Save Pick</button>
+          </div>
+          <div id="saved-pick-${idx}"></div>
+        </div>
+        
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let selectedPickTypes = {};
+
+function selectPickType(idx, type, btn) {
+  document.querySelectorAll(`#pick-btns-${idx} .pick-btn`).forEach(b => {
+    b.classList.remove('selected', 'selected-parlay');
+  });
+  if (type === 'parlay') {
+    btn.classList.add('selected-parlay');
+  } else {
+    btn.classList.add('selected');
+  }
+  selectedPickTypes[idx] = type;
+}
+
+function savePick(idx, away, home) {
+  const type = selectedPickTypes[idx];
+  if (!type) { showToast('⚠️ Select a bet type first'); return; }
+  
+  const notes = document.getElementById(`notes-${idx}`).value;
+  
+  let pick = '';
+  let betType = 'ml';
+  
+  if (type === 'f5ml-away') { pick = away; betType = 'ml'; }
+  else if (type === 'f5ml-home') { pick = home; betType = 'ml'; }
+  else if (type === 'f5over') { pick = `${away} / ${home} over`; betType = 'over'; }
+  else if (type === 'f5under') { pick = `${away} / ${home} under`; betType = 'under'; }
+  else if (type === 'ftml-away') { pick = away; betType = 'ml'; }
+  else if (type === 'ftml-home') { pick = home; betType = 'ml'; }
+  else if (type === 'parlay') { pick = `PARLAY: ${away}/${home}`; betType = 'ml'; }
+  
+  const isF5 = !type.startsWith('ftml');
+  
+  const newPick = {
+    date: Date.now(),
+    type: betType,
+    pick,
+    f5: isF5 ? null : undefined,
+    ft: null,
+    notes,
+    isToday: true
+  };
+  
+  todayPicks.push(newPick);
+  localStorage.setItem('todayPicks', JSON.stringify(todayPicks));
+  
+  document.getElementById(`saved-pick-${idx}`).innerHTML = `
+    <div class="pick-saved-row">
+      <div>
+        <div class="pick-saved-info">✓ ${pick} — ${betType.toUpperCase()} ${isF5?'F5':'FT'}</div>
+        <div class="pick-saved-meta">${notes || 'No notes'}</div>
+      </div>
+      <div class="result-btns">
+        <button class="result-btn win" onclick="setTodayResult(${todayPicks.length-1}, ${isF5?'true':'false'}, 1)">W</button>
+        <button class="result-btn loss" onclick="setTodayResult(${todayPicks.length-1}, ${isF5?'true':'false'}, 0)">L</button>
+        <button class="result-btn push" onclick="setTodayResult(${todayPicks.length-1}, ${isF5?'true':'false'}, 2)">P</button>
+      </div>
+    </div>`;
+  
+  showToast(`✓ Pick saved: ${pick}`);
+  renderDashboard();
+}
+
+function setTodayResult(pickIdx, isF5, result) {
+  if (isF5) todayPicks[pickIdx].f5 = result;
+  else todayPicks[pickIdx].ft = result;
+  localStorage.setItem('todayPicks', JSON.stringify(todayPicks));
+  allPicks = [...picks, ...todayPicks];
+  renderDashboard();
+  showToast(result === 1 ? '🔥 Win logged!' : result === 0 ? '❌ Loss logged' : '➖ Push logged');
+}
+
+function toggleGame(idx) {
+  const body = document.getElementById(`body-${idx}`);
+  body.classList.toggle('open');
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+
+function exportCSV() {
+  allPicks = [...picks, ...todayPicks];
+  const headers = ['Date','Type','Pick','F5','FT','Notes'];
+  const rows = allPicks.map(p => {
+    const d = p.date > 1000000 ? new Date(p.date) : excelDateToDate(parseFloat(p.date));
+    return [
+      formatDate(d),
+      p.type,
+      p.pick,
+      p.f5 !== null && p.f5 !== undefined ? (p.f5 === 1 ? 'W' : p.f5 === 0 ? 'L' : 'P') : '',
+      p.ft !== null && p.ft !== undefined ? (p.ft === 1 ? 'W' : p.ft === 0 ? 'L' : 'P') : '',
+      p.notes || ''
+    ].map(v => `"${v}"`).join(',');
+  });
+  
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `baseball-harri-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  event.target.classList.add('active');
+  
+  if (tab === 'dashboard') renderDashboard();
+  if (tab === 'history') renderHistory();
+  if (tab === 'trends') renderTrends();
+  if (tab === 'today') {
+    document.getElementById('today-date-label').textContent = new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+  document.getElementById('today-date-label').textContent = new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+  allPicks = [...picks, ...todayPicks];
+  renderDashboard();
+});
+</script>
+</body>
+</html>
