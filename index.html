@@ -2230,105 +2230,251 @@ function getMatchupSummary(away, home) {
   const awayRows = matchupData.filter(r=>(r['Team']||'').trim().toUpperCase().slice(0,3)===away.slice(0,3).toUpperCase());
   const homeRows = matchupData.filter(r=>(r['Team']||'').trim().toUpperCase().slice(0,3)===home.slice(0,3).toUpperCase());
 
-  const avgRC = (rows) => {
-    const vals = rows.map(r=>parseFloat(r['RC']||r['vs Grade']||0)).filter(v=>!isNaN(v));
+  const avg = (rows, col) => {
+    // Try multiple possible column names
+    const keys = [col, col+' Boost', col+' boost', col.toLowerCase()];
+    const vals = rows.map(r => {
+      for (const k of keys) {
+        const v = parseFloat(r[k]);
+        if (!isNaN(v)) return v;
+      }
+      return NaN;
+    }).filter(v => !isNaN(v));
     return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
   };
 
+  // Column names from BallparkPal Matchup Machine export
+  // RC = run contribution boost vs this pitcher
+  // HR, XB, 1B, BB, K = individual category boosts
   return {
-    awayRC: avgRC(awayRows),
-    homeRC: avgRC(homeRows),
+    awayRC:  avg(awayRows, 'RC'),
+    homeRC:  avg(homeRows, 'RC'),
+    awayHR:  avg(awayRows, 'HR'),
+    homeHR:  avg(homeRows, 'HR'),
+    awayXB:  avg(awayRows, 'XB'),
+    homeXB:  avg(homeRows, 'XB'),
+    away1B:  avg(awayRows, '1B'),
+    home1B:  avg(homeRows, '1B'),
+    awayBB:  avg(awayRows, 'BB'),
+    homeBB:  avg(homeRows, 'BB'),
+    awayK:   avg(awayRows, 'K'),
+    homeK:   avg(homeRows, 'K'),
     awayRows: awayRows.length,
     homeRows: homeRows.length
   };
 }
 
 function harriAnalyze(g, park, matchup) {
-  const flags=[], points=[];
-  let rec='PASS', recClass='pass', confidence=0;
+  const flags = [], points = [];
+  let awayScore = 0, homeScore = 0;
 
-  // Park
+  // ── 1. PARK FACTORS ──────────────────────────────────────────
   const parkPct = park ? parseFloat((park['Runs %']||'').replace('%','').replace('+','')) : 0;
-  if(parkPct<=-7){flags.push({l:'⬇ UNDER WATCH',c:'neg'});points.push({t:`Park suppressing runs ${park['Runs %']}`,cls:'neg'});}
-  else if(parkPct>=7){flags.push({l:'⬆ OVER WATCH',c:'pos'});points.push({t:`Park boosting runs ${park['Runs %']}`,cls:'pos'});}
-
-  // Pitcher gap
-  const gap=Math.abs(g.awayRuns-g.homeRuns);
-  const better=g.awayRuns<g.homeRuns?g.away:g.home;
-  const worse=g.awayRuns<g.homeRuns?g.home:g.away;
-  if(gap>=0.8){flags.push({l:'⚡ MAJOR MISMATCH',c:'pos'});points.push({t:`Major pitcher gap: ${better} (${Math.min(g.awayRuns,g.homeRuns).toFixed(2)}R) vs ${worse} (${Math.max(g.awayRuns,g.homeRuns).toFixed(2)}R)`,cls:'pos'});confidence+=2;}
-  else if(gap>=0.5){flags.push({l:'📊 MISMATCH',c:'neu'});points.push({t:`Decent pitcher gap: ${better} has ${gap.toFixed(2)}R edge`,cls:'pos'});confidence+=1;}
-  else{points.push({t:`No significant pitcher mismatch (${gap.toFixed(2)}R gap)`,cls:'neu'});}
-
-  // F5 lead gap
-  const f5gap=Math.abs(g.awayF5Lead-g.homeF5Lead);
-  const f5fav=g.awayF5Lead>g.homeF5Lead?g.away:g.home;
-  const f5max=Math.max(g.awayF5Lead,g.homeF5Lead);
-  const f5min=Math.min(g.awayF5Lead,g.homeF5Lead);
-  if(f5gap>=15){flags.push({l:'⚡ F5 LEAD GAP',c:'pos'});points.push({t:`F5 lead gap: ${f5fav} ${f5max.toFixed(1)}% vs ${f5min.toFixed(1)}% — textbook`,cls:'pos'});confidence+=2;}
-  else if(f5gap>=8){points.push({t:`Moderate F5 lead gap: ${f5fav} ${f5max.toFixed(1)}% vs ${f5min.toFixed(1)}%`,cls:'pos'});confidence+=1;}
-
-  // Value gap
-  const awayOdds=parseInt((g.awayML||'').replace(/[^\d+-]/g,''));
-  const homeOdds=parseInt((g.homeML||'').replace(/[^\d+-]/g,''));
-  if(!isNaN(awayOdds)&&g.awayWinPct>0){
-    const implied=awayOdds>0?(100/(awayOdds+100)*100):((-awayOdds)/((-awayOdds)+100)*100);
-    const vgap=g.awayWinPct-implied;
-    if(Math.abs(vgap)>=8){
-      const favored=vgap>0?g.away:g.home;
-      flags.push({l:'💰 VALUE GAP',c:'yel'});
-      points.push({t:`${favored} underpriced: sim ${vgap>0?g.awayWinPct:g.homeWinPct}% vs market ${implied.toFixed(0)}% implied`,cls:'pos'});
-      confidence+=1;
+  if (!isNaN(parkPct) && Math.abs(parkPct) >= 7) {
+    if (parkPct <= -7) {
+      flags.push({l:'⬇ UNDER WATCH',c:'neg'});
+      points.push({t:'Park suppressing runs ' + (park['Runs %']||'') + ' — lean under, both offenses hurt',cls:'neg'});
+    } else {
+      flags.push({l:'⬆ OVER WATCH',c:'pos'});
+      points.push({t:'Park boosting runs ' + (park['Runs %']||'') + ' — lean over',cls:'pos'});
     }
   }
 
-  // Matchup
-  if(matchup){
-    if(matchup.awayRC>5) points.push({t:`${g.away} lineup boosted vs opposing pitcher (avg RC +${matchup.awayRC.toFixed(0)})`,cls:'pos'});
-    else if(matchup.awayRC<-5) points.push({t:`${g.away} lineup suppressed vs opposing pitcher (avg RC ${matchup.awayRC.toFixed(0)})`,cls:'neg'});
-    if(matchup.homeRC>5) points.push({t:`${g.home} lineup boosted vs opposing pitcher (avg RC +${matchup.homeRC.toFixed(0)})`,cls:'pos'});
-    else if(matchup.homeRC<-5) points.push({t:`${g.home} lineup suppressed vs opposing pitcher (avg RC ${matchup.homeRC.toFixed(0)})`,cls:'neg'});
-  }
+  // ── 2. GAME SIM RUNS (higher = that team projected to score more) ──
+  const awayScored = g.awayRuns;
+  const homeScored = g.homeRuns;
+  const runGap = homeScored - awayScored; // positive = home scores more
+  const absRunGap = Math.abs(runGap);
 
-  // Total runs
-  const totRuns=g.awayRuns+g.homeRuns;
-  const f5totRuns=g.awayF5Runs+g.homeF5Runs;
-  if(totRuns<7.5&&parkPct<=-5){points.push({t:`Low run environment: ${totRuns.toFixed(2)} proj total, park at ${park?park['Runs %']:'—'}`,cls:'neg'});}
-
-  // Elite traps
-  const elite=['ohtani','skenes','cole','wheeler','degrom'];
-  const isEliteAway=elite.some(e=>(g.awaySP||'').toLowerCase().includes(e));
-  const isEliteHome=elite.some(e=>(g.homeSP||'').toLowerCase().includes(e));
-  if(isEliteAway||isEliteHome){
-    flags.push({l:'👁 LIVE FLAG',c:'yel'});
-    points.push({t:`Elite arm (${isEliteAway?g.awaySP:g.homeSP}) — overpriced standalone. Monitor for live bet opportunity.`,cls:'neu'});
-  }
-
-  // Recommendation
-  if(confidence>=4&&gap>=0.5&&f5gap>=10){
-    rec=`${better} F5 ML — all signals stacking`;
-    recClass='go';
-  } else if(confidence>=3&&gap>=0.5){
-    rec=`Lean ${better} F5 — confirm matchup data`;
-    recClass='go';
-  } else if(parkPct<=-7&&totRuns<7.5&&f5totRuns<4){
-    rec=`Under F5 — park + run suppression`;
-    recClass='go';
-  } else if(isEliteAway||isEliteHome){
-    rec=`Watch for live bet — skip standalone`;
-    recClass='parlay';
+  if (absRunGap >= 0.8) {
+    const betterOff = runGap > 0 ? g.home : g.away;
+    flags.push({l:'⚡ RUN ADVANTAGE',c:'pos'});
+    points.push({t:'Sim run advantage: ' + betterOff + ' projects ' + Math.max(awayScored,homeScored).toFixed(2) + 'R vs ' + Math.min(awayScored,homeScored).toFixed(2) + 'R (' + absRunGap.toFixed(2) + ' gap)',cls:'pos'});
+    if (runGap > 0) homeScore += 2; else awayScore += 2;
+  } else if (absRunGap >= 0.4) {
+    const betterOff = runGap > 0 ? g.home : g.away;
+    points.push({t:'Mild run edge: ' + betterOff + ' ' + Math.max(awayScored,homeScored).toFixed(2) + 'R vs ' + Math.min(awayScored,homeScored).toFixed(2) + 'R',cls:'pos'});
+    if (runGap > 0) homeScore += 1; else awayScore += 1;
   } else {
-    rec=`Pass — no strong signal convergence`;
-    recClass='pass';
+    points.push({t:'Runs projected even (' + awayScored.toFixed(2) + ' vs ' + homeScored.toFixed(2) + ')',cls:'neu'});
   }
 
-  const isFlagged = confidence>=3;
-  const isParlay = (isEliteAway||isEliteHome)&&confidence<3;
+  // ── 3. PITCHER STATS (lower R allowed = better pitcher) ──────
+  const awayPRow = pitcherData.find(p => (p['Team']||'').toUpperCase().slice(0,3) === g.away.toUpperCase().slice(0,3));
+  const homePRow = pitcherData.find(p => (p['Team']||'').toUpperCase().slice(0,3) === g.home.toUpperCase().slice(0,3));
+  const awayPR = awayPRow ? parseFloat(awayPRow['R']||99) : null;
+  const homePR = homePRow ? parseFloat(homePRow['R']||99) : null;
 
-  return {flags,points,rec,recClass,isFlagged,isParlay};
+  if (awayPR !== null && homePR !== null) {
+    // Lower R = better pitcher = opposing batters face harder time
+    // Home pitcher lower R = home team advantage (their pitcher is better)
+    const pitcherGap = awayPR - homePR; // positive = home pitcher better
+    const absPG = Math.abs(pitcherGap);
+    if (absPG >= 0.5) {
+      const betterPTeam = pitcherGap > 0 ? g.home : g.away;
+      const betterR = Math.min(awayPR, homePR).toFixed(2);
+      const worseR  = Math.max(awayPR, homePR).toFixed(2);
+      points.push({t:'Pitcher edge: ' + betterPTeam + ' (' + betterR + 'R allowed) vs (' + worseR + 'R allowed) — ' + absPG.toFixed(2) + 'R gap',cls:'pos'});
+      if (absPG >= 0.8) {
+        flags.push({l:'⚡ PITCHER MISMATCH',c:'pos'});
+        if (pitcherGap > 0) homeScore += 2; else awayScore += 2;
+      } else {
+        if (pitcherGap > 0) homeScore += 1; else awayScore += 1;
+      }
+    } else {
+      points.push({t:'Pitchers evenly matched (' + awayPR.toFixed(2) + 'R vs ' + homePR.toFixed(2) + 'R allowed)',cls:'neu'});
+    }
+  }
+
+  // ── 4. BATTER vs PITCHER MATCHUPS ────────────────────────────
+  // awayRC/1B/XB/HR/BB/K = away batters vs home pitcher (positive = good for away batters)
+  // homeRC/1B/XB/HR/BB/K = home batters vs away pitcher (positive = good for home batters)
+  if (matchup && (matchup.awayRows > 0 || matchup.homeRows > 0)) {
+    let awayMatchup = 0, homeMatchup = 0;
+
+    // RC — summary stat, weight highest (3)
+    if (matchup.awayRC > 8)  awayMatchup += 3;
+    else if (matchup.awayRC > 3) awayMatchup += 1;
+    else if (matchup.awayRC < -8) awayMatchup -= 3;
+    else if (matchup.awayRC < -3) awayMatchup -= 1;
+
+    if (matchup.homeRC > 8)  homeMatchup += 3;
+    else if (matchup.homeRC > 3) homeMatchup += 1;
+    else if (matchup.homeRC < -8) homeMatchup -= 3;
+    else if (matchup.homeRC < -3) homeMatchup -= 1;
+
+    // 1B — best indicator for run scoring (weight 2)
+    const a1b = matchup.away1B || 0, h1b = matchup.home1B || 0;
+    if (a1b > 5) awayMatchup += 2; else if (a1b < -5) awayMatchup -= 2;
+    if (h1b > 5) homeMatchup += 2; else if (h1b < -5) homeMatchup -= 2;
+
+    // XB — extra bases (weight 2)
+    const axb = matchup.awayXB || 0, hxb = matchup.homeXB || 0;
+    if (axb > 5) awayMatchup += 2; else if (axb < -5) awayMatchup -= 2;
+    if (hxb > 5) homeMatchup += 2; else if (hxb < -5) homeMatchup -= 2;
+
+    // HR (weight 1)
+    const ahr = matchup.awayHR || 0, hhr = matchup.homeHR || 0;
+    if (ahr > 5) awayMatchup += 1; else if (ahr < -5) awayMatchup -= 1;
+    if (hhr > 5) homeMatchup += 1; else if (hhr < -5) homeMatchup -= 1;
+
+    // BB — weakest signal (weight 0.5)
+    const abb = matchup.awayBB || 0, hbb = matchup.homeBB || 0;
+    if (abb > 8) awayMatchup += 0.5; else if (abb < -8) awayMatchup -= 0.5;
+    if (hbb > 8) homeMatchup += 0.5; else if (hbb < -8) homeMatchup -= 0.5;
+
+    // K — high K bad for batters (weight 0.5, inverted)
+    const ak = matchup.awayK || 0, hk = matchup.homeK || 0;
+    if (ak > 8) awayMatchup -= 0.5; else if (ak < -8) awayMatchup += 0.5;
+    if (hk > 8) homeMatchup -= 0.5; else if (hk < -8) homeMatchup += 0.5;
+
+    const matchupGap = Math.abs(awayMatchup - homeMatchup);
+    const matchupWinner = awayMatchup > homeMatchup ? g.away : g.home;
+
+    if (matchupGap >= 5) {
+      flags.push({l:'🟢 MATCHUP DOMINANT',c:'pos'});
+      points.push({t:matchupWinner + ' batters heavily green across RC, 1B, XB vs opposing pitcher',cls:'pos'});
+      if (awayMatchup > homeMatchup) awayScore += 3; else homeScore += 3;
+    } else if (matchupGap >= 3) {
+      flags.push({l:'📊 MATCHUP EDGE',c:'pos'});
+      points.push({t:matchupWinner + ' batters showing clear edge in matchup data (RC, 1B, XB)',cls:'pos'});
+      if (awayMatchup > homeMatchup) awayScore += 2; else homeScore += 2;
+    } else if (matchupGap >= 1.5) {
+      points.push({t:'Mild matchup edge for ' + matchupWinner + ' — not decisive alone',cls:'neu'});
+      if (awayMatchup > homeMatchup) awayScore += 1; else homeScore += 1;
+    } else {
+      points.push({t:'Matchup data mixed — no clear batter advantage',cls:'neu'});
+    }
+
+    // Highlight dominant individual signals
+    if (Math.abs(matchup.awayRC) > 12 || Math.abs(matchup.homeRC) > 12) {
+      const domTeam = Math.abs(matchup.awayRC) > Math.abs(matchup.homeRC) ? g.away : g.home;
+      const domRC = (matchup.awayRC > matchup.homeRC ? matchup.awayRC : matchup.homeRC).toFixed(0);
+      const isGreen = parseFloat(domRC) > 0;
+      points.push({t:domTeam + ' lineup RC avg ' + (isGreen?'+':'') + domRC + ' vs opposing pitcher — ' + (isGreen?'significant green':'heavy red'),cls:isGreen?'pos':'neg'});
+    }
+  }
+
+  // ── 5. F5 LEAD % ─────────────────────────────────────────────
+  const f5gap = Math.abs(g.awayF5Lead - g.homeF5Lead);
+  const f5fav = g.awayF5Lead > g.homeF5Lead ? g.away : g.home;
+  const f5max = Math.max(g.awayF5Lead, g.homeF5Lead);
+  const f5min = Math.min(g.awayF5Lead, g.homeF5Lead);
+
+  if (f5gap >= 20) {
+    flags.push({l:'⚡ F5 LEAD DOMINANT',c:'pos'});
+    points.push({t:'F5 lead % dominant: ' + f5fav + ' ' + f5max.toFixed(1) + '% vs ' + f5min.toFixed(1) + '% — textbook F5 play',cls:'pos'});
+    if (g.awayF5Lead > g.homeF5Lead) awayScore += 3; else homeScore += 3;
+  } else if (f5gap >= 10) {
+    flags.push({l:'📊 F5 LEAD GAP',c:'pos'});
+    points.push({t:'F5 lead gap: ' + f5fav + ' ' + f5max.toFixed(1) + '% vs ' + f5min.toFixed(1) + '%',cls:'pos'});
+    if (g.awayF5Lead > g.homeF5Lead) awayScore += 2; else homeScore += 2;
+  } else {
+    points.push({t:'F5 lead % close: ' + g.away + ' ' + g.awayF5Lead.toFixed(1) + '% vs ' + g.home + ' ' + g.homeF5Lead.toFixed(1) + '%',cls:'neu'});
+  }
+
+  // ── 6. SIM WIN % vs MARKET VALUE GAP ────────────────────────
+  const awayOdds = parseInt(g.awayML);
+  const homeOdds = parseInt(g.homeML);
+  if (!isNaN(awayOdds) && !isNaN(homeOdds) && g.awayWinPct > 0) {
+    const awayImplied = awayOdds > 0 ? (100/(awayOdds+100)*100) : ((-awayOdds)/((-awayOdds)+100)*100);
+    const homeImplied = homeOdds > 0 ? (100/(homeOdds+100)*100) : ((-homeOdds)/((-homeOdds)+100)*100);
+    const awayVgap = g.awayWinPct - awayImplied;
+    const homeVgap = g.homeWinPct - homeImplied;
+    const bestVgap = awayVgap > homeVgap ? awayVgap : homeVgap;
+    const valueTeam = awayVgap > homeVgap ? g.away : g.home;
+    const simPct = awayVgap > homeVgap ? g.awayWinPct : g.homeWinPct;
+    const mktPct = awayVgap > homeVgap ? awayImplied : homeImplied;
+    if (bestVgap >= 8) {
+      flags.push({l:'💰 VALUE GAP',c:'yel'});
+      points.push({t:'Market mispricing: ' + valueTeam + ' sim ' + simPct.toFixed(1) + '% vs market ' + mktPct.toFixed(1) + '% implied (+' + bestVgap.toFixed(1) + 'pts)',cls:'pos'});
+      if (awayVgap > homeVgap) awayScore += 1; else homeScore += 1;
+    } else {
+      points.push({t:'Market price roughly in line with sim (' + g.away + ' sim ' + g.awayWinPct.toFixed(1) + '% / mkt ' + awayImplied.toFixed(1) + '%)',cls:'neu'});
+    }
+  }
+
+  // ── 7. ELITE PITCHER TRAP ────────────────────────────────────
+  const eliteArms = ['ohtani','skenes','cole','wheeler','degrom','burnes','gilbert','kirby','bieber'];
+  const isEliteAway = eliteArms.some(e => (g.awaySP||'').toLowerCase().includes(e));
+  const isEliteHome = eliteArms.some(e => (g.homeSP||'').toLowerCase().includes(e));
+  if (isEliteAway || isEliteHome) {
+    flags.push({l:'👁 LIVE FLAG',c:'yel'});
+    points.push({t:'Elite arm (' + (isEliteAway?g.awaySP:g.homeSP) + ') — price likely inflated standalone. Parlay or live bet only.',cls:'neu'});
+  }
+
+  // ── FINAL RECOMMENDATION ─────────────────────────────────────
+  const winner = awayScore > homeScore ? g.away : homeScore > awayScore ? g.home : null;
+  const margin = Math.abs(awayScore - homeScore);
+  const f5favWinner = winner === g.away ? g.awayF5Lead : g.homeF5Lead;
+  const loserF5 = winner === g.away ? g.homeF5Lead : g.awayF5Lead;
+
+  let rec = 'PASS — signals not converging';
+  let recClass = 'pass';
+
+  if (winner && margin >= 5 && f5gap >= 10) {
+    rec = winner + ' F5 ML — all signals stacking (' + awayScore.toFixed(1) + ' vs ' + homeScore.toFixed(1) + ')';
+    recClass = 'go';
+  } else if (winner && margin >= 4) {
+    rec = winner + ' F5 ML — strong convergence (' + awayScore.toFixed(1) + ' vs ' + homeScore.toFixed(1) + ')';
+    recClass = 'go';
+  } else if (winner && margin >= 3) {
+    rec = 'Lean ' + winner + ' F5 — confirm matchup data before logging';
+    recClass = 'go';
+  } else if (parkPct <= -7 && (g.awayRuns + g.homeRuns) < 7.5 && (g.awayF5Runs + g.homeF5Runs) < 4.0) {
+    rec = 'Under F5 — park suppression + low run projection';
+    recClass = 'go';
+  } else if (isEliteAway || isEliteHome) {
+    const eliteTeam = isEliteAway ? g.away : g.home;
+    rec = eliteTeam + ' parlay candidate / live bet — skip standalone';
+    recClass = 'parlay';
+  } else {
+    rec = 'Pass — no strong convergence (away ' + awayScore.toFixed(1) + ' / home ' + homeScore.toFixed(1) + ')';
+    recClass = 'pass';
+  }
+
+  return {flags, points, rec, recClass, isFlagged: recClass==='go', isParlay: recClass==='parlay'};
 }
-
-let selectedTypes={};
 
 function renderGames(games) {
   document.getElementById('games-header').style.display='flex';
