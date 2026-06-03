@@ -2045,16 +2045,14 @@ function parseSimText(text) {
 
   // Always extract the plain XX.X% number, ignoring anything in parentheses
   const extractPct = (str) => {
-    // Remove anything in parens first: "(+149) 40.2%" -> "40.2%"
     const cleaned = str.replace(/\([^)]*\)/g, '').trim();
     const m = cleaned.match(/(\d+\.\d+)%/);
     return m ? parseFloat(m[1]) : 0;
   };
 
-  // Extract just the odds number e.g. "+108 (Caesars)" or "(+108)" -> "+108"
+  // Extract just the odds number e.g. '+108 (Caesars)' -> '+108'
   const extractOdds = (str) => {
-    const m = str.match(/([-+]\d{2,3})(?=\s|$|\s*\()/);
-    return m ? m[1] : '';
+    const m = str.match(/([-+]\d{2,3})(?=\s|$|\s*\()/g) || str.match(/([-+]\d{2,3})/); return m ? m[0] || m[1] : '';
   };
 
   let i=0;
