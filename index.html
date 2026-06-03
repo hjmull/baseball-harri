@@ -929,6 +929,10 @@ select.filter-select:focus { border-color: var(--green); }
   </div>
 
   <!-- INPUTS -->
+  <div id="data-loaded-banner" style="display:none;background:var(--green-dim2);border:1px solid var(--green);padding:10px 16px;margin-bottom:12px;display:none;align-items:center;justify-content:space-between">
+    <span style="color:var(--green);font-size:11px;font-weight:700;letter-spacing:1px">✓ DATA LOADED — Ready to generate</span>
+    <button onclick="clearAllData()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer">CLEAR ALL</button>
+  </div>
   <div class="input-grid">
     <div class="input-panel">
       <div class="input-label">
@@ -942,42 +946,48 @@ select.filter-select:focus { border-color: var(--green); }
         <span>📊 Matchup Machine (CSV/XLSX)</span>
         <span id="matchup-status" class="status-empty">EMPTY</span>
       </div>
-      <label>
-        <input type="file" id="matchup-file" accept=".xlsx,.csv" onchange="handleMatchupFile(this)" style="display:none">
-        <div class="upload-box" onclick="document.getElementById('matchup-file').click()">
-          <div class="upload-icon">📁</div>
-          <div class="upload-text">Upload Matchups CSV/XLSX</div>
-          <div class="upload-sub">Export Center → Matchup Machine</div>
-        </div>
-      </label>
+      <input type="file" id="matchup-file" accept=".xlsx,.csv" onchange="handleMatchupFile(this)" style="display:none">
+      <div class="upload-box" id="drop-matchup"
+        onclick="document.getElementById('matchup-file').click()"
+        ondragover="e=>{e.preventDefault();this.style.borderColor='var(--green)'}"
+        ondragleave="this.style.borderColor='var(--border2)'"
+        ondrop="handleDrop(event,'matchup')">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Click or drag & drop</div>
+        <div class="upload-sub">Matchup Machine CSV/XLSX</div>
+      </div>
     </div>
     <div class="input-panel">
       <div class="input-label">
         <span>⚾ Pitcher Projections (CSV)</span>
         <span id="pitcher-status" class="status-empty">EMPTY</span>
       </div>
-      <label>
-        <input type="file" id="pitcher-file" accept=".xlsx,.csv" onchange="handlePitcherFile(this)" style="display:none">
-        <div class="upload-box" onclick="document.getElementById('pitcher-file').click()">
-          <div class="upload-icon">📁</div>
-          <div class="upload-text">Upload Pitcher CSV</div>
-          <div class="upload-sub">Export Center → Starting Pitchers</div>
-        </div>
-      </label>
+      <input type="file" id="pitcher-file" accept=".xlsx,.csv" onchange="handlePitcherFile(this)" style="display:none">
+      <div class="upload-box" id="drop-pitcher"
+        onclick="document.getElementById('pitcher-file').click()"
+        ondragover="e=>{e.preventDefault();this.style.borderColor='var(--green)'}"
+        ondragleave="this.style.borderColor='var(--border2)'"
+        ondrop="handleDrop(event,'pitcher')">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Click or drag & drop</div>
+        <div class="upload-sub">Pitcher Projections CSV</div>
+      </div>
     </div>
     <div class="input-panel">
       <div class="input-label">
         <span>🌤 Park Factors (CSV)</span>
         <span id="park-status" class="status-empty">EMPTY</span>
       </div>
-      <label>
-        <input type="file" id="park-file" accept=".csv" onchange="handleParkFile(this)" style="display:none">
-        <div class="upload-box" onclick="document.getElementById('park-file').click()">
-          <div class="upload-icon">📁</div>
-          <div class="upload-text">Upload Park Factors CSV</div>
-          <div class="upload-sub">Export Center → Park Factors</div>
-        </div>
-      </label>
+      <input type="file" id="park-file" accept=".csv" onchange="handleParkFile(this)" style="display:none">
+      <div class="upload-box" id="drop-park"
+        onclick="document.getElementById('park-file').click()"
+        ondragover="e=>{e.preventDefault();this.style.borderColor='var(--green)'}"
+        ondragleave="this.style.borderColor='var(--border2)'"
+        ondrop="handleDrop(event,'park')">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Click or drag & drop</div>
+        <div class="upload-sub">Park Factors CSV</div>
+      </div>
     </div>
   </div>
 
@@ -1898,6 +1908,31 @@ function updateStatus(inputId, statusId) {
   const el = document.getElementById(statusId);
   el.textContent = v ? 'READY' : 'EMPTY';
   el.className = v ? 'status-ready' : 'status-empty';
+  checkDataBanner();
+}
+
+function checkDataBanner() {
+  const sim = document.getElementById('sim-paste').value.trim();
+  const banner = document.getElementById('data-loaded-banner');
+  if (banner) banner.style.display = sim ? 'flex' : 'none';
+}
+
+function clearAllData() {
+  document.getElementById('sim-paste').value = '';
+  document.getElementById('sim-status').textContent = 'EMPTY';
+  document.getElementById('sim-status').className = 'status-empty';
+  document.getElementById('matchup-status').textContent = 'EMPTY';
+  document.getElementById('matchup-status').className = 'status-empty';
+  document.getElementById('pitcher-status').textContent = 'EMPTY';
+  document.getElementById('pitcher-status').className = 'status-empty';
+  document.getElementById('park-status').textContent = 'EMPTY';
+  document.getElementById('park-status').className = 'status-empty';
+  matchupData=[]; pitcherData=[]; parkData=[]; gameSimData=[];
+  document.getElementById('data-loaded-banner').style.display = 'none';
+  document.getElementById('watchlist-section').style.display = 'none';
+  document.getElementById('games-header').style.display = 'none';
+  document.getElementById('games-container').innerHTML = '<div class="empty-state"><div class="e-icon">⚾</div><div class="e-text">No Data Loaded</div><div class="e-sub">Load BallparkPal data and hit Generate Report</div></div>';
+  showToast('Data cleared');
 }
 
 function handleMatchupFile(input) {
@@ -1913,6 +1948,7 @@ function handleMatchupFile(input) {
       headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
       return obj;
     });
+    checkDataBanner();
     showToast('Matchup data loaded');
   };
   reader.readAsText(file);
@@ -1931,6 +1967,7 @@ function handlePitcherFile(input) {
       headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
       return obj;
     });
+    checkDataBanner();
     showToast('Pitcher data loaded');
   };
   reader.readAsText(file);
@@ -1953,6 +1990,20 @@ function handleParkFile(input) {
     showToast('Park factors loaded');
   };
   reader.readAsText(file);
+}
+
+function handleDrop(e, type) {
+  e.preventDefault();
+  e.stopPropagation();
+  const el = e.currentTarget;
+  el.style.borderColor = 'var(--border2)';
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  // Create a fake input and trigger the right handler
+  const fakeInput = { files: [file] };
+  if (type === 'matchup') handleMatchupFile(fakeInput);
+  else if (type === 'pitcher') handlePitcherFile(fakeInput);
+  else if (type === 'park') handleParkFile(fakeInput);
 }
 
 function parseCSV(line) {
@@ -1991,6 +2042,21 @@ function buildWatchlists() {
 function parseSimText(text) {
   const games=[];
   const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+
+  // Always extract the plain XX.X% number, ignoring anything in parentheses
+  const extractPct = (str) => {
+    // Remove anything in parens first: "(+149) 40.2%" -> "40.2%"
+    const cleaned = str.replace(/\([^)]*\)/g, '').trim();
+    const m = cleaned.match(/(\d+\.\d+)%/);
+    return m ? parseFloat(m[1]) : 0;
+  };
+
+  // Extract just the odds number e.g. "+108 (Caesars)" or "(+108)" -> "+108"
+  const extractOdds = (str) => {
+    const m = str.match(/([-+]\d{2,3})(?=\s|$|\s*\()/);
+    return m ? m[1] : '';
+  };
+
   let i=0;
   while(i<lines.length){
     if(lines[i]==='@' && i>0 && i<lines.length-1){
@@ -2011,25 +2077,22 @@ function parseSimText(text) {
         if(l==='Starter'&&!g.awaySP){g.awaySP=lines[j-1]||'';g.homeSP=lines[j+1]||'';}
         if(l==='Runs'&&!g.awayRuns){g.awayRuns=parseFloat(lines[j-1])||0;g.homeRuns=parseFloat(lines[j+1])||0;}
         if(l==='Win'&&!g.awayWinPct){
-          const prev=lines[j-1]||'',next=lines[j+1]||'';
-          g.awayWinPct=parseFloat(prev.replace(/[()%+]/g,''))||0;
-          g.homeWinPct=parseFloat(next.replace(/[()%+]/g,''))||0;
+          g.awayWinPct = extractPct(lines[j-1]||'');
+          g.homeWinPct = extractPct(lines[j+1]||'');
         }
-        if(l==='ML'){g.awayML=lines[j-1]||'';g.homeML=lines[j+1]||'';}
+        if(l==='ML'){
+          g.awayML = extractOdds(lines[j-1]||'');
+          g.homeML = extractOdds(lines[j+1]||'');
+        }
         if(l==='F5 Runs'&&!g.awayF5Runs){g.awayF5Runs=parseFloat(lines[j-1])||0;g.homeF5Runs=parseFloat(lines[j+1])||0;}
         if(l==='F5 Lead'&&!g.awayF5Lead){
-          g.awayF5Lead=parseFloat((lines[j-1]||'').replace(/[()%+]/g,''))||0;
-          g.homeF5Lead=parseFloat((lines[j+1]||'').replace(/[()%+]/g,''))||0;
+          g.awayF5Lead = extractPct(lines[j-1]||'');
+          g.homeF5Lead = extractPct(lines[j+1]||'');
         }
         if(l==='Total'){g.totalLine=(lines[j-1]||'')+' / '+(lines[j+1]||'');}
         if(l.includes('Runs:')){g.park=l.split('|')[0].trim();g.parkRuns=l.match(/Runs: ([+-]?\d+%)/)?.[1]||'';}
         if(/^\d+:\d+$/.test(l))g.time=l;
         if(l.includes('Lineups'))g.lineups=l;
-        // Parse implied table
-        if(/^5\.5\s+6\.5/.test(l)||/^-?\d{3}/.test(l)){
-          // look for the odds row after the line row
-        }
-        // Check for implied odds pattern: series of +/- 3-digit numbers
         if(/^[-+]\d{2,3}(\s+[-+]\d{2,3}){3,}/.test(l)){
           g.impliedOdds = l.split(/\s+/).filter(x=>/^[-+]\d+$/.test(x));
         }
