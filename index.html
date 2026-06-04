@@ -2051,6 +2051,7 @@ function renderTrends() {
 // ============================================================
 let matchupData=[], pitcherData=[], parkData=[], gameSimData=[];
 const gameDataMap = {}; // idx -> {away, home}
+let selectedTypes = {}; // idx -> pick type
 
 function updateStatus(inputId, statusId) {
   const v = document.getElementById(inputId).value.trim();
