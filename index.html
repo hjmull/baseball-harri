@@ -1487,7 +1487,10 @@ function getConfStats(picks, tag) {
 function getDailyData(picks) {
   const byDate={};
   allPicks().forEach(p=>{
-    const k = Math.floor(p.date>1e9 ? p.date : p.date);
+    // Normalize all dates to a YYYY-MM-DD string so everything on the same calendar day groups together
+    const d = p.date > 1e9 ? new Date(p.date) : excelToDate(parseFloat(p.date));
+    if (!d) return;
+    const k = d.toISOString().slice(0,10); // "2026-06-03"
     if(!byDate[k]) byDate[k]=[];
     byDate[k].push(p);
   });
@@ -1707,15 +1710,15 @@ function renderDailyTable() {
   let rows = Object.entries(dd).map(([dk, picks]) => {
     const ds = calcGroup(picks.map(p=>p.f5).filter(v=>v===0||v===1||v===2));
     const dts = calcGroup(picks.map(p=>p.ft).filter(v=>v===0||v===1||v===2));
-    const d = parseFloat(dk)>1e9 ? new Date(parseInt(dk)) : excelToDate(parseFloat(dk));
-    return {dk:parseFloat(dk), d, ds, dts, count:picks.length};
+    const d = new Date(dk + 'T12:00:00Z'); // noon UTC to avoid timezone shifts
+    return {dk, d, ds, dts, count:picks.length};
   });
 
-  if(sort==='desc') rows.sort((a,b)=>b.dk-a.dk);
-  else rows.sort((a,b)=>a.dk-b.dk);
+  if(sort==='desc') rows.sort((a,b)=>b.dk>a.dk?1:-1);
+  else rows.sort((a,b)=>a.dk>b.dk?1:-1);
 
   // Compute day delta
-  const sorted = [...rows].sort((a,b)=>a.dk-b.dk);
+  const sorted = [...rows].sort((a,b)=>a.dk>b.dk?1:-1);
   const deltaMap={};
   sorted.forEach((r,i)=>{
     if(i>0) deltaMap[r.dk] = (r.ds.units - sorted[i-1].ds.units).toFixed(2);
