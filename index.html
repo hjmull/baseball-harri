@@ -1108,12 +1108,14 @@ select.filter-select:focus { border-color: var(--green); }
       <table>
         <thead>
           <tr>
+            <th>Date</th>
             <th>Pick</th>
             <th>Type</th>
-            <th>Period</th>
             <th>Notes</th>
-            <th>F5 Result</th>
-            <th>FT Result</th>
+            <th>F5</th>
+            <th>FT</th>
+            <th>F5 Units</th>
+            <th>Set Result</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -2048,6 +2050,7 @@ function renderTrends() {
 // TODAY — DATA PROCESSING
 // ============================================================
 let matchupData=[], pitcherData=[], parkData=[], gameSimData=[];
+const gameDataMap = {}; // idx -> {away, home}
 
 function updateStatus(inputId, statusId) {
   const v = document.getElementById(inputId).value.trim();
@@ -2663,6 +2666,7 @@ function renderGames(games) {
     const gap=Math.abs(g.awayRuns-g.homeRuns);
     const gapColor=gap>=0.8?'var(--green)':gap>=0.5?'var(--yellow)':'var(--muted2)';
 
+    gameDataMap[idx] = {away: g.away, home: g.home};
     const card=document.createElement('div');
     card.className=`game-card${harri.isFlagged?' flagged':harri.isParlay?' parlay-flag':' pass-flag'}`;
     card.innerHTML=`
@@ -2807,7 +2811,7 @@ function renderGames(games) {
                 return opts.join('');
               })()}
             </select>
-            <button class="save-btn" onclick="savePick(${idx},'${g.away}','${g.home}')">SAVE →</button>
+            <button class="save-btn" onclick="savePick(${idx})">SAVE →</button>
           </div>
           <div id="saved-${idx}"></div>
         </div>
@@ -2832,7 +2836,10 @@ function selPick(idx, type, btn) {
   selectedTypes[idx]=type;
 }
 
-function savePick(idx, away, home) {
+function savePick(idx) {
+  const gameInfo = gameDataMap[idx] || {};
+  const away = gameInfo.away || '';
+  const home = gameInfo.home || '';
   const type=selectedTypes[idx];
   if(!type){showToast('⚠ Select a bet type');return;}
   const notes=document.getElementById(`notes-${idx}`).value;
