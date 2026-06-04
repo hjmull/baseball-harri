@@ -1853,18 +1853,13 @@ function renderHistory() {
       <td>${unitStr(p.f5)}</td>
       <td>${unitStr(p.ft)}</td>
       <td style="color:var(--muted2);font-size:10px;max-width:160px;white-space:normal">${p.notes||'—'}</td>
-      <td>
-        ${isToday ? `
-        <div class="result-row" style="flex-wrap:wrap;gap:4px">
-          ${p.locked ? `<span style="color:var(--green);font-size:9px;font-weight:700;letter-spacing:1px;border:1px solid var(--green);padding:2px 8px;">🔒 LOCKED</span>` : `
-          <button class="result-btn ${p.f5===1?'rb-active-win':'rb-win'}" onclick="setResult('${p.uid}','f5',1)">F5 W</button>
-          <button class="result-btn ${p.f5===0?'rb-active-loss':'rb-loss'}" onclick="setResult('${p.uid}','f5',0)">F5 L</button>
-          <button class="result-btn ${p.f5===2?'rb-active-push':'rb-push'}" onclick="setResult('${p.uid}','f5',2)">F5 P</button>
-          <button class="result-btn ${p.ft===1?'rb-active-win':'rb-win'}" onclick="setResult('${p.uid}','ft',1)">FT W</button>
-          <button class="result-btn ${p.ft===0?'rb-active-loss':'rb-loss'}" onclick="setResult('${p.uid}','ft',0)">FT L</button>
-          <button class="result-btn ${p.ft===2?'rb-active-push':'rb-push'}" onclick="setResult('${p.uid}','ft',2)">FT P</button>`}
-          <button onclick="toggleLock('${p.uid}')" style="background:transparent;border:1px solid ${p.locked?'var(--green)':'var(--border2)'};color:${p.locked?'var(--green)':'var(--muted)'};font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;cursor:pointer">${p.locked?'🔒':'🔓'}</button>
-        </div>` : '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>'}
+      <td class="hist-action-cell" data-uid="${p.uid}" data-istoday="${isToday}">
+        ${isToday ?
+          (p.locked ?
+            '<span style="color:var(--green);font-size:9px;font-weight:700;letter-spacing:1px">🔒 LOCKED</span>' :
+            '<span style="color:var(--muted);font-size:10px">See Today tab</span>'
+          ) : '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>'
+        }
       </td>
     </tr>`;
   }).join('') + `
@@ -2765,35 +2760,38 @@ function savePick(idx, away, home) {
   todayPicks.push(newPick);
   localStorage.setItem('harriPicks_v2',JSON.stringify(todayPicks));
 
-  const pidx=uid;
-  document.getElementById(`saved-${idx}`).innerHTML=`
-    <div class="saved-pick" id="sp-${pidx}">
-      <div>
-        <div class="sp-info">✓ ${pick.toUpperCase()} — ${betType.toUpperCase()} ${isF5?'F5':'FT'}</div>
-        <div class="sp-notes">${notes||'No notes'}</div>
-      </div>
-      <div class="result-row">
-        <button class="result-btn rb-win" id="spf5w-${pidx}" onclick="setTodayRes('${pidx}','f5',1)">F5 W</button>
-        <button class="result-btn rb-loss" id="spf5l-${pidx}" onclick="setTodayRes('${pidx}','f5',0)">F5 L</button>
-        <button class="result-btn rb-push" id="spf5p-${pidx}" onclick="setTodayRes('${pidx}','f5',2)">F5 P</button>
-        <button class="result-btn rb-win" id="spftw-${pidx}" onclick="setTodayRes('${pidx}','ft',1)">FT W</button>
-        <button class="result-btn rb-loss" id="spftl-${pidx}" onclick="setTodayRes('${pidx}','ft',0)">FT L</button>
-        <button class="result-btn rb-push" id="spftp-${pidx}" onclick="setTodayRes('${pidx}','ft',2)">FT P</button>
-        <button class="result-btn" style="background:transparent;border:1px solid var(--red);color:var(--red);margin-left:8px" onclick="deletePick('${pidx}',${idx})">✕ REMOVE</button>
-      </div>
-    </div>`;
-  showToast(`Saved: ${pick}`);
+  // Store uid on the game card so we can reference it
+  const savedDiv = document.getElementById('saved-'+idx);
+  if (savedDiv) {
+    savedDiv.dataset.uid = uid;
+    savedDiv.innerHTML = '<div class="saved-pick"><div class="sp-info">✓ ' + pick.toUpperCase() + ' — ' + betType.toUpperCase() + ' ' + (isF5?'F5':'FT') + '</div><div class="sp-notes">' + (notes||'No notes') + ' · <span style="color:var(--muted)">See Today\'s Picks below</span></div></div>';
+  }
+  showToast('✓ Saved: ' + pick);
   buildTicker();
   buildHeaderStats();
   renderDashboard();
   renderTodayPicksSummary();
-  // If history tab is active, refresh it too
-  if (document.getElementById('tab-history').classList.contains('active')) renderHistory();
+  renderHistory();
 }
 
 function deletePick(uid, gameIdx) {
-  const idx = todayPicks.findIndex(p => p.uid == uid);
-  if (idx === -1) { showToast('Pick not found'); return; }
+  // Try uid match first, fallback to pick string match or index
+  let idx = todayPicks.findIndex(p => p.uid == uid);
+  if (idx === -1) {
+    // Fallback: uid might be an index number for old picks
+    const numIdx = parseInt(uid);
+    if (!isNaN(numIdx) && numIdx < todayPicks.length) idx = numIdx;
+  }
+  if (idx === -1 && String(uid).startsWith('idx_')) {
+    // Fallback for on-the-fly assigned uids
+    const numIdx = parseInt(String(uid).replace('idx_', ''));
+    if (!isNaN(numIdx) && numIdx < todayPicks.length) idx = numIdx;
+  }
+  if (idx === -1) { 
+    // Last resort: remove first unlocked pick with no uid
+    idx = todayPicks.findIndex(p => !p.uid && !p.locked);
+  }
+  if (idx === -1) { showToast('Could not find pick — try refreshing'); return; }
   todayPicks.splice(idx, 1);
   localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
   // Remove the saved pick UI
@@ -2850,82 +2848,80 @@ function renderTodayPicksSummary() {
 
   panel.style.display = 'block';
   const pending = todayPicks.filter(p => p.f5 === null || p.f5 === undefined).length;
-  countEl.textContent = todayPicks.length + ' pick' + (todayPicks.length !== 1 ? 's' : '') + ' logged' + (pending > 0 ? ' · ' + pending + ' pending' : ' · all results in');
+  countEl.textContent = todayPicks.length + ' logged · ' + (pending > 0 ? pending + ' pending result' : 'all results in');
 
   const resBadge = (v) => {
     if (v === 1) return '<span class="badge badge-green">W</span>';
     if (v === 0) return '<span class="badge badge-red">L</span>';
     if (v === 2) return '<span class="badge badge-white">P</span>';
-    return '<span style="color:var(--muted);font-size:10px;letter-spacing:1px">PENDING</span>';
+    return '<span style="color:var(--muted);font-size:10px">PENDING</span>';
   };
 
-  tbody.innerHTML = todayPicks.map((p, i) => {
+  const rows = todayPicks.map((p, i) => {
+    if (!p.uid) p.uid = 'idx_' + i;
     const typeBadge = p.type === 'ml' ? 'badge-white' : p.type === 'over' ? 'badge-yellow' : 'badge-muted';
     const isLocked = p.locked === true;
+    const d = p.date > 1e9 ? new Date(p.date) : excelToDate(parseFloat(p.date));
+    const dateStr = fmtDate(d);
+    const f5color = p.f5===1?'var(--green)':p.f5===0?'var(--red)':'var(--muted2)';
 
-    const f5Btns = isLocked ? '' : `
-      <div style="display:flex;gap:2px;margin-left:6px">
-        <button class="result-btn ${p.f5===1?'rb-active-win':'rb-win'}" onclick="setTodayRes('${p.uid}','f5',1)" style="padding:3px 8px;font-size:9px">W</button>
-        <button class="result-btn ${p.f5===0?'rb-active-loss':'rb-loss'}" onclick="setTodayRes('${p.uid}','f5',0)" style="padding:3px 8px;font-size:9px">L</button>
-        <button class="result-btn ${p.f5===2?'rb-active-push':'rb-push'}" onclick="setTodayRes('${p.uid}','f5',2)" style="padding:3px 8px;font-size:9px">P</button>
-      </div>`;
+    return '<tr data-uid="' + p.uid + '" style="' + (isLocked?'opacity:0.85':'') + '">' +
+      '<td class="td-mono" style="color:var(--muted2);font-size:10px">' + dateStr + '</td>' +
+      '<td style="font-weight:600;max-width:160px;white-space:normal">' + p.pick + '</td>' +
+      '<td><span class="badge ' + typeBadge + '">' + p.type.toUpperCase() + '</span></td>' +
+      '<td style="color:var(--muted2);font-size:10px;max-width:120px;white-space:normal">' + (p.notes||'—') + '</td>' +
+      '<td>' + resBadge(p.f5) + '</td>' +
+      '<td>' + resBadge(p.ft) + '</td>' +
+      '<td style="color:' + f5color + ';font-weight:700;font-family:'JetBrains Mono',monospace">' + (p.f5===1?'+1.0u':p.f5===0?'-1.5u':'—') + '</td>' +
+      '<td>' +
+        (!isLocked ?
+          '<div style="display:flex;gap:3px;flex-wrap:wrap">' +
+            '<button class="result-btn rb-win pick-res-btn" data-uid="' + p.uid + '" data-side="f5" data-val="1" style="padding:3px 7px;font-size:9px">F5W</button>' +
+            '<button class="result-btn rb-loss pick-res-btn" data-uid="' + p.uid + '" data-side="f5" data-val="0" style="padding:3px 7px;font-size:9px">F5L</button>' +
+            '<button class="result-btn rb-push pick-res-btn" data-uid="' + p.uid + '" data-side="f5" data-val="2" style="padding:3px 7px;font-size:9px">F5P</button>' +
+            '<button class="result-btn rb-win pick-res-btn" data-uid="' + p.uid + '" data-side="ft" data-val="1" style="padding:3px 7px;font-size:9px">FTW</button>' +
+            '<button class="result-btn rb-loss pick-res-btn" data-uid="' + p.uid + '" data-side="ft" data-val="0" style="padding:3px 7px;font-size:9px">FTL</button>' +
+            '<button class="result-btn rb-push pick-res-btn" data-uid="' + p.uid + '" data-side="ft" data-val="2" style="padding:3px 7px;font-size:9px">FTP</button>' +
+          '</div>'
+        : '<span style="color:var(--green);font-size:9px;font-weight:700;letter-spacing:1px">🔒 LOCKED</span>') +
+      '</td>' +
+      '<td>' +
+        '<div style="display:flex;gap:4px">' +
+          '<button class="pick-lock-btn" data-uid="' + p.uid + '" style="background:' + (isLocked?'var(--green-dim2)':'transparent') + ';border:1px solid ' + (isLocked?'var(--green)':'var(--border2)') + ';color:' + (isLocked?'var(--green)':'var(--muted)') + ';font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;cursor:pointer">' + (isLocked?'🔒':'🔓') + '</button>' +
+          (!isLocked ? '<button class="pick-del-btn" data-uid="' + p.uid + '" style="background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;padding:3px 8px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-weight:700">✕</button>' : '') +
+        '</div>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
 
-    const ftBtns = isLocked ? '' : `
-      <div style="display:flex;gap:2px;margin-left:6px">
-        <button class="result-btn ${p.ft===1?'rb-active-win':'rb-win'}" onclick="setTodayRes('${p.uid}','ft',1)" style="padding:3px 8px;font-size:9px">W</button>
-        <button class="result-btn ${p.ft===0?'rb-active-loss':'rb-loss'}" onclick="setTodayRes('${p.uid}','ft',0)" style="padding:3px 8px;font-size:9px">L</button>
-        <button class="result-btn ${p.ft===2?'rb-active-push':'rb-push'}" onclick="setTodayRes('${p.uid}','ft',2)" style="padding:3px 8px;font-size:9px">P</button>
-      </div>`;
+  // Totals row
+  const totW = todayPicks.filter(p=>p.f5===1).length;
+  const totL = todayPicks.filter(p=>p.f5===0).length;
+  const totP = todayPicks.filter(p=>p.f5===2).length;
+  const totU = todayPicks.reduce((a,p)=>a+(p.f5===1?1:p.f5===0?-1.5:0),0);
 
-    const lockBtn = isLocked
-      ? `<button onclick="toggleLock('${p.uid}')" style="background:var(--green-dim2);border:1px solid var(--green);color:var(--green);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;cursor:pointer;letter-spacing:1px">🔒 LOCKED</button>`
-      : `<button onclick="toggleLock('${p.uid}')" style="background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;cursor:pointer;letter-spacing:1px">🔓 LOCK</button>`;
+  tbody.innerHTML = rows + '<tr style="background:var(--bg4);border-top:2px solid var(--border2)">' +
+    '<td colspan="4" style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:1px">TODAY TOTAL</td>' +
+    '<td><span style="color:var(--green)">' + totW + 'W</span> <span style="color:var(--red)">' + totL + 'L</span> <span style="color:var(--muted2)">' + totP + 'P</span></td>' +
+    '<td></td>' +
+    '<td style="font-weight:700;font-family:'JetBrains Mono',monospace;color:' + (totU>=0?'var(--green)':'var(--red)') + '">' + (totU>=0?'+':'') + totU.toFixed(1) + 'u</td>' +
+    '<td colspan="2"></td>' +
+  '</tr>';
 
-    const deleteBtn = isLocked
-      ? `<button disabled style="background:transparent;border:1px solid var(--border);color:var(--muted);font-size:9px;padding:3px 8px;cursor:not-allowed;opacity:0.4">✕</button>`
-      : `<button onclick="deletePick('${p.uid}',-1)" style="background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;padding:3px 8px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-weight:700">✕ DEL</button>`;
-
-    return `<tr style="${isLocked ? 'opacity:0.8' : ''}">
-      <td style="font-weight:600;max-width:160px;white-space:normal">${p.pick}</td>
-      <td><span class="badge ${typeBadge}">${p.type.toUpperCase()}</span></td>
-      <td style="color:var(--muted2);font-size:10px">${p.notes || '—'}</td>
-      <td>
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
-          ${resBadge(p.f5)}
-          ${f5Btns}
-        </div>
-      </td>
-      <td>
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
-          ${resBadge(p.ft)}
-          ${ftBtns}
-        </div>
-      </td>
-      <td style="color:${(p.f5===1)?'var(--green)':(p.f5===0)?'var(--red)':'var(--muted)'};font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700">
-        ${p.f5===1?'+1.0u':p.f5===0?'-1.5u':'—'}
-      </td>
-      <td>
-        <div style="display:flex;gap:4px;align-items:center">
-          ${lockBtn}
-          ${deleteBtn}
-        </div>
-      </td>
-    </tr>`;
-  }).join('') + `
-  <tr style="background:var(--bg4);border-top:2px solid var(--border2)">
-    <td colspan="3" style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:1px">TODAY TOTAL</td>
-    <td colspan="2">
-      <span style="color:var(--green)">${todayPicks.filter(p=>p.f5===1).length}W</span>
-      <span style="color:var(--red);margin-left:6px">${todayPicks.filter(p=>p.f5===0).length}L</span>
-      <span style="color:var(--muted2);margin-left:6px">${todayPicks.filter(p=>p.f5===2).length}P</span>
-    </td>
-    <td style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:${
-      todayPicks.reduce((a,p)=>a+(p.f5===1?1:p.f5===0?-1.5:0),0)>=0?'var(--green)':'var(--red)'
-    }">
-      ${(()=>{const u=todayPicks.reduce((a,p)=>a+(p.f5===1?1:p.f5===0?-1.5:0),0);return (u>=0?'+':'')+u.toFixed(1)+'u';})()}
-    </td>
-    <td></td>
-  </tr>`;
+  // Wire up event delegation for result buttons, lock, delete
+  tbody.querySelectorAll('.pick-res-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setTodayRes(btn.dataset.uid, btn.dataset.side, parseInt(btn.dataset.val));
+    });
+  });
+  tbody.querySelectorAll('.pick-lock-btn').forEach(btn => {
+    btn.addEventListener('click', () => toggleLock(btn.dataset.uid));
+  });
+  tbody.querySelectorAll('.pick-del-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (confirm('Remove this pick?')) deletePick(btn.dataset.uid, -1);
+    });
+  });
 }
 
 
