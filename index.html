@@ -2259,15 +2259,20 @@ function saveManualPick() {
   if (!pick) { showToast('⚠ Enter a pick first'); return; }
 
   const type = document.getElementById('manual-type')?.value || 'ml';
-  const period = document.getElementById('manual-period')?.value || 'f5';
-  const notes = document.getElementById('manual-notes')?.value.trim() || '';
-
-  // Date — use selected value or default to yesterday
   const dateSelEl = document.getElementById('manual-date');
   let pickDate = Date.now();
-  if (dateSelEl && dateSelEl.value && !isNaN(parseInt(dateSelEl.value))) {
-    pickDate = parseInt(dateSelEl.value);
-  }
+  if (dateSelEl && dateSelEl.value && !isNaN(parseInt(dateSelEl.value))) pickDate = parseInt(dateSelEl.value);
+  const dateStr = new Date(pickDate).toISOString().slice(0,10);
+
+  // Check for duplicate: same pick + type + date
+  const isDuplicate = todayPicks.some(p => {
+    const pDate = p.date > 1e9 ? new Date(p.date).toISOString().slice(0,10) : new Date(p.date*86400000).toISOString().slice(0,10);
+    return p.pick.toLowerCase() === pick.toLowerCase() && p.type === type && pDate === dateStr;
+  });
+  if (isDuplicate) { showToast('⚠ Duplicate pick — already logged'); return; }
+
+  const period = document.getElementById('manual-period')?.value || 'f5';
+  const notes = document.getElementById('manual-notes')?.value.trim() || '';
 
   const uid = Date.now() + '_' + Math.random().toString(36).slice(2,6);
   const newPick = {uid, date:pickDate, type, pick, f5:null, ft:null, notes, isToday:true, locked:false};
@@ -2940,9 +2945,18 @@ function savePick(idx) {
   else if(type==='ftml-home'){pick=home;betType='ml';}
   else if(type==='parlay'){pick=`PARLAY: ${away}/${home}`;betType='ml';}
 
-  const uid = Date.now() + '_' + Math.random().toString(36).slice(2,6);
   const dateSelect = document.getElementById('pick-date-'+idx);
   const pickDate = dateSelect ? parseInt(dateSelect.value) : Date.now();
+  const pickDateStr = new Date(pickDate).toISOString().slice(0,10);
+
+  // Check for duplicate
+  const isDuplicate = todayPicks.some(p => {
+    const pDate = p.date > 1e9 ? new Date(p.date).toISOString().slice(0,10) : '';
+    return p.pick.toLowerCase() === pick.toLowerCase() && p.type === betType && pDate === pickDateStr;
+  });
+  if (isDuplicate) { showToast('⚠ Already logged this pick'); return; }
+
+  const uid = Date.now() + '_' + Math.random().toString(36).slice(2,6);
   const newPick={uid,date:pickDate,type:betType,pick,f5:null,ft:null,notes,isToday:true,locked:false};
   todayPicks.push(newPick);
   localStorage.setItem('harriPicks_v2',JSON.stringify(todayPicks));
@@ -3031,12 +3045,13 @@ function renderTodayPicksSummary() {
 
   // Only show picks logged after the last clear
   const visiblePicks = todayPicks.filter(p => p.date > todayPicksClearedAt);
+  panel.style.display = 'block';
+
   if (!visiblePicks.length) {
-    panel.style.display = 'none';
+    countEl.textContent = 'No picks yet — log below';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;font-size:11px">No picks logged yet — use the game cards or manual entry above</td></tr>';
     return;
   }
-
-  panel.style.display = 'block';
   const pending = visiblePicks.filter(p => p.f5 === null || p.f5 === undefined).length;
   countEl.textContent = todayPicks.length + ' logged · ' + (pending > 0 ? pending + ' pending result' : 'all results in');
 
