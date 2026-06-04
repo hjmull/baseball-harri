@@ -1001,6 +1001,47 @@ select.filter-select:focus { border-color: var(--green); }
   </div>
 
   <!-- INPUTS -->
+  <!-- MANUAL PICK ENTRY -->
+  <div style="background:var(--bg2);border:1px solid var(--border);padding:16px;margin-bottom:16px;position:relative">
+    <div style="position:absolute;top:-1px;left:16px;background:var(--bg);color:var(--muted);font-size:9px;font-weight:700;letter-spacing:2px;padding:2px 8px;border:1px solid var(--border)">MANUAL PICK ENTRY</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto auto;gap:8px;align-items:end;margin-top:8px">
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">PICK / TEAMS</div>
+        <input type="text" id="manual-pick" class="pick-input" placeholder="e.g. Phillies, Cubs/Cardinals over" style="width:100%">
+      </div>
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">TYPE</div>
+        <select id="manual-type" style="background:var(--bg);border:1px solid var(--border2);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px;width:100%;outline:none">
+          <option value="ml">ML</option>
+          <option value="over">Over</option>
+          <option value="under">Under</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">DATE</div>
+        <select id="manual-date" style="background:var(--bg);border:1px solid var(--border2);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px;width:100%;outline:none">
+          <option value="">Loading...</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">NOTES</div>
+        <input type="text" id="manual-notes" class="pick-input" placeholder="like, like+, fade..." style="width:100%">
+      </div>
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">PERIOD</div>
+        <select id="manual-period" style="background:var(--bg);border:1px solid var(--border2);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px;width:100%;outline:none">
+          <option value="f5">F5</option>
+          <option value="ft">FT</option>
+          <option value="both">Both</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:9px;color:transparent;margin-bottom:4px">.</div>
+        <button onclick="saveManualPick()" class="save-btn">ADD →</button>
+      </div>
+    </div>
+  </div>
+
   <div id="data-loaded-banner" style="display:none;background:var(--green-dim2);border:1px solid var(--green);padding:10px 16px;margin-bottom:12px;display:none;align-items:center;justify-content:space-between">
     <span style="color:var(--green);font-size:11px;font-weight:700;letter-spacing:1px">✓ DATA LOADED — Ready to generate</span>
     <button onclick="clearAllData()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:10px;padding:4px 10px;cursor:pointer">CLEAR ALL</button>
@@ -2109,6 +2150,56 @@ function handleParkFile(input) {
   reader.readAsText(file);
 }
 
+function populateManualDateDropdown() {
+  const sel = document.getElementById('manual-date');
+  if (!sel) return;
+  sel.innerHTML = '';
+  for (let d = 0; d < 7; d++) {
+    const dt = new Date();
+    dt.setDate(dt.getDate() - d);
+    const label = d === 0 ? 'Today' : d === 1 ? 'Yesterday' : dt.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+    const opt = document.createElement('option');
+    opt.value = dt.getTime();
+    opt.textContent = label;
+    sel.appendChild(opt);
+  }
+}
+
+function saveManualPick() {
+  const pickEl = document.getElementById('manual-pick');
+  const pick = pickEl ? pickEl.value.trim() : '';
+  if (!pick) { showToast('⚠ Enter a pick first'); return; }
+
+  const type = document.getElementById('manual-type')?.value || 'ml';
+  const period = document.getElementById('manual-period')?.value || 'f5';
+  const notes = document.getElementById('manual-notes')?.value.trim() || '';
+
+  // Date — use selected value or default to yesterday
+  const dateSelEl = document.getElementById('manual-date');
+  let pickDate = Date.now();
+  if (dateSelEl && dateSelEl.value && !isNaN(parseInt(dateSelEl.value))) {
+    pickDate = parseInt(dateSelEl.value);
+  }
+
+  const uid = Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const newPick = {uid, date:pickDate, type, pick, f5:null, ft:null, notes, isToday:true, locked:false};
+
+  todayPicks.push(newPick);
+  localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+
+  // Clear inputs
+  if (pickEl) pickEl.value = '';
+  const notesEl = document.getElementById('manual-notes');
+  if (notesEl) notesEl.value = '';
+
+  renderTodayPicksSummary();
+  renderDashboard();
+  buildTicker();
+  buildHeaderStats();
+  renderHistory();
+  showToast('✓ ' + pick + ' added');
+}
+
 function setupDropZone(boxId, fileId, handler) {
   const box = document.getElementById(boxId);
   const input = document.getElementById(fileId);
@@ -2769,6 +2860,7 @@ function savePick(idx, away, home) {
     savedDiv.innerHTML = '<div class="saved-pick"><div class="sp-info">✓ ' + pick.toUpperCase() + ' — ' + betType.toUpperCase() + ' ' + (isF5?'F5':'FT') + '</div><div class="sp-notes">' + (notes||'No notes') + ' · <span style="color:var(--muted)">See Today\'s Picks below</span></div></div>';
   }
   showToast('✓ Saved: ' + pick);
+  populateManualDateDropdown();
   buildTicker();
   buildHeaderStats();
   renderDashboard();
