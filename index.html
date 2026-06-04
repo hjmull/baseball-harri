@@ -799,8 +799,8 @@ select.filter-select:focus { border-color: var(--green); }
     <button class="nav-btn" onclick="switchTab('reports',this)">Reports</button>
   </nav>
   <div style="display:flex;gap:6px;align-items:center">
-    <button onclick="exportSnapshot()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:5px 10px;cursor:pointer;letter-spacing:1px;transition:all 0.1s" onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">💾 BACKUP</button>
-    <label style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:5px 10px;cursor:pointer;letter-spacing:1px" onmouseover="this.style.color='var(--yellow)';this.style.borderColor='var(--yellow)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">
+    <button onclick="exportSnapshot()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:9px;font-weight:700;padding:5px 10px;cursor:pointer;letter-spacing:1px;transition:all 0.1s" onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">💾 BACKUP</button>
+    <label style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:9px;font-weight:700;padding:5px 10px;cursor:pointer;letter-spacing:1px" onmouseover="this.style.color='var(--yellow)';this.style.borderColor='var(--yellow)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">
       📂 RESTORE
       <input type="file" accept=".json" onchange="importSnapshot(this)" style="display:none">
     </label>
@@ -1003,7 +1003,7 @@ select.filter-select:focus { border-color: var(--green); }
   <!-- INPUTS -->
   <div id="data-loaded-banner" style="display:none;background:var(--green-dim2);border:1px solid var(--green);padding:10px 16px;margin-bottom:12px;display:none;align-items:center;justify-content:space-between">
     <span style="color:var(--green);font-size:11px;font-weight:700;letter-spacing:1px">✓ DATA LOADED — Ready to generate</span>
-    <button onclick="clearAllData()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer">CLEAR ALL</button>
+    <button onclick="clearAllData()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:10px;padding:4px 10px;cursor:pointer">CLEAR ALL</button>
   </div>
   <div class="input-grid">
     <div class="input-panel">
@@ -1165,7 +1165,7 @@ select.filter-select:focus { border-color: var(--green); }
     <div class="section-title">Saved Daily Reports</div>
     <div class="flex" style="gap:8px">
       <span style="font-size:10px;color:var(--muted)">Reports auto-save when you generate. Click any date to expand.</span>
-      <button onclick="clearAllReports()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;letter-spacing:1px">CLEAR ALL</button>
+      <button onclick="clearAllReports()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:10px;padding:4px 10px;cursor:pointer;letter-spacing:1px">CLEAR ALL</button>
     </div>
   </div>
   <div id="reports-list">
@@ -1562,7 +1562,7 @@ function drawPnlChart() {
   // Current value label
   const last = points[points.length-1];
   ctx.fillStyle = '#00ff41';
-  ctx.font = '10px JetBrains Mono';
+  ctx.font = '10px monospace';
   ctx.fillText(`${last.y>=0?'+':''}${last.y.toFixed(2)}u`, W - 60, toY(last.y) - 6);
 }
 
@@ -2647,7 +2647,7 @@ function renderGames(games) {
                 const color = val > 5 ? 'var(--green)' : val < -5 ? 'var(--red)' : 'var(--muted2)';
                 return `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px">
                   <span style="color:var(--muted2)">${label}</span>
-                  <span style="color:${color};font-weight:700;font-family:'JetBrains Mono',monospace">${val > 0 ? '+' : ''}${val.toFixed(1)}</span>
+                  <span style="color:${color};font-weight:700;font-family:monospace">${val > 0 ? '+' : ''}${val.toFixed(1)}</span>
                 </div>`;
               }).join('')}
             </div>
@@ -2664,7 +2664,7 @@ function renderGames(games) {
                 const color = val > 5 ? 'var(--green)' : val < -5 ? 'var(--red)' : 'var(--muted2)';
                 return `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px">
                   <span style="color:var(--muted2)">${label}</span>
-                  <span style="color:${color};font-weight:700;font-family:'JetBrains Mono',monospace">${val > 0 ? '+' : ''}${val.toFixed(1)}</span>
+                  <span style="color:${color};font-weight:700;font-family:monospace">${val > 0 ? '+' : ''}${val.toFixed(1)}</span>
                 </div>`;
               }).join('')}
             </div>
@@ -2701,7 +2701,7 @@ function renderGames(games) {
           </div>
           <div class="pick-row">
             <input type="text" class="pick-input" id="notes-${idx}" placeholder="Notes... (like, like+, reasoning)">
-            <select id="pick-date-${idx}" style="background:var(--bg);border:1px solid var(--border2);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:10px;padding:8px 10px;outline:none;cursor:pointer;flex-shrink:0">
+            <select id="pick-date-${idx}" style="background:var(--bg);border:1px solid var(--border2);color:var(--text2);font-family:monospace;font-size:10px;padding:8px 10px;outline:none;cursor:pointer;flex-shrink:0">
               ${(()=>{
                 const opts = [];
                 for(let d=0;d<3;d++){
@@ -2872,7 +2872,7 @@ function renderTodayPicksSummary() {
       '<td style="color:var(--muted2);font-size:10px;max-width:120px;white-space:normal">' + (p.notes||'—') + '</td>' +
       '<td>' + resBadge(p.f5) + '</td>' +
       '<td>' + resBadge(p.ft) + '</td>' +
-      '<td style="color:' + f5color + ';font-weight:700;font-family:'JetBrains Mono',monospace">' + (p.f5===1?'+1.0u':p.f5===0?'-1.5u':'—') + '</td>' +
+      '<td style="color:' + f5color + ';font-weight:700;font-family:monospace">' + (p.f5===1?'+1.0u':p.f5===0?'-1.5u':'—') + '</td>' +
       '<td>' +
         (!isLocked ?
           '<div style="display:flex;gap:3px;flex-wrap:wrap">' +
@@ -2887,8 +2887,8 @@ function renderTodayPicksSummary() {
       '</td>' +
       '<td>' +
         '<div style="display:flex;gap:4px">' +
-          '<button class="pick-lock-btn" data-uid="' + p.uid + '" style="background:' + (isLocked?'var(--green-dim2)':'transparent') + ';border:1px solid ' + (isLocked?'var(--green)':'var(--border2)') + ';color:' + (isLocked?'var(--green)':'var(--muted)') + ';font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;cursor:pointer">' + (isLocked?'🔒':'🔓') + '</button>' +
-          (!isLocked ? '<button class="pick-del-btn" data-uid="' + p.uid + '" style="background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;padding:3px 8px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-weight:700">✕</button>' : '') +
+          '<button class="pick-lock-btn" data-uid="' + p.uid + '" style="background:' + (isLocked?'var(--green-dim2)':'transparent') + ';border:1px solid ' + (isLocked?'var(--green)':'var(--border2)') + ';color:' + (isLocked?'var(--green)':'var(--muted)') + ';font-family:monospace;font-size:9px;font-weight:700;padding:3px 8px;cursor:pointer">' + (isLocked?'🔒':'🔓') + '</button>' +
+          (!isLocked ? '<button class="pick-del-btn" data-uid="' + p.uid + '" style="background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;padding:3px 8px;cursor:pointer;font-family:monospace;font-weight:700">✕</button>' : '') +
         '</div>' +
       '</td>' +
     '</tr>';
@@ -2904,7 +2904,7 @@ function renderTodayPicksSummary() {
     '<td colspan="4" style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:1px">TODAY TOTAL</td>' +
     '<td><span style="color:var(--green)">' + totW + 'W</span> <span style="color:var(--red)">' + totL + 'L</span> <span style="color:var(--muted2)">' + totP + 'P</span></td>' +
     '<td></td>' +
-    '<td style="font-weight:700;font-family:'JetBrains Mono',monospace;color:' + (totU>=0?'var(--green)':'var(--red)') + '">' + (totU>=0?'+':'') + totU.toFixed(1) + 'u</td>' +
+    '<td style="font-weight:700;font-family:monospace;color:' + (totU>=0?'var(--green)':'var(--red)') + '">' + (totU>=0?'+':'') + totU.toFixed(1) + 'u</td>' +
     '<td colspan="2"></td>' +
   '</tr>';
 
@@ -2993,6 +2993,7 @@ function switchTab(tab,btn) {
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
+  localStorage.setItem('harriActiveTab', tab);
   if(tab==='dashboard'){renderDashboard();}
   if(tab==='history'){renderHistory();}
   if(tab==='trends'){renderTrends();}
@@ -3007,9 +3008,25 @@ function switchTab(tab,btn) {
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded',()=>{
+  // Restore last active tab
+  const savedTab = localStorage.getItem('harriActiveTab') || 'dashboard';
+  const tabBtn = document.querySelector(`.nav-btn[onclick*="'${savedTab}'"]`);
+  if (savedTab && document.getElementById('tab-'+savedTab)) {
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('tab-'+savedTab).classList.add('active');
+    if (tabBtn) tabBtn.classList.add('active');
+  }
+
   buildTicker();
   buildHeaderStats();
   renderDashboard();
+
+  // Render the restored tab
+  if (savedTab === 'history') renderHistory();
+  else if (savedTab === 'trends') renderTrends();
+  else if (savedTab === 'reports') renderReports();
+  else if (savedTab === 'today') renderTodayPicksSummary();
 
   // Wire up all upload/drop zones
   setupDropZone('drop-matchup', 'matchup-file', handleMatchupFile);
