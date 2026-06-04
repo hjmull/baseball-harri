@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BASEBALL HARRI // TERMINAL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1102,7 +1103,10 @@ select.filter-select:focus { border-color: var(--green); }
   <div id="today-picks-summary" style="display:none;margin-bottom:20px">
     <div class="section-header">
       <div class="section-title">Today's Picks</div>
-      <span style="font-size:10px;color:var(--muted)" id="today-picks-count"></span>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:10px;color:var(--muted)" id="today-picks-count"></span>
+        <button onclick="clearTodayPicks()" style="background:transparent;border:1px solid var(--red);color:var(--red);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:4px 12px;cursor:pointer;letter-spacing:1px">CLEAR ALL PICKS</button>
+      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -2110,41 +2114,79 @@ function handleMatchupFile(input) {
   const file = input.files[0]; if(!file) return;
   document.getElementById('matchup-status').textContent = '✓ '+file.name;
   document.getElementById('matchup-status').className = 'status-ready';
+  const isXLSX = file.name.match(/\.xlsx$/i);
   const reader = new FileReader();
   reader.onload = e => {
-    const lines = e.target.result.split('\n').filter(l=>l.trim());
-    const headers = lines[0].split(',').map(h=>h.trim().replace(/["\uFEFF]/g,''));
-    matchupData = lines.slice(1).map(line=>{
-      const vals = parseCSV(line), obj={};
-      headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
-      return obj;
-    });
-    checkDataBanner();
-    localStorage.setItem('harriMatchupData', JSON.stringify(matchupData));
-    checkDataBanner();
-    showToast('Matchup data loaded');
+    try {
+      if (isXLSX && typeof XLSX !== 'undefined') {
+        const wb = XLSX.read(e.target.result, {type:'array'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+        matchupData = rows.map(row => {
+          const obj = {};
+          Object.keys(row).forEach(k => obj[k] = String(row[k]).trim());
+          return obj;
+        });
+      } else {
+        const lines = e.target.result.split('\n').filter(l=>l.trim());
+        const headers = lines[0].split(',').map(h=>h.trim().replace(/["\uFEFF]/g,''));
+        matchupData = lines.slice(1).map(line=>{
+          const vals = parseCSV(line), obj={};
+          headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
+          return obj;
+        });
+      }
+      // Re-render games with matchup data if report already generated
+      if (gameSimData.length) renderGames(gameSimData);
+      if (matchupData.length > 0) {
+        localStorage.setItem('harriMatchupData', JSON.stringify(matchupData));
+      }
+      checkDataBanner();
+      showToast('✓ Matchup data loaded — ' + matchupData.length + ' rows');
+    } catch(err) {
+      showToast('⚠ Error reading matchup file: ' + err.message);
+    }
   };
-  reader.readAsText(file);
+  if (isXLSX) reader.readAsArrayBuffer(file);
+  else reader.readAsText(file);
 }
 
 function handlePitcherFile(input) {
   const file = input.files[0]; if(!file) return;
   document.getElementById('pitcher-status').textContent = '✓ '+file.name;
   document.getElementById('pitcher-status').className = 'status-ready';
+  const isXLSX = file.name.match(/\.xlsx$/i);
   const reader = new FileReader();
   reader.onload = e => {
-    const lines = e.target.result.split('\n').filter(l=>l.trim());
-    const headers = lines[0].split(',').map(h=>h.trim().replace(/["\uFEFF]/g,''));
-    pitcherData = lines.slice(1).map(line=>{
-      const vals = parseCSV(line), obj={};
-      headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
-      return obj;
-    });
-    localStorage.setItem('harriPitcherData', JSON.stringify(pitcherData));
-    checkDataBanner();
-    showToast('Pitcher data loaded');
+    try {
+      if (isXLSX && typeof XLSX !== 'undefined') {
+        const wb = XLSX.read(e.target.result, {type:'array'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+        pitcherData = rows.map(row => {
+          const obj = {};
+          Object.keys(row).forEach(k => obj[k] = String(row[k]).trim());
+          return obj;
+        });
+      } else {
+        const lines = e.target.result.split('\n').filter(l=>l.trim());
+        const headers = lines[0].split(',').map(h=>h.trim().replace(/["\uFEFF]/g,''));
+        pitcherData = lines.slice(1).map(line=>{
+          const vals = parseCSV(line), obj={};
+          headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
+          return obj;
+        });
+      }
+      if (gameSimData.length) renderGames(gameSimData);
+      localStorage.setItem('harriPitcherData', JSON.stringify(pitcherData));
+      checkDataBanner();
+      showToast('✓ Pitcher data loaded — ' + pitcherData.length + ' rows');
+    } catch(err) {
+      showToast('⚠ Error reading pitcher file: ' + err.message);
+    }
   };
-  reader.readAsText(file);
+  if (isXLSX) reader.readAsArrayBuffer(file);
+  else reader.readAsText(file);
 }
 
 function handleParkFile(input) {
@@ -3042,6 +3084,18 @@ function renderTodayPicksSummary() {
 }
 
 
+function clearTodayPicks() {
+  if (!confirm('Clear all logged picks? This cannot be undone — backup first if needed.')) return;
+  todayPicks = [];
+  localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+  renderTodayPicksSummary();
+  renderDashboard();
+  buildTicker();
+  buildHeaderStats();
+  renderHistory();
+  showToast('All picks cleared');
+}
+
 function toggleLock(uid) {
   const pick = todayPicks.find(p => p.uid == uid);
   if (!pick) return;
@@ -3163,9 +3217,15 @@ document.addEventListener('DOMContentLoaded',()=>{
     checkDataBanner();
   }
   if (savedMatchup) {
-    matchupData = JSON.parse(savedMatchup);
-    document.getElementById('matchup-status').textContent = '✓ Restored';
-    document.getElementById('matchup-status').className = 'status-ready';
+    try {
+      const parsed = JSON.parse(savedMatchup);
+      // Only restore if it's actual data (not empty array from failed parse)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        matchupData = parsed;
+        document.getElementById('matchup-status').textContent = '✓ Restored (' + parsed.length + ' rows)';
+        document.getElementById('matchup-status').className = 'status-ready';
+      }
+    } catch(e) { console.log('matchup restore failed'); }
   }
   if (savedPitcher) {
     pitcherData = JSON.parse(savedPitcher);
@@ -3184,6 +3244,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     renderGames(gameSimData);
     document.getElementById('games-header').style.display = 'flex';
     document.getElementById('today-title').textContent = 'Today\'s Slate — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    console.log('Restored matchupData rows:', matchupData.length, 'pitcherData rows:', pitcherData.length);
   }
   // Show today's picks if any exist
   renderTodayPicksSummary();
@@ -3235,7 +3296,12 @@ function saveReport(games) {
         points: harri.points,
       };
     }),
-    picks: todayPicks.filter(p => p.isToday),
+    picks: todayPicks.filter(p => {
+      const d = p.date > 1e9 ? new Date(p.date) : excelToDate(parseFloat(p.date));
+      if (!d) return false;
+      const today = new Date();
+      return d.toISOString().slice(0,10) === today.toISOString().slice(0,10);
+    }),
     overWatch: parkData.filter(r => parseFloat((r['Runs %']||'').replace('%','').replace('+','')) >= 7).map(r => r['Game'] || ''),
     underWatch: parkData.filter(r => parseFloat((r['Runs %']||'').replace('%','').replace('+','')) <= -7).map(r => r['Game'] || ''),
   };
