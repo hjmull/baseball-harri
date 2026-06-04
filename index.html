@@ -23,1033 +23,3390 @@
   --green2: #00cc33;
   --green-dim: rgba(0,255,65,0.08);
   --green-dim2: rgba(0,255,65,0.15);
-  --red: #ff3333;
-  --red-dim: rgba(255,51,51,0.08);
-  --orange: #ff9900;
-  --orange-dim: rgba(255,153,0,0.08);
-  --blue: #0099ff;
-  --blue-dim: rgba(0,153,255,0.08);
+  --red: #ff3131;
+  --red-dim: rgba(255,49,49,0.08);
+  --yellow: #ffff00;
+  --yellow-dim: rgba(255,255,0,0.08);
+  --white-dim: rgba(255,255,255,0.05);
 }
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
 body {
-  background-color: var(--bg);
+  background: var(--bg);
   color: var(--text);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
   overflow-x: hidden;
-  padding: 24px;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  border-bottom: 1px solid var(--border2);
-  padding-bottom: 16px;
-  margin-bottom: 24px;
-}
-
-h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
-  letter-spacing: 2px;
-  line-height: 1;
-}
-
-.system-status {
-  display: flex;
-  gap: 24px;
-}
-
-.stat-block {
-  text-align: right;
-}
-
-.stat-label {
-  font-size: 10px;
-  color: var(--muted2);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.stat-val {
-  font-size: 18px;
-  font-weight: 600;
-}
-.stat-val.pos { color: var(--green); }
-.stat-val.neg { color: var(--red); }
-
-.ticker-bar {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 8px 12px;
-  font-size: 11px;
-  color: var(--muted2);
-  margin-bottom: 24px;
-  display: flex;
-  gap: 8px;
+/* TICKER */
+.ticker-wrap {
+  background: var(--green);
+  color: #000;
+  height: 28px;
   overflow: hidden;
-  white-space: nowrap;
-}
-
-.ticker-label {
-  color: var(--green);
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.nav-btn {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  color: var(--muted2);
-  padding: 8px 16px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.nav-btn:hover {
-  border-color: var(--border3);
-  color: var(--text);
-}
-
-.nav-btn.active {
-  background: var(--bg4);
-  border-color: var(--border3);
-  color: var(--text);
-  font-weight: 600;
-}
-
-.view-panel {
-  display: none;
-}
-
-.view-panel.active {
-  display: block;
-}
-
-.grid-layout {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
-}
-
-@media (max-width: 1024px) {
-  .grid-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-.card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 20px;
-  margin-bottom: 24px;
   position: relative;
+  border-bottom: 1px solid var(--green);
 }
-
-.card-title {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--muted2);
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 8px;
+.ticker-track {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 11px;
-  color: var(--muted2);
-  margin-bottom: 6px;
-  text-transform: uppercase;
-}
-
-input, select, textarea {
-  width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 8px 12px;
-  font-family: inherit;
-  font-size: 13px;
-  border-radius: 0;
-  outline: none;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: var(--border3);
-  background: var(--bg4);
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.action-btn {
-  background: var(--text);
-  color: var(--bg);
-  border: none;
-  padding: 10px 20px;
-  font-family: inherit;
-  font-weight: 600;
-  font-size: 12px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.action-btn:hover {
-  background: #eeeeee;
-}
-
-.secondary-btn {
-  background: transparent;
-  color: var(--text2);
-  border: 1px solid var(--border2);
-  padding: 6px 12px;
-  font-family: inherit;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.secondary-btn:hover {
-  border-color: var(--border3);
-  color: var(--text);
-}
-
-.table-wrapper {
-  overflow-x: auto;
-  width: 100%;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-th {
-  font-size: 11px;
-  color: var(--muted2);
-  text-transform: uppercase;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border3);
-  font-weight: 500;
-}
-
-td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-
-tr.locked-row {
-  opacity: 0.6;
-  background: rgba(0,0,0,0.2);
-}
-
-.select-status {
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  padding: 4px 8px;
-  font-size: 11px;
-  width: auto;
-  cursor: pointer;
-}
-
-.status-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 6px;
-  text-transform: uppercase;
-}
-.status-badge.win { color: var(--green); background: var(--green-dim); }
-.status-badge.loss { color: var(--red); background: var(--red-dim); }
-.status-badge.push { color: var(--orange); background: var(--orange-dim); }
-.status-badge.pending { color: var(--blue); background: var(--blue-dim); }
-
-.lock-toggle, .delete-btn {
-  background: transparent;
-  border: none;
-  color: var(--muted2);
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.lock-toggle:hover { color: var(--text); }
-.delete-btn:hover { color: var(--red); }
-
-.quick-list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.quick-list-item:last-child {
-  border-bottom: none;
-}
-
-.quick-meta {
-  font-size: 11px;
-  color: var(--muted2);
-}
-
-.mini-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 120px;
-  padding-top: 20px;
-  border-bottom: 1px solid var(--border2);
-}
-
-.chart-bar-container {
-  flex: 1;
-  display: flex;
-  flex-col: column;
   align-items: center;
   height: 100%;
-  justify-content: flex-end;
-  position: relative;
-}
-
-.chart-bar {
-  width: 100%;
-  min-height: 2px;
-  transition: height 0.3s;
-  position: relative;
-}
-.chart-bar.pos { background: var(--green2); }
-.chart-bar.neg { background: var(--red); }
-.chart-bar.neutral { background: var(--muted); }
-
-.chart-bar:hover .chart-tooltip {
-  display: block;
-}
-
-.chart-tooltip {
-  display: none;
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg5);
-  border: 1px solid var(--border3);
-  padding: 4px 8px;
-  font-size: 10px;
   white-space: nowrap;
-  z-index: 10;
-  margin-bottom: 4px;
+  animation: ticker 45s linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 32px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+.ticker-sep { color: rgba(0,0,0,0.4); }
+
+/* HEADER */
+.header {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border2);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  position: sticky;
+  top: 28px;
+  z-index: 100;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo-accent { color: var(--green); }
+.logo-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  font-weight: 400;
+  border: 1px solid var(--border2);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+.nav { display: flex; gap: 0; }
+.nav-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0 18px;
+  height: 52px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.nav-btn:hover { color: var(--text2); }
+.nav-btn.active { color: var(--green); border-bottom-color: var(--green); }
+.header-stats {
+  display: flex;
+  gap: 24px;
+  font-size: 11px;
+}
+.hs-item { display: flex; flex-direction: column; gap: 1px; align-items: flex-end; }
+.hs-label { color: var(--muted); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+.hs-value { font-weight: 700; }
+.hs-value.pos { color: var(--green); }
+.hs-value.neg { color: var(--red); }
+
+/* TABS */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* LAYOUT */
+.page { padding: 20px; max-width: 1600px; margin: 0 auto; }
+
+/* SECTION */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  background: var(--green);
 }
 
-.chart-label {
+/* METRIC CARDS */
+.metric-grid {
+  display: grid;
+  gap: 1px;
+  margin-bottom: 20px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.metric-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.metric-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.metric-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.metric-grid-5 { grid-template-columns: repeat(5, 1fr); }
+.metric-grid-6 { grid-template-columns: repeat(6, 1fr); }
+.metric-grid-8 { grid-template-columns: repeat(8, 1fr); }
+
+.metric {
+  background: var(--bg2);
+  padding: 16px 18px;
+  position: relative;
+}
+.metric-label {
   font-size: 9px;
   color: var(--muted);
-  margin-top: 4px;
-  text-align: center;
-  width: 100%;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 4px;
+}
+.metric-value.lg { font-size: 36px; }
+.metric-value.sm { font-size: 20px; }
+.metric-sub {
+  font-size: 10px;
+  color: var(--muted2);
+}
+.metric-sub.pos { color: var(--green); }
+.metric-sub.neg { color: var(--red); }
+.metric.pos-border { border-top: 2px solid var(--green); }
+.metric.neg-border { border-top: 2px solid var(--red); }
+.metric.neu-border { border-top: 2px solid var(--muted); }
+.metric.yel-border { border-top: 2px solid var(--yellow); }
+
+/* SPLIT */
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.split-panel { background: var(--bg2); padding: 20px; }
+.split-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.split-label.green { color: var(--green); }
+.split-label.white { color: var(--text2); }
+
+/* TABLE */
+.table-wrap {
+  border: 1px solid var(--border);
   overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: 20px;
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+  background: var(--bg3);
+  padding: 8px 14px;
+  text-align: left;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border2);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+th:hover { color: var(--text2); background: var(--bg4); }
+th.sorted { color: var(--green); }
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text2);
   white-space: nowrap;
 }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
+.td-mono { font-family: 'JetBrains Mono', monospace; }
 
-/* Modal Overlay Base Setup */
-.modal-backdrop {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.8);
-  display: none;
+/* BADGES */
+.badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  z-index: 2000;
+  padding: 2px 7px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid;
 }
-.modal-backdrop.active {
+.badge-green { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+.badge-red { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+.badge-yellow { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-dim); }
+.badge-white { border-color: var(--border2); color: var(--text2); background: var(--white-dim); }
+.badge-muted { border-color: var(--border); color: var(--muted); background: transparent; }
+
+/* FILTER BAR */
+.filter-bar {
   display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  width: fit-content;
 }
-.modal-box {
+.filter-btn {
   background: var(--bg2);
-  border: 1px solid var(--border3);
-  padding: 24px;
-  max-width: 500px;
-  width: 100%;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.filter-btn:last-child { border-right: none; }
+.filter-btn:hover { color: var(--text); background: var(--bg3); }
+.filter-btn.active { color: #000; background: var(--green); }
+
+/* SPARKLINE */
+.sparkline-wrap { display: flex; align-items: flex-end; gap: 2px; height: 32px; margin-top: 8px; }
+.spark-bar { flex: 1; min-height: 2px; min-width: 3px; }
+
+/* PNL CHART */
+.pnl-chart {
+  position: relative;
+  height: 120px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.pnl-canvas { width: 100%; height: 100%; }
+.pnl-label {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
-#toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: var(--bg5);
-  border: 1px solid var(--border3);
-  padding: 12px 20px;
-  font-size: 12px;
-  font-weight: 500;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.2s ease;
-  z-index: 1000;
-  pointer-events: none;
+/* GAME CARDS */
+.games-grid { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 20px; }
+.game-card { background: var(--bg2); }
+.game-card.flagged { border-left: 3px solid var(--green); }
+.game-card.parlay-flag { border-left: 3px solid var(--yellow); }
+.game-card.pass-flag { border-left: 3px solid var(--muted); }
+
+.game-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1fr 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid transparent;
 }
-#toast.show {
-  opacity: 1;
-  transform: translateY(0);
+.game-header:hover { background: var(--bg3); }
+.game-header.open { background: var(--bg3); border-bottom-color: var(--border); }
+
+.gh-time { font-size: 11px; font-weight: 700; color: var(--muted2); }
+.gh-matchup { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; }
+.gh-pitchers { font-size: 10px; color: var(--muted); }
+.gh-park { font-size: 10px; }
+.gh-flags { display: flex; gap: 6px; flex-wrap: wrap; }
+.gh-toggle { color: var(--muted); font-size: 14px; }
+
+.game-body { display: none; padding: 20px; background: var(--bg3); }
+.game-body.open { display: block; }
+
+.game-analytics {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.ga-cell { background: var(--bg2); padding: 12px; }
+.ga-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.ga-away { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.ga-home { font-size: 13px; font-weight: 700; }
+
+/* HARRI BOX */
+.harri-box {
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+  padding: 16px;
+  margin-bottom: 16px;
+  position: relative;
+}
+.harri-box::before {
+  content: 'HARRI ANALYSIS';
+  position: absolute;
+  top: -1px;
+  left: 16px;
+  background: var(--green);
+  color: #000;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 2px 8px;
+}
+.harri-rec {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  padding-top: 8px;
+}
+.harri-rec.go { color: var(--green); }
+.harri-rec.pass { color: var(--muted2); }
+.harri-rec.parlay { color: var(--yellow); }
+.harri-points { display: flex; flex-direction: column; gap: 6px; }
+.harri-point {
+  font-size: 11px;
+  color: var(--text2);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.5;
+}
+.harri-point::before { content: '▸'; position: absolute; left: 0; color: var(--green); }
+.harri-point.neg::before { color: var(--red); content: '▸'; }
+.harri-point.neu::before { color: var(--muted); content: '▸'; }
+
+/* IMPLIED TABLE */
+.implied-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.implied-cell { background: var(--bg2); padding: 8px; text-align: center; }
+.implied-line { font-size: 9px; color: var(--muted); margin-bottom: 3px; letter-spacing: 0.5px; }
+.implied-val { font-size: 12px; font-weight: 700; }
+.implied-val.pos { color: var(--green); }
+.implied-val.neg { color: var(--red); }
+.implied-val.hot { color: var(--green); background: var(--green-dim2); padding: 1px 4px; }
+
+/* PICK ENTRY */
+.pick-entry {
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 16px;
+  position: relative;
+}
+.pick-entry::before {
+  content: 'LOG PICK';
+  position: absolute;
+  top: -1px;
+  left: 16px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+}
+.pick-type-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 12px 0;
+}
+.pick-type-btn {
+  background: var(--bg3);
+  border: none;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.pick-type-btn:hover { color: var(--text); background: var(--bg4); }
+.pick-type-btn.sel { background: var(--green); color: #000; }
+.pick-type-btn.sel-parlay { background: var(--yellow); color: #000; }
+
+.pick-row { display: flex; gap: 8px; margin-top: 10px; }
+.pick-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.pick-input:focus { border-color: var(--green); }
+.pick-input::placeholder { color: var(--muted); }
+.save-btn {
+  background: var(--green);
+  color: #000;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 20px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.1s;
+}
+.save-btn:hover { background: #fff; }
+
+/* SAVED PICK */
+.saved-pick {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--green);
+  background: var(--green-dim);
+  padding: 10px 14px;
+  margin-top: 10px;
+}
+.sp-info { font-size: 12px; color: var(--green); font-weight: 700; }
+.sp-notes { font-size: 10px; color: var(--muted2); margin-top: 2px; }
+.result-row { display: flex; gap: 4px; }
+.result-btn {
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 12px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.1s;
+}
+.rb-win { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
+.rb-win:hover { background: var(--green); color: #000; }
+.rb-loss { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+.rb-loss:hover { background: var(--red); color: #fff; }
+.rb-push { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+.rb-push:hover { background: var(--bg4); color: var(--text); }
+.rb-active-win { background: var(--green); color: #000; border: 1px solid var(--green); }
+.rb-active-loss { background: var(--red); color: #fff; border: 1px solid var(--red); }
+.rb-active-push { background: var(--bg5); color: var(--text); border: 1px solid var(--border2); }
+
+/* DATA INPUTS */
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.input-panel { background: var(--bg2); padding: 16px; }
+.input-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted2);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+.status-ready { color: var(--green); }
+.status-empty { color: var(--muted); }
+textarea.data-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 10px;
+  resize: vertical;
+  min-height: 70px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+textarea.data-input:focus { border-color: var(--green); }
+textarea.data-input::placeholder { color: var(--muted); }
+.upload-box {
+  border: 1px dashed var(--border2);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg);
+}
+.upload-box:hover { border-color: var(--green); background: var(--green-dim); }
+.upload-icon { font-size: 20px; margin-bottom: 6px; }
+.upload-text { font-size: 10px; color: var(--muted2); }
+.upload-sub { font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+/* WATCHLIST */
+.watchlist-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.wl-panel { background: var(--bg2); padding: 14px 16px; }
+.wl-title { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.wl-title.over { color: var(--green); }
+.wl-title.under { color: var(--red); }
+.wl-item { font-size: 11px; color: var(--text2); padding: 5px 0; border-bottom: 1px solid var(--border); }
+.wl-item:last-child { border-bottom: none; }
+
+/* TREND CARDS */
+.trend-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.trend-panel { background: var(--bg2); padding: 16px; }
+.trend-title { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.trend-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+.trend-row:last-child { border-bottom: none; }
+.trend-key { color: var(--muted2); }
+.trend-val { font-weight: 700; }
+.trend-val.pos { color: var(--green); }
+.trend-val.neg { color: var(--red); }
+.trend-val.neu { color: var(--text2); }
+
+/* GEN BUTTON */
+.gen-btn {
+  background: var(--green);
+  color: #000;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 10px 24px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.1s;
+}
+.gen-btn:hover { background: #fff; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--green);
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 10px 20px;
+  z-index: 9999;
+  letter-spacing: 1px;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.2s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg5); }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* MISC */
+.flex { display: flex; align-items: center; gap: 12px; }
+.gap-sm { gap: 6px; }
+.empty-state {
+  padding: 48px;
+  text-align: center;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  background: var(--bg2);
+}
+.empty-state .e-icon { font-size: 32px; margin-bottom: 12px; }
+.empty-state .e-text { font-size: 13px; color: var(--muted2); margin-bottom: 6px; font-weight: 700; }
+.empty-state .e-sub { font-size: 11px; }
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+input[type=range] { accent-color: var(--green); }
+select.filter-select {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+}
+select.filter-select:focus { border-color: var(--green); }
+
+/* REPORTS */
+.report-day {
+  border: 1px solid var(--border);
+  margin-bottom: 1px;
+  background: var(--bg2);
+}
+.report-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: background 0.1s;
+  user-select: none;
+}
+.report-day-header:hover { background: var(--bg3); }
+.report-day-header.open { background: var(--bg3); border-bottom: 1px solid var(--border); }
+.rdh-left { display: flex; align-items: center; gap: 16px; }
+.rdh-date { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: 1px; }
+.rdh-meta { font-size: 10px; color: var(--muted2); }
+.rdh-flags { display: flex; gap: 6px; }
+.rdh-toggle { color: var(--muted); font-size: 12px; font-weight: 700; }
+.report-day-body { display: none; padding: 0; }
+.report-day-body.open { display: block; }
+.report-game {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 18px;
+}
+.report-game:last-child { border-bottom: none; }
+.rg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.rg-matchup { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px; }
+.rg-time { font-size: 10px; color: var(--muted); }
+.rg-rec { font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+.rg-rec.go { color: var(--green); }
+.rg-rec.pass { color: var(--muted2); }
+.rg-rec.parlay { color: var(--yellow); }
+.rg-points { display: flex; flex-direction: column; gap: 4px; }
+.rg-point { font-size: 10px; color: var(--muted2); padding-left: 12px; position: relative; }
+.rg-point::before { content: '▸'; position: absolute; left: 0; color: var(--green); }
+.rg-point.neg::before { color: var(--red); }
+.rg-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 10px;
+}
+.rg-stat { background: var(--bg3); padding: 8px 10px; }
+.rg-stat-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.rg-stat-val { font-size: 11px; font-weight: 700; }
+.rg-pick-logged {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--green);
+  background: var(--green-dim);
+  font-size: 10px;
+  color: var(--green);
+  font-weight: 700;
+}
+
+@media(max-width:768px){
+  .metric-grid-6,.metric-grid-8{grid-template-columns:repeat(3,1fr);}
+  .metric-grid-4{grid-template-columns:repeat(2,1fr);}
+  .split-grid,.watchlist-grid,.trend-grid,.input-grid{grid-template-columns:1fr;}
+  .game-analytics{grid-template-columns:repeat(3,1fr);}
+  .game-header{grid-template-columns:60px 1fr auto;gap:10px;}
+  .gh-park,.gh-flags{display:none;}
+  .implied-grid{grid-template-columns:repeat(4,1fr);}
+  .header-stats{display:none;}
+  .page{padding:12px;}
 }
 </style>
 </head>
 <body>
 
-  <header>
-    <div>
-      <h1>BASEBALL HARRI // TERMINAL</h1>
-      <div style="font-size: 11px; color: var(--muted2); margin-top: 4px;">SYSTEM OPERATIONAL // DATA LOCALIZED</div>
-    </div>
-    <div class="system-status" id="header-stats">
-      </div>
-  </header>
+<div class="toast" id="toast"></div>
 
-  <div class="ticker-bar">
-    <span class="ticker-label">[LOG ENGINE]:</span>
-    <span id="system-ticker-inner">INITIALIZING STORAGE CYCLES... LOADED RE-EVALUATION CHANNELS.</span>
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker-track">
+    <!-- filled by JS -->
   </div>
+</div>
 
-  <div class="nav-tabs">
-    <button class="nav-btn active" onclick="switchView('dashboard')">DASHBOARD</button>
-    <button class="nav-btn" onclick="switchView('log-pick')">LOG NEW PLAY</button>
-    <button class="nav-btn" onclick="switchView('history')">PICK HISTORY</button>
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <span class="logo-accent">▐</span> BASEBALL HARRI
+    <span class="logo-tag">TERMINAL v2</span>
   </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchTab('dashboard',this)">Dashboard</button>
+    <button class="nav-btn" onclick="switchTab('today',this)">Today</button>
+    <button class="nav-btn" onclick="switchTab('history',this)">History</button>
+    <button class="nav-btn" onclick="switchTab('trends',this)">Trends</button>
+    <button class="nav-btn" onclick="switchTab('reports',this)">Reports</button>
+  </nav>
+  <div style="display:flex;gap:6px;align-items:center">
+    <button onclick="exportSnapshot()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:9px;font-weight:700;padding:5px 10px;cursor:pointer;letter-spacing:1px;transition:all 0.1s" onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">💾 BACKUP</button>
+    <label style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:9px;font-weight:700;padding:5px 10px;cursor:pointer;letter-spacing:1px" onmouseover="this.style.color='var(--yellow)';this.style.borderColor='var(--yellow)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">
+      📂 RESTORE
+      <input type="file" accept=".json" onchange="importSnapshot(this)" style="display:none">
+    </label>
+  </div>
+  <div class="header-stats" id="header-stats"></div>
+</div>
 
-  <div id="view-dashboard" class="view-panel active">
-    <div class="grid-layout">
-      <div>
-        <div class="card">
-          <div class="card-title">CUMULATIVE PERFORMANCE SPLIT REGISTRY</div>
-          <div style="font-size: 12px; color: var(--muted2); margin-bottom: 16px;">
-            Adjust pick status markers inside the <span style="text-decoration: underline; cursor: pointer; color: var(--text);" onclick="switchView('history')">Pick History</span> grid view block to track automated updates to net units and aggregate yield formulas.
-          </div>
-          <div id="dashboard-historical-performance-grid" class="space-y-4">
-            </div>
-        </div>
+<!-- ===== DASHBOARD ===== -->
+<div class="tab-content active" id="tab-dashboard">
+<div class="page">
 
-        <div class="card">
-          <div class="card-title">Rolling Distribution PnL Analytics (Last 30 Closures)</div>
-          <div class="mini-chart" id="pnl-distribution-chart-wrapper">
-            </div>
-        </div>
-      </div>
-      
-      <div>
-        <div class="card">
-          <div class="card-title" style="margin-bottom: 12px;">
-            <span>UNSETTLED PLAY STRUCTURES</span>
-            <button class="secondary-btn" id="day-close-trigger-btn" style="font-size:10px; padding:2px 6px;" onclick="openDayCloseModal()">Close Day Ledger</button>
-          </div>
-          <div id="dashboard-pending-container">
-            </div>
-        </div>
-      </div>
+  <div class="section-header">
+    <div class="section-title">Performance Overview</div>
+    <div class="flex">
+      <select class="filter-select" id="dash-period" onchange="renderDashboard()">
+        <option value="all">All Time</option>
+        <option value="1">Yesterday</option>
+        <option value="3">Last 3 Days</option>
+        <option value="7">Last 7 Days</option>
+        <option value="30">Last 30 Days</option>
+      </select>
     </div>
   </div>
 
-  <div id="view-log-pick" class="view-panel">
-    <div class="card" style="max-width: 640px; margin: 0 auto;">
-      <div class="card-title">LOG SYSTEM ENTRY PAYLOAD</div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label>Target Date Selector</label>
-          <select id="pick-date"></select>
+  <!-- TOP METRICS -->
+  <div class="metric-grid metric-grid-8" style="margin-bottom:1px">
+    <div class="metric pos-border">
+      <div class="metric-label">F5 Record</div>
+      <div class="metric-value" id="m-f5-rec">—</div>
+      <div class="metric-sub pos" id="m-f5-pct">—%</div>
+    </div>
+    <div class="metric pos-border">
+      <div class="metric-label">F5 Units</div>
+      <div class="metric-value" id="m-f5-units">—</div>
+      <div class="metric-sub" id="m-f5-roi">ROI —%</div>
+    </div>
+    <div class="metric pos-border">
+      <div class="metric-label">F5 ML</div>
+      <div class="metric-value sm" id="m-f5-ml">—</div>
+      <div class="metric-sub" id="m-f5-ml-sub">—%</div>
+    </div>
+    <div class="metric yel-border">
+      <div class="metric-label">F5 Overs</div>
+      <div class="metric-value sm" id="m-f5-ov">—</div>
+      <div class="metric-sub" id="m-f5-ov-sub">—%</div>
+    </div>
+    <div class="metric yel-border">
+      <div class="metric-label">F5 Unders</div>
+      <div class="metric-value sm" id="m-f5-un">—</div>
+      <div class="metric-sub" id="m-f5-un-sub">—%</div>
+    </div>
+    <div class="metric neg-border">
+      <div class="metric-label">FT Record</div>
+      <div class="metric-value" id="m-ft-rec">—</div>
+      <div class="metric-sub neg" id="m-ft-pct">—%</div>
+    </div>
+    <div class="metric neg-border">
+      <div class="metric-label">FT Units</div>
+      <div class="metric-value" id="m-ft-units">—</div>
+      <div class="metric-sub" id="m-ft-roi">ROI —%</div>
+    </div>
+    <div class="metric neu-border">
+      <div class="metric-label">Total Picks</div>
+      <div class="metric-value" id="m-total">—</div>
+      <div class="metric-sub" id="m-streak">— streak</div>
+    </div>
+  </div>
+
+  <!-- P/L CHART -->
+  <div class="pnl-chart">
+    <div class="pnl-label">CUMULATIVE P/L (UNITS) — F5</div>
+    <canvas id="pnl-canvas" class="pnl-canvas"></canvas>
+  </div>
+
+  <!-- F5 / FT SPLIT BY TYPE -->
+  <div class="section-header"><div class="section-title">F5 vs FT — By Bet Type</div></div>
+  <div class="split-grid" style="margin-bottom:1px">
+    <div class="split-panel">
+      <div class="split-label green">⚡ FIRST 5 INNINGS</div>
+      <div class="metric-grid metric-grid-3" style="margin:0">
+        <div class="metric pos-border">
+          <div class="metric-label">ML</div>
+          <div class="metric-value sm" id="s-f5-ml-rec">—</div>
+          <div class="metric-sub" id="s-f5-ml-det">—% · —u</div>
         </div>
-        <div class="form-group">
-          <label>Selection Horizon / Market Type</label>
-          <select id="pick-type">
-            <option value="ML">Moneyline (ML)</option>
-            <option value="RL">Runline (RL)</option>
-            <option value="TOTAL">Total (Over/Under)</option>
-            <option value="PROP">Player Prop / Alternative</option>
-          </select>
+        <div class="metric yel-border">
+          <div class="metric-label">Overs</div>
+          <div class="metric-value sm" id="s-f5-ov-rec">—</div>
+          <div class="metric-sub" id="s-f5-ov-det">—% · —u</div>
+        </div>
+        <div class="metric yel-border">
+          <div class="metric-label">Unders</div>
+          <div class="metric-value sm" id="s-f5-un-rec">—</div>
+          <div class="metric-sub" id="s-f5-un-det">—% · —u</div>
         </div>
       </div>
-
-      <div class="form-group">
-        <label>Pick Specification / Match Details</label>
-        <input type="text" id="pick-specification" placeholder="e.g., NYY ML (-135) or LAD vs SFG Over 8.5">
+    </div>
+    <div class="split-panel">
+      <div class="split-label white">● FULL GAME</div>
+      <div class="metric-grid metric-grid-3" style="margin:0">
+        <div class="metric neg-border">
+          <div class="metric-label">ML</div>
+          <div class="metric-value sm" id="s-ft-ml-rec">—</div>
+          <div class="metric-sub" id="s-ft-ml-det">—% · —u</div>
+        </div>
+        <div class="metric neg-border">
+          <div class="metric-label">Overs</div>
+          <div class="metric-value sm" id="s-ft-ov-rec">—</div>
+          <div class="metric-sub" id="s-ft-ov-det">—% · —u</div>
+        </div>
+        <div class="metric neg-border">
+          <div class="metric-label">Unders</div>
+          <div class="metric-value sm" id="s-ft-un-rec">—</div>
+          <div class="metric-sub" id="s-ft-un-det">—% · —u</div>
+        </div>
       </div>
+    </div>
+  </div>
 
-      <div class="form-group">
-        <label>Scope Evaluation Focus</label>
-        <select id="pick-period">
-          <option value="both">Both (F5 and Full-Time evaluated together)</option>
-          <option value="f5">First 5 Innings Only (F5 Split)</option>
-          <option value="ft">Full Game Only (FT Split)</option>
+  <!-- DAILY TABLE -->
+  <div class="section-header" style="margin-top:20px">
+    <div class="section-title">Daily Log</div>
+    <div class="flex">
+      <select class="filter-select" id="daily-sort" onchange="renderDailyTable()">
+        <option value="desc">Newest First</option>
+        <option value="asc">Oldest First</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortDaily('date')">Date ↕</th>
+          <th onclick="sortDaily('f5w')">F5 W ↕</th>
+          <th onclick="sortDaily('f5l')">F5 L ↕</th>
+          <th>F5 Push</th>
+          <th onclick="sortDaily('f5pct')">F5 Win% ↕</th>
+          <th onclick="sortDaily('f5units')">F5 Units ↕</th>
+          <th onclick="sortDaily('ftw')">FT W ↕</th>
+          <th onclick="sortDaily('ftl')">FT L ↕</th>
+          <th>FT Push</th>
+          <th onclick="sortDaily('ftpct')">FT Win% ↕</th>
+          <th onclick="sortDaily('ftunits')">FT Units ↕</th>
+          <th>Picks</th>
+          <th>Day Δ (F5)</th>
+        </tr>
+      </thead>
+      <tbody id="daily-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- ADVANCED STATS -->
+  <div class="section-header"><div class="section-title">Advanced Analytics</div></div>
+  <div class="metric-grid metric-grid-6">
+    <div class="metric">
+      <div class="metric-label">like+ Win%</div>
+      <div class="metric-value sm" id="adv-likeplus">—</div>
+      <div class="metric-sub" id="adv-likeplus-sub">— picks</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">like Win%</div>
+      <div class="metric-value sm" id="adv-like">—</div>
+      <div class="metric-sub" id="adv-like-sub">— picks</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Unlabeled Win%</div>
+      <div class="metric-value sm" id="adv-nolabel">—</div>
+      <div class="metric-sub" id="adv-nolabel-sub">— picks</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">F5 vs FT Gap</div>
+      <div class="metric-value sm" id="adv-gap">—</div>
+      <div class="metric-sub">unit difference</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Best Day</div>
+      <div class="metric-value sm" id="adv-bestday">—</div>
+      <div class="metric-sub" id="adv-bestday-sub">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Worst Day</div>
+      <div class="metric-value sm" id="adv-worstday">—</div>
+      <div class="metric-sub" id="adv-worstday-sub">—</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== TODAY ===== -->
+<div class="tab-content" id="tab-today">
+<div class="page">
+
+  <div class="section-header">
+    <div class="section-title" id="today-title">Today's Slate</div>
+    <button class="gen-btn" onclick="processAllData()">▶ GENERATE REPORT</button>
+  </div>
+
+  <!-- INPUTS -->
+  <!-- MANUAL PICK ENTRY -->
+  <div style="background:var(--bg2);border:1px solid var(--border);padding:16px;margin-bottom:16px;position:relative">
+    <div style="position:absolute;top:-1px;left:16px;background:var(--bg);color:var(--muted);font-size:9px;font-weight:700;letter-spacing:2px;padding:2px 8px;border:1px solid var(--border)">MANUAL PICK ENTRY</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto auto;gap:8px;align-items:end;margin-top:8px">
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">PICK / TEAMS</div>
+        <input type="text" id="manual-pick" class="pick-input" placeholder="e.g. Phillies, Cubs/Cardinals over" style="width:100%">
+      </div>
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">TYPE</div>
+        <select id="manual-type" style="background:var(--bg);border:1px solid var(--border2);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px;width:100%;outline:none">
+          <option value="ml">ML</option>
+          <option value="over">Over</option>
+          <option value="under">Under</option>
         </select>
       </div>
-
-      <div class="form-group">
-        <label>Additional Analytical Notes</label>
-        <textarea id="pick-notes" rows="3" placeholder="Optional rationale background details..."></textarea>
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">DATE</div>
+        <select id="manual-date" style="background:var(--bg);border:1px solid var(--border2);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px;width:100%;outline:none">
+          <option value="">Loading...</option>
+        </select>
       </div>
-
-      <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
-        <button class="action-btn" onclick="saveManualPick()">Transmit Play to Logs</button>
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">NOTES</div>
+        <input type="text" id="manual-notes" class="pick-input" placeholder="like, like+, fade..." style="width:100%">
       </div>
-    </div>
-  </div>
-
-  <div id="view-history" class="view-panel">
-    <div class="card">
-      <div class="card-title">
-        <span>GLOBAL RE-EVALUATION LOG ENGINE</span>
-        <div style="display: flex; gap: 8px;">
-          <button class="secondary-btn" onclick="exportBackupPackage()">Export Backup</button>
-          <button class="secondary-btn" onclick="triggerBackupFileInput()">Import Snapshot</button>
-          <input type="file" id="import-file-broker" accept=".json" onchange="importBackupPackage(event)" style="display: none;">
-          <button class="secondary-btn" style="color: var(--red); border-color: rgba(255,51,51,0.2);" onclick="clearAllSystemStorageData()">Wipe Cache</button>
-        </div>
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">PERIOD</div>
+        <select id="manual-period" style="background:var(--bg);border:1px solid var(--border2);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px;width:100%;outline:none">
+          <option value="f5">F5</option>
+          <option value="ft">FT</option>
+          <option value="both">Both</option>
+        </select>
       </div>
-
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Pick Specification</th>
-              <th style="text-align: center;">F5 Evaluation</th>
-              <th style="text-align: center;">FT Evaluation</th>
-              <th>Notes / Context</th>
-              <th style="text-align: center;">Lock</th>
-              <th style="text-align: center;">Action</th>
-            </tr>
-          </thead>
-          <tbody id="history-table-rows">
-            </tbody>
-        </table>
+      <div>
+        <div style="font-size:9px;color:transparent;margin-bottom:4px">.</div>
+        <button onclick="saveManualPick()" class="save-btn">ADD →</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-backdrop" id="day-close-modal">
-    <div class="modal-box">
-      <div class="card-title" style="border-bottom:1px solid var(--border2); padding-bottom:8px; margin-bottom:16px;">
-        <span>EXECUTE OVERALL LEDGER SYSTEM CLOSURE</span>
-        <button onclick="closeDayCloseModal()" style="background:none; border:none; color:var(--muted2); cursor:pointer;">✕</button>
+  <div id="data-loaded-banner" style="display:none;background:var(--green-dim2);border:1px solid var(--green);padding:10px 16px;margin-bottom:12px;display:none;align-items:center;justify-content:space-between">
+    <span style="color:var(--green);font-size:11px;font-weight:700;letter-spacing:1px">✓ DATA LOADED — Ready to generate</span>
+    <button onclick="clearAllData()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:10px;padding:4px 10px;cursor:pointer">CLEAR ALL</button>
+  </div>
+  <div class="input-grid">
+    <div class="input-panel">
+      <div class="input-label">
+        <span>🎯 Game Simulations (paste)</span>
+        <span id="sim-status" class="status-empty">EMPTY</span>
       </div>
-      <p style="font-size:12px; color:var(--text2); margin-bottom:16px; line-height:1.6;">
-        Consolidate metrics parameters for a target day cycle. This operation compiles your statistics, updates your running historical distribution curves, and flags matched rows as frozen.
-      </p>
-      
-      <div class="form-group">
-        <label>Target Closure Date Frame</label>
-        <select id="close-date-target-select"></select>
+      <textarea class="data-input" id="sim-paste" placeholder="Paste BallparkPal Game Simulations page..." rows="5" oninput="updateStatus('sim-paste','sim-status')"></textarea>
+    </div>
+    <div class="input-panel">
+      <div class="input-label">
+        <span>📊 Matchup Machine (CSV/XLSX)</span>
+        <span id="matchup-status" class="status-empty">EMPTY</span>
       </div>
-
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
-        <button class="secondary-btn" onclick="closeDayCloseModal()">Abort</button>
-        <button class="action-btn" style="background:var(--green); color:#000;" onclick="processDayCloseExecution()">Commit Day Closure</button>
+      <input type="file" id="matchup-file" accept=".xlsx,.csv" style="display:none">
+      <div class="upload-box" id="drop-matchup">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Click or drag & drop</div>
+        <div class="upload-sub">Matchup Machine CSV/XLSX</div>
+      </div>
+    </div>
+    <div class="input-panel">
+      <div class="input-label">
+        <span>⚾ Pitcher Projections (CSV)</span>
+        <span id="pitcher-status" class="status-empty">EMPTY</span>
+      </div>
+      <input type="file" id="pitcher-file" accept=".xlsx,.csv" style="display:none">
+      <div class="upload-box" id="drop-pitcher">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Click or drag & drop</div>
+        <div class="upload-sub">Pitcher Projections CSV</div>
+      </div>
+    </div>
+    <div class="input-panel">
+      <div class="input-label">
+        <span>🌤 Park Factors (CSV)</span>
+        <span id="park-status" class="status-empty">EMPTY</span>
+      </div>
+      <input type="file" id="park-file" accept=".csv" style="display:none">
+      <div class="upload-box" id="drop-park">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Click or drag & drop</div>
+        <div class="upload-sub">Park Factors CSV</div>
       </div>
     </div>
   </div>
 
-  <div id="toast"></div>
+  <!-- WATCHLISTS -->
+  <div id="watchlist-section" style="display:none">
+    <div class="section-header"><div class="section-title">Park Factor Watch</div></div>
+    <div class="watchlist-grid" id="watchlists"></div>
+  </div>
 
-  <script>
-  let todayPicks = JSON.parse(localStorage.getItem('harriPicks_v2')) || [];
+  <!-- TODAY'S PICKS SUMMARY -->
+  <div id="today-picks-summary" style="display:none;margin-bottom:20px">
+    <div class="section-header">
+      <div class="section-title">Today's Picks</div>
+      <span style="font-size:10px;color:var(--muted)" id="today-picks-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Pick</th>
+            <th>Type</th>
+            <th>Notes</th>
+            <th>F5</th>
+            <th>FT</th>
+            <th>F5 Units</th>
+            <th>Set Result</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="today-picks-tbody"></tbody>
+      </table>
+    </div>
+  </div>
 
-  function showToast(msg) {
-    const el = document.getElementById('toast');
-    if (!el) return;
-    el.innerText = msg;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 2500);
+  <!-- GAMES -->
+  <div class="section-header" id="games-header" style="display:none">
+    <div class="section-title">Game Analysis</div>
+    <div class="flex">
+      <span style="font-size:10px;color:var(--muted)" id="odds-status"></span>
+    </div>
+  </div>
+  <div id="games-container">
+    <div class="empty-state">
+      <div class="e-icon">⚾</div>
+      <div class="e-text">No Data Loaded</div>
+      <div class="e-sub">Load BallparkPal data and hit Generate Report</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== HISTORY ===== -->
+<div class="tab-content" id="tab-history">
+<div class="page">
+
+  <div class="section-header">
+    <div class="section-title">Pick History</div>
+    <div class="flex">
+      <button class="gen-btn" style="font-size:9px;padding:7px 16px" onclick="exportCSV()">EXPORT CSV</button>
+    </div>
+  </div>
+
+  <div class="flex" style="margin-bottom:16px;flex-wrap:wrap;gap:8px">
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterHistory('all',this)">All</button>
+      <button class="filter-btn" onclick="filterHistory('ml',this)">ML</button>
+      <button class="filter-btn" onclick="filterHistory('over',this)">Overs</button>
+      <button class="filter-btn" onclick="filterHistory('under',this)">Unders</button>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterHistoryPeriod('all',this)">All Time</button>
+      <button class="filter-btn" onclick="filterHistoryPeriod('f5',this)">F5 Only</button>
+      <button class="filter-btn" onclick="filterHistoryPeriod('ft',this)">FT Only</button>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterHistoryResult('all',this)">All Results</button>
+      <button class="filter-btn" onclick="filterHistoryResult('win',this)">Wins</button>
+      <button class="filter-btn" onclick="filterHistoryResult('loss',this)">Losses</button>
+      <button class="filter-btn" onclick="filterHistoryResult('push',this)">Pushes</button>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterHistoryConf('all',this)">All Conf</button>
+      <button class="filter-btn" onclick="filterHistoryConf('likeplus',this)">Like+</button>
+      <button class="filter-btn" onclick="filterHistoryConf('like',this)">Like</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortHistory('date')">Date ↕</th>
+          <th>Pick</th>
+          <th onclick="sortHistory('type')">Type ↕</th>
+          <th>Confidence</th>
+          <th onclick="sortHistory('f5')">F5 ↕</th>
+          <th onclick="sortHistory('ft')">FT ↕</th>
+          <th>F5 Units</th>
+          <th>FT Units</th>
+          <th>Notes</th>
+          <th>Update Result</th>
+        </tr>
+      </thead>
+      <tbody id="history-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== REPORTS ===== -->
+<div class="tab-content" id="tab-reports">
+<div class="page">
+  <div class="section-header">
+    <div class="section-title">Saved Daily Reports</div>
+    <div class="flex" style="gap:8px">
+      <span style="font-size:10px;color:var(--muted)">Reports auto-save when you generate. Click any date to expand.</span>
+      <button onclick="clearAllReports()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:10px;padding:4px 10px;cursor:pointer;letter-spacing:1px">CLEAR ALL</button>
+    </div>
+  </div>
+  <div id="reports-list">
+    <div class="empty-state">
+      <div class="e-icon">📋</div>
+      <div class="e-text">No Reports Saved Yet</div>
+      <div class="e-sub">Generate a report on the Today tab — it will be saved here automatically</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TRENDS ===== -->
+<div class="tab-content" id="tab-trends">
+<div class="page">
+
+  <div class="section-header">
+    <div class="section-title">Intelligence & Trends</div>
+    <select class="filter-select" id="trend-period" onchange="renderTrends()">
+      <option value="all">All Time</option>
+      <option value="7">Last 7 Days</option>
+      <option value="30">Last 30 Days</option>
+    </select>
+  </div>
+
+  <!-- HOT / COLD -->
+  <div class="split-grid" style="margin-bottom:20px">
+    <div class="split-panel">
+      <div class="split-label green">🔥 HOT — KEEP DOING THIS</div>
+      <div id="hot-list"></div>
+    </div>
+    <div class="split-panel">
+      <div class="split-label" style="color:var(--red)">❄️ COLD — STOP / WATCH</div>
+      <div id="cold-list"></div>
+    </div>
+  </div>
+
+  <!-- TREND BREAKDOWNS -->
+  <div class="section-header"><div class="section-title">Bet Type Trends</div></div>
+  <div class="trend-grid" id="trend-cards"></div>
+
+  <!-- CONFIDENCE ACCURACY -->
+  <div class="section-header"><div class="section-title">Confidence Tag Accuracy (F5)</div></div>
+  <div class="metric-grid metric-grid-4">
+    <div class="metric">
+      <div class="metric-label">like+ Record</div>
+      <div class="metric-value sm" id="t-likeplus-rec">—</div>
+      <div class="metric-sub" id="t-likeplus-sub">—% win rate</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">like+ Units</div>
+      <div class="metric-value sm" id="t-likeplus-units">—</div>
+      <div class="metric-sub" id="t-likeplus-roi">ROI —%</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">like Record</div>
+      <div class="metric-value sm" id="t-like-rec">—</div>
+      <div class="metric-sub" id="t-like-sub">—% win rate</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">like Units</div>
+      <div class="metric-value sm" id="t-like-units">—</div>
+      <div class="metric-sub" id="t-like-roi">ROI —%</div>
+    </div>
+  </div>
+
+  <!-- ROLLING PERFORMANCE -->
+  <div class="section-header" style="margin-top:20px"><div class="section-title">Rolling Performance</div></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Window</th>
+          <th>F5 Record</th>
+          <th>F5 Win%</th>
+          <th>F5 Units</th>
+          <th>F5 ROI</th>
+          <th>FT Record</th>
+          <th>FT Win%</th>
+          <th>FT Units</th>
+          <th>FT ROI</th>
+          <th>Delta (F5-FT)</th>
+        </tr>
+      </thead>
+      <tbody id="rolling-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- SIM VS MARKET -->
+  <div class="section-header"><div class="section-title">Sim vs Market Tracker</div></div>
+  <div class="empty-state" style="margin-bottom:20px">
+    <div class="e-icon">📊</div>
+    <div class="e-text">Coming as you log picks with odds</div>
+    <div class="e-sub">Track when sim win% diverges from market price and whether you capitalize</div>
+  </div>
+
+  <!-- ADJUSTED P/L -->
+  <div class="section-header"><div class="section-title">Adjusted P/L vs Actual Odds</div></div>
+  <div class="empty-state">
+    <div class="e-icon">💰</div>
+    <div class="e-text">Log picks with actual Hard Rock odds to see true P/L</div>
+    <div class="e-sub">Compare flat -150 assumption vs real line returns. Reveals where you're leaving money on the table.</div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// ============================================================
+// ODDS API
+// ============================================================
+const ODDS_API_KEY = '33ef59fa637cca8a9d74f86bb6e22e21';
+
+// ============================================================
+// EXCEL DATE CONVERSION
+// ============================================================
+function excelToDate(serial) {
+  if (!serial) return null;
+  const d = new Date(Date.UTC(1899,11,30));
+  d.setUTCDate(d.getUTCDate() + Math.floor(serial));
+  return d;
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit',timeZone:'UTC'});
+}
+function fmtDateShort(d) {
+  if (!d) return '—';
+  return d.toLocaleDateString('en-US',{month:'numeric',day:'numeric',timeZone:'UTC'});
+}
+
+// ============================================================
+// SEED DATA
+// ============================================================
+const SEED = [
+  {date:46168,type:'over',pick:'braves / red sox o4.5 / 8',f5:0,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'brewers',f5:1,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'pirates',f5:1,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'yankees',f5:1,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'blue jays',f5:1,ft:1,notes:''},
+  {date:46168,type:'ml',pick:'rays',f5:0,ft:0,notes:''},
+  {date:46169,type:'over',pick:'braves / red sox o4 / 8',f5:1,ft:null,notes:''},
+  {date:46169,type:'ml',pick:'rangers',f5:null,ft:0,notes:''},
+  {date:46169,type:'over',pick:'cubs / pirates o5 / 9',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'mariners',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'guardians',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'phillies',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'orioles',f5:1,ft:1,notes:''},
+  {date:46169,type:'over',pick:'orioles / rays o5 / 9',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'mets',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'dodgers',f5:1,ft:1,notes:''},
+  {date:46169,type:'ml',pick:'twins',f5:0,ft:0,notes:''},
+  {date:46169,type:'ml',pick:'yankees',f5:1,ft:1,notes:''},
+  {date:46170,type:'ml',pick:'white sox',f5:1,ft:1,notes:''},
+  {date:46170,type:'over',pick:'white sox / twins o4 / 7.5',f5:1,ft:1,notes:''},
+  {date:46170,type:'over',pick:'braves / red sox o3.5 / 6.5',f5:1,ft:1,notes:'low line'},
+  {date:46170,type:'ml',pick:'blue jays',f5:null,ft:1,notes:''},
+  {date:46170,type:'ml',pick:'pirates',f5:0,ft:0,notes:''},
+  {date:46170,type:'ml',pick:'rangers',f5:0,ft:0,notes:''},
+  {date:46171,type:'over',pick:'braves / reds o5 / 9.5',f5:1,ft:1,notes:''},
+  {date:46171,type:'over',pick:'rockies / giants 5.5 / 10.5',f5:0,ft:1,notes:''},
+  {date:46171,type:'ml',pick:'marlins',f5:0,ft:0,notes:''},
+  {date:46171,type:'over',pick:'padres / nationals o5 / 9.5',f5:1,ft:1,notes:''},
+  {date:46171,type:'ml',pick:'red sox',f5:0,ft:0,notes:''},
+  {date:46171,type:'ml',pick:'tigers',f5:1,ft:0,notes:''},
+  {date:46171,type:'ml',pick:'angels',f5:1,ft:0,notes:''},
+  {date:46172,type:'over',pick:'braves o5 / 9.5',f5:1,ft:0,notes:''},
+  {date:46172,type:'ml',pick:'braves',f5:1,ft:1,notes:''},
+  {date:46172,type:'ml',pick:'cubs',f5:null,ft:1,notes:''},
+  {date:46172,type:'over',pick:'giants / rockies o6.5 / 11.5',f5:0,ft:0,notes:''},
+  {date:46172,type:'over',pick:'yankees / athletics o5 / 9.5',f5:0,ft:1,notes:''},
+  {date:46172,type:'under',pick:'phillies / dodgers u8.5',f5:1,ft:1,notes:''},
+  {date:46172,type:'under',pick:'dbacks / mariners u6.5',f5:1,ft:1,notes:''},
+  {date:46173,type:'over',pick:'padres / nationals o4 / 8.5',f5:0,ft:0,notes:'like'},
+  {date:46173,type:'under',pick:'marlins / mets u4 / 7.5',f5:0,ft:0,notes:'like'},
+  {date:46173,type:'ml',pick:'rays',f5:1,ft:1,notes:'like'},
+  {date:46173,type:'under',pick:'red sox / guards u3.5 / 6.5',f5:0,ft:0,notes:'like'},
+  {date:46173,type:'ml',pick:'guardians',f5:1,ft:0,notes:'like; 40 odds diff'},
+  {date:46173,type:'over',pick:'royals / rangers o4 / 8.5',f5:1,ft:1,notes:'like; batter net score no, rest yes'},
+  {date:46173,type:'under',pick:'giants / rockies u5.5 / 11.5',f5:0,ft:0,notes:'like; weird'},
+  {date:46173,type:'over',pick:'yankees / athletics o10.5',f5:1,ft:1,notes:'like; weird'},
+  {date:46173,type:'ml',pick:'cubs',f5:null,ft:null,notes:'like'},
+  {date:46173,type:'over',pick:'cubs / cardinals o4 / 8.5',f5:1,ft:0,notes:'like; green / red'},
+  {date:46173,type:'ml',pick:'padres',f5:0,ft:0,notes:'like+'},
+  {date:46173,type:'ml',pick:'pirates',f5:1,ft:1,notes:'like+'},
+  {date:46173,type:'under',pick:'tigers / white sox u4 / 8.5',f5:1,ft:1,notes:'like+'},
+  {date:46173,type:'ml',pick:'brewers',f5:1,ft:1,notes:'like+'},
+  {date:46173,type:'ml',pick:'rockies',f5:0,ft:0,notes:'like+; 40 odds diff'},
+  {date:46173,type:'ml',pick:'mariners',f5:1,ft:1,notes:'like+'},
+  {date:46173,type:'ml',pick:'dodgers',f5:1,ft:1,notes:'like+'},
+  {date:46174,type:'ml',pick:'angels',f5:1,ft:0,notes:''},
+  {date:46174,type:'ml',pick:'dodgers',f5:1,ft:0,notes:''},
+  {date:46174,type:'ml',pick:'mariners',f5:null,ft:1,notes:''},
+  {date:46175,type:'ml',pick:'marlins',f5:1,ft:1,notes:'pitcher change push'},
+  {date:46175,type:'ml',pick:'yankees',f5:0,ft:0,notes:'big fav'},
+  {date:46175,type:'ml',pick:'royals',f5:1,ft:0,notes:''},
+  {date:46175,type:'ml',pick:'white sox',f5:0,ft:0,notes:''},
+  {date:46175,type:'under',pick:'giants / brewers u4 / 7.5',f5:1,ft:0,notes:'f5 only'},
+  {date:46175,type:'ml',pick:'dbacks',f5:0,ft:0,notes:'fade dodgers twice in a row? live dodger ft'},
+  {date:46175,type:'ml',pick:'brewers',f5:1,ft:1,notes:'f5 looks good, ft -200, implied -140'},
+  {date:46175,type:'ml',pick:'angels',f5:0,ft:0,notes:''},
+];
+
+let todayPicks = JSON.parse(localStorage.getItem('harriPicks_v2') || '[]');
+let allPicks = () => [...SEED, ...todayPicks];
+
+// ============================================================
+// CALCULATIONS
+// ============================================================
+function calcGroup(arr) {
+  let w=0,l=0,p=0,fu=0;
+  arr.forEach(r => {
+    if(r===1){w++;fu+=1;}
+    else if(r===0){l++;fu-=1.5;}
+    else if(r===2){p++;}
+  });
+  const tot=w+l;
+  return {
+    w,l,p,units:+fu.toFixed(2),
+    pct: tot>0?(w/tot*100).toFixed(1):'—',
+    roi: tot>0?(fu/(tot*1.5)*100).toFixed(1):'—',
+    total:tot
+  };
+}
+
+function filterByPeriod(picks, period) {
+  if(!period||period==='all') return picks;
+  const days=parseInt(period);
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-days); cutoff.setHours(0,0,0,0);
+  return picks.filter(p=>{
+    const d = p.date>1e9 ? new Date(p.date) : excelToDate(p.date);
+    return d && d>=cutoff;
+  });
+}
+
+function getStats(picks, period) {
+  const fp = filterByPeriod(picks, period);
+  const f5all = fp.map(p=>p.f5).filter(v=>v===0||v===1||v===2);
+  const ftall = fp.map(p=>p.ft).filter(v=>v===0||v===1||v===2);
+
+  const byType = (type, side) => {
+    return fp.filter(p=>p.type===type).map(p=>p[side]).filter(v=>v===0||v===1||v===2);
+  };
+
+  return {
+    f5: calcGroup(f5all),
+    ft: calcGroup(ftall),
+    f5ml: calcGroup(byType('ml','f5')),
+    f5ov: calcGroup(byType('over','f5')),
+    f5un: calcGroup(byType('under','f5')),
+    ftml: calcGroup(byType('ml','ft')),
+    ftov: calcGroup(byType('over','ft')),
+    ftun: calcGroup(byType('under','ft')),
+    total: fp.length,
+    picks: fp
+  };
+}
+
+function getStreak(picks) {
+  const relevant = allPicks().filter(p=>p.f5===0||p.f5===1).slice(-30).reverse();
+  let streak=0,type=null;
+  for(const p of relevant){
+    if(type===null){type=p.f5;streak=1;}
+    else if(p.f5===type){streak++;}
+    else break;
+  }
+  return {streak, type};
+}
+
+function getConfStats(picks, tag) {
+  const filtered = picks.filter(p=> tag==='likeplus' ? (p.notes||'').includes('like+') : (p.notes||'').includes('like') && !(p.notes||'').includes('like+'));
+  const f5 = filtered.map(p=>p.f5).filter(v=>v===0||v===1||v===2);
+  return calcGroup(f5);
+}
+
+function getDailyData(picks) {
+  const byDate={};
+  allPicks().forEach(p=>{
+    const k = Math.floor(p.date>1e9 ? p.date : p.date);
+    if(!byDate[k]) byDate[k]=[];
+    byDate[k].push(p);
+  });
+  return byDate;
+}
+
+// ============================================================
+// TICKER
+// ============================================================
+function buildTicker() {
+  const s = getStats(allPicks(), 'all');
+  const streak = getStreak();
+  const items = [
+    `F5: ${s.f5.w}-${s.f5.l} (${s.f5.pct}%)`,
+    `F5 UNITS: ${s.f5.units>=0?'+':''}${s.f5.units}`,
+    `F5 ROI: ${s.f5.roi}%`,
+    `FT: ${s.ft.w}-${s.ft.l} (${s.ft.pct}%)`,
+    `FT UNITS: ${s.ft.units>=0?'+':''}${s.ft.units}`,
+    `F5 ML: ${s.f5ml.w}-${s.f5ml.l} (${s.f5ml.pct}%)`,
+    `F5 OVERS: ${s.f5ov.w}-${s.f5ov.l} (${s.f5ov.pct}%)`,
+    `F5 UNDERS: ${s.f5un.w}-${s.f5un.l} (${s.f5un.pct}%)`,
+    `STREAK: ${streak.type===1?'🔥':'❄️'} ${streak.streak}`,
+    `TOTAL PICKS: ${s.total}`,
+  ];
+  const doubled = [...items,...items];
+  document.getElementById('ticker-track').innerHTML = doubled.map(i=>`<span class="ticker-item">${i} <span class="ticker-sep">◆</span></span>`).join('');
+}
+
+// ============================================================
+// HEADER STATS
+// ============================================================
+function buildHeaderStats() {
+  const s = getStats(allPicks(),'all');
+  const streak = getStreak();
+  document.getElementById('header-stats').innerHTML = `
+    <div class="hs-item">
+      <span class="hs-label">F5 Record</span>
+      <span class="hs-value pos">${s.f5.w}-${s.f5.l}</span>
+    </div>
+    <div class="hs-item">
+      <span class="hs-label">F5 Units</span>
+      <span class="hs-value ${s.f5.units>=0?'pos':'neg'}">${s.f5.units>=0?'+':''}${s.f5.units}u</span>
+    </div>
+    <div class="hs-item">
+      <span class="hs-label">FT Units</span>
+      <span class="hs-value ${s.ft.units>=0?'pos':'neg'}">${s.ft.units>=0?'+':''}${s.ft.units}u</span>
+    </div>
+    <div class="hs-item">
+      <span class="hs-label">Streak</span>
+      <span class="hs-value ${streak.type===1?'pos':'neg'}">${streak.type===1?'🔥':'❄️'} ${streak.streak}</span>
+    </div>
+  `;
+}
+
+// ============================================================
+// P/L CHART
+// ============================================================
+function drawPnlChart() {
+  const canvas = document.getElementById('pnl-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+
+  const ap = allPicks();
+  // Build cumulative from oldest to newest
+  const sorted = [...ap].sort((a,b) => a.date - b.date);
+  let cum = 0;
+  const points = [{x:0,y:0}];
+  sorted.forEach((p,i) => {
+    if(p.f5===1) cum+=1;
+    else if(p.f5===0) cum-=1.5;
+    points.push({x:i+1, y:cum});
+  });
+
+  const W = canvas.width, H = canvas.height;
+  const minY = Math.min(...points.map(p=>p.y));
+  const maxY = Math.max(...points.map(p=>p.y));
+  const range = maxY - minY || 1;
+  const pad = 20;
+
+  const toX = (i) => pad + (i/(points.length-1||1)) * (W - pad*2);
+  const toY = (v) => H - pad - ((v - minY) / range) * (H - pad*2);
+
+  // Zero line
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  ctx.moveTo(pad, toY(0));
+  ctx.lineTo(W-pad, toY(0));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Fill
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(0));
+  points.forEach((p,i) => ctx.lineTo(toX(i), toY(p.y)));
+  ctx.lineTo(toX(points.length-1), H);
+  ctx.lineTo(toX(0), H);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, 'rgba(0,255,65,0.15)');
+  grad.addColorStop(1, 'rgba(0,255,65,0)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = '#00ff41';
+  ctx.lineWidth = 1.5;
+  points.forEach((p,i) => i===0 ? ctx.moveTo(toX(i),toY(p.y)) : ctx.lineTo(toX(i),toY(p.y)));
+  ctx.stroke();
+
+  // Current value label
+  const last = points[points.length-1];
+  ctx.fillStyle = '#00ff41';
+  ctx.font = '10px monospace';
+  ctx.fillText(`${last.y>=0?'+':''}${last.y.toFixed(2)}u`, W - 60, toY(last.y) - 6);
+}
+
+// ============================================================
+// RENDER DASHBOARD
+// ============================================================
+let dailySortKey = 'date';
+let dailySortDir = 'desc';
+
+function renderDashboard() {
+  const periodEl = document.getElementById('dash-period');
+  const period = periodEl ? periodEl.value : 'all';
+  const s = getStats(allPicks(), period);
+  const streak = getStreak();
+
+  const colorClass = (v) => parseFloat(v)>=0 ? 'pos' : 'neg';
+  const fmtU = (v) => `${parseFloat(v)>=0?'+':''}${v}u`;
+
+  // Top metrics
+  setText('m-f5-rec', `${s.f5.w}-${s.f5.l}`);
+  setText('m-f5-pct', `${s.f5.pct}% win`);
+  setClass('m-f5-pct', `metric-sub ${colorClass(s.f5.pct-50)}`);
+  setText('m-f5-units', fmtU(s.f5.units));
+  setClass('m-f5-units', `metric-value ${colorClass(s.f5.units)}`);
+  setText('m-f5-roi', `ROI ${s.f5.roi}%`);
+  setText('m-f5-ml', `${s.f5ml.w}-${s.f5ml.l}`);
+  setText('m-f5-ml-sub', `${s.f5ml.pct}% · ${fmtU(s.f5ml.units)}`);
+  setText('m-f5-ov', `${s.f5ov.w}-${s.f5ov.l}`);
+  setText('m-f5-ov-sub', `${s.f5ov.pct}% · ${fmtU(s.f5ov.units)}`);
+  setText('m-f5-un', `${s.f5un.w}-${s.f5un.l}`);
+  setText('m-f5-un-sub', `${s.f5un.pct}% · ${fmtU(s.f5un.units)}`);
+  setText('m-ft-rec', `${s.ft.w}-${s.ft.l}`);
+  setText('m-ft-pct', `${s.ft.pct}% win`);
+  setClass('m-ft-pct', `metric-sub ${colorClass(parseFloat(s.ft.pct)-50)}`);
+  setText('m-ft-units', fmtU(s.ft.units));
+  setClass('m-ft-units', `metric-value ${colorClass(s.ft.units)}`);
+  setText('m-ft-roi', `ROI ${s.ft.roi}%`);
+  setText('m-total', s.total);
+  setText('m-streak', streak.type===1?`🔥 ${streak.streak}W`:`❄️ ${streak.streak}L`);
+
+  // Split
+  setText('s-f5-ml-rec', `${s.f5ml.w}-${s.f5ml.l}`);
+  setText('s-f5-ml-det', `${s.f5ml.pct}% · ${fmtU(s.f5ml.units)}`);
+  setText('s-f5-ov-rec', `${s.f5ov.w}-${s.f5ov.l}`);
+  setText('s-f5-ov-det', `${s.f5ov.pct}% · ${fmtU(s.f5ov.units)}`);
+  setText('s-f5-un-rec', `${s.f5un.w}-${s.f5un.l}`);
+  setText('s-f5-un-det', `${s.f5un.pct}% · ${fmtU(s.f5un.units)}`);
+  setText('s-ft-ml-rec', `${s.ftml.w}-${s.ftml.l}`);
+  setText('s-ft-ml-det', `${s.ftml.pct}% · ${fmtU(s.ftml.units)}`);
+  setText('s-ft-ov-rec', `${s.ftov.w}-${s.ftov.l}`);
+  setText('s-ft-ov-det', `${s.ftov.pct}% · ${fmtU(s.ftov.units)}`);
+  setText('s-ft-un-rec', `${s.ftun.w}-${s.ftun.l}`);
+  setText('s-ft-un-det', `${s.ftun.pct}% · ${fmtU(s.ftun.units)}`);
+
+  // Advanced
+  const lp = getConfStats(allPicks(), 'likeplus');
+  const li = getConfStats(allPicks(), 'like');
+  const nolabel = calcGroup(allPicks().filter(p=>!(p.notes||'').includes('like')).map(p=>p.f5).filter(v=>v===0||v===1||v===2));
+  const gap = (parseFloat(s.f5.units) - parseFloat(s.ft.units)).toFixed(2);
+
+  setText('adv-likeplus', `${lp.w}-${lp.l}`);
+  setText('adv-likeplus-sub', `${lp.pct}% win · ${lp.w+lp.l} picks`);
+  setText('adv-like', `${li.w}-${li.l}`);
+  setText('adv-like-sub', `${li.pct}% win · ${li.w+li.l} picks`);
+  setText('adv-nolabel', `${nolabel.w}-${nolabel.l}`);
+  setText('adv-nolabel-sub', `${nolabel.pct}% win · ${nolabel.w+nolabel.l} picks`);
+  setText('adv-gap', `${parseFloat(gap)>=0?'+':''}${gap}u`);
+
+  // Best/worst day
+  const dd = getDailyData(allPicks());
+  let best=null,worst=null,bestU=-99,worstU=99;
+  Object.entries(dd).forEach(([dk,picks]) => {
+    const ds = calcGroup(picks.map(p=>p.f5).filter(v=>v===0||v===1||v===2));
+    if(ds.units>bestU){bestU=ds.units;best={dk,ds};}
+    if(ds.units<worstU){worstU=ds.units;worst={dk,ds};}
+  });
+  if(best){
+    const d=excelToDate(parseFloat(best.dk));
+    setText('adv-bestday', `+${best.ds.units}u`);
+    setText('adv-bestday-sub', `${fmtDate(d)} · ${best.ds.w}-${best.ds.l}`);
+    setClass('adv-bestday', 'metric-value sm pos');
+  }
+  if(worst){
+    const d=excelToDate(parseFloat(worst.dk));
+    setText('adv-worstday', `${worst.ds.units}u`);
+    setText('adv-worstday-sub', `${fmtDate(d)} · ${worst.ds.w}-${worst.ds.l}`);
+    setClass('adv-worstday', 'metric-value sm neg');
   }
 
-  function populateDropdownDates() {
-    const el = document.getElementById('pick-date');
-    if (!el) return;
-    el.innerHTML = '';
-    const origin = new Date();
-    for (let i = 2; i >= -5; i--) {
-      const active = new Date();
-      active.setDate(origin.getDate() + i);
-      const yyyy = active.getFullYear();
-      const mm = String(active.getMonth() + 1).padStart(2, '0');
-      const dd = String(active.getDate()).padStart(2, '0');
-      const formattedString = `${yyyy}-${mm}-${dd}`;
-      
-      const item = document.createElement('option');
-      item.value = formattedString;
-      item.innerText = i === 0 ? `${formattedString} (TODAY)` : (i === 1 ? `${formattedString} (TOMORROW)` : formattedString);
-      if (i === 0) item.selected = true;
-      el.appendChild(item);
+  renderDailyTable();
+  setTimeout(drawPnlChart, 50);
+}
+
+function renderDailyTable() {
+  const dd = getDailyData(allPicks());
+  const sortEl = document.getElementById('daily-sort');
+  const sort = sortEl ? sortEl.value : 'desc';
+
+  let rows = Object.entries(dd).map(([dk, picks]) => {
+    const ds = calcGroup(picks.map(p=>p.f5).filter(v=>v===0||v===1||v===2));
+    const dts = calcGroup(picks.map(p=>p.ft).filter(v=>v===0||v===1||v===2));
+    const d = parseFloat(dk)>1e9 ? new Date(parseInt(dk)) : excelToDate(parseFloat(dk));
+    return {dk:parseFloat(dk), d, ds, dts, count:picks.length};
+  });
+
+  if(sort==='desc') rows.sort((a,b)=>b.dk-a.dk);
+  else rows.sort((a,b)=>a.dk-b.dk);
+
+  // Compute day delta
+  const sorted = [...rows].sort((a,b)=>a.dk-b.dk);
+  const deltaMap={};
+  sorted.forEach((r,i)=>{
+    if(i>0) deltaMap[r.dk] = (r.ds.units - sorted[i-1].ds.units).toFixed(2);
+  });
+
+  // Compute totals
+  const totF5W = rows.reduce((a,r)=>a+r.ds.w,0);
+  const totF5L = rows.reduce((a,r)=>a+r.ds.l,0);
+  const totF5P = rows.reduce((a,r)=>a+r.ds.p,0);
+  const totF5U = rows.reduce((a,r)=>a+parseFloat(r.ds.units),0);
+  const totFTW = rows.reduce((a,r)=>a+r.dts.w,0);
+  const totFTL = rows.reduce((a,r)=>a+r.dts.l,0);
+  const totFTP = rows.reduce((a,r)=>a+r.dts.p,0);
+  const totFTU = rows.reduce((a,r)=>a+parseFloat(r.dts.units),0);
+  const totPicks = rows.reduce((a,r)=>a+r.count,0);
+  const totF5Pct = (totF5W+totF5L)>0?(totF5W/(totF5W+totF5L)*100).toFixed(1):'—';
+  const totFTPct = (totFTW+totFTL)>0?(totFTW/(totFTW+totFTL)*100).toFixed(1):'—';
+  const totF5ROI = (totF5W+totF5L)>0?(totF5U/((totF5W+totF5L)*1.5)*100).toFixed(1):'—';
+  const totFTROI = (totFTW+totFTL)>0?(totFTU/((totFTW+totFTL)*1.5)*100).toFixed(1):'—';
+
+  const tbody = document.getElementById('daily-tbody');
+  tbody.innerHTML = rows.map(r=>{
+    const f5c = r.ds.units>=0?'pos':'neg';
+    const ftc = r.dts.units>=0?'pos':'neg';
+    const delta = deltaMap[r.dk];
+    const dc = delta!==undefined ? (parseFloat(delta)>=0?'pos':'neg') : '';
+    const f5pct = r.ds.total>0?parseFloat(r.ds.pct):0;
+    return `<tr>
+      <td class="td-mono">${fmtDate(r.d)}</td>
+      <td style="color:var(--green)">${r.ds.w}</td>
+      <td style="color:var(--red)">${r.ds.l}</td>
+      <td style="color:var(--muted2)">${r.ds.p}</td>
+      <td><span style="color:${f5pct>=55?'var(--green)':f5pct<45?'var(--red)':'var(--text2)'}">
+        ${r.ds.pct}%
+      </span></td>
+      <td class="td-mono" style="color:${r.ds.units>=0?'var(--green)':'var(--red)'};font-weight:700">
+        ${r.ds.units>=0?'+':''}${r.ds.units}u
+      </td>
+      <td style="color:var(--green)">${r.dts.w}</td>
+      <td style="color:var(--red)">${r.dts.l}</td>
+      <td style="color:var(--muted2)">${r.dts.p}</td>
+      <td><span style="color:${parseFloat(r.dts.pct)>=55?'var(--green)':parseFloat(r.dts.pct)<45?'var(--red)':'var(--text2)'}">
+        ${r.dts.pct}%
+      </span></td>
+      <td class="td-mono" style="color:${r.dts.units>=0?'var(--green)':'var(--red)'}">
+        ${r.dts.units>=0?'+':''}${r.dts.units}u
+      </td>
+      <td><span class="badge badge-white">${r.count}</span></td>
+      <td class="td-mono" style="color:${dc==='pos'?'var(--green)':'var(--red)'}">
+        ${delta!==undefined?(parseFloat(delta)>=0?'+':'')+delta+'u':'—'}
+      </td>
+    </tr>`;
+  }).join('') + `
+  <tr style="background:var(--bg4);border-top:2px solid var(--border2)">
+    <td class="td-mono" style="color:var(--green);font-weight:700;letter-spacing:1px;font-size:10px">TOTALS</td>
+    <td style="color:var(--green);font-weight:700">${totF5W}</td>
+    <td style="color:var(--red);font-weight:700">${totF5L}</td>
+    <td style="color:var(--muted2);font-weight:700">${totF5P}</td>
+    <td style="font-weight:700"><span style="color:${parseFloat(totF5Pct)>=55?'var(--green)':parseFloat(totF5Pct)<45?'var(--red)':'var(--text2)'}">${totF5Pct}%</span></td>
+    <td class="td-mono" style="color:${totF5U>=0?'var(--green)':'var(--red)'};font-weight:700;font-size:13px">
+      ${totF5U>=0?'+':''}${totF5U.toFixed(2)}u <span style="color:var(--muted);font-size:9px;font-weight:400">ROI ${totF5ROI}%</span>
+    </td>
+    <td style="color:var(--green);font-weight:700">${totFTW}</td>
+    <td style="color:var(--red);font-weight:700">${totFTL}</td>
+    <td style="color:var(--muted2);font-weight:700">${totFTP}</td>
+    <td style="font-weight:700"><span style="color:${parseFloat(totFTPct)>=55?'var(--green)':parseFloat(totFTPct)<45?'var(--red)':'var(--text2)'}">${totFTPct}%</span></td>
+    <td class="td-mono" style="color:${totFTU>=0?'var(--green)':'var(--red)'};font-weight:700">
+      ${totFTU>=0?'+':''}${totFTU.toFixed(2)}u <span style="color:var(--muted);font-size:9px;font-weight:400">ROI ${totFTROI}%</span>
+    </td>
+    <td><span class="badge badge-green">${totPicks}</span></td>
+    <td style="color:var(--muted)">—</td>
+  </tr>`;
+}
+
+function sortDaily(key) {
+  dailySortKey = key;
+  renderDailyTable();
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+let hFilter={type:'all',period:'all',result:'all',conf:'all'};
+let hSort={key:'date',dir:'desc'};
+
+function filterHistory(type, btn) {
+  hFilter.type=type;
+  document.querySelectorAll('.filter-bar:nth-child(1) .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+function filterHistoryPeriod(p,btn) {
+  hFilter.period=p;
+  document.querySelectorAll('.filter-bar:nth-child(2) .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+function filterHistoryResult(r,btn) {
+  hFilter.result=r;
+  document.querySelectorAll('.filter-bar:nth-child(3) .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+function filterHistoryConf(c,btn) {
+  hFilter.conf=c;
+  document.querySelectorAll('.filter-bar:nth-child(4) .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+function sortHistory(key) {
+  if(hSort.key===key) hSort.dir=hSort.dir==='desc'?'asc':'desc';
+  else { hSort.key=key; hSort.dir='desc'; }
+  renderHistory();
+}
+
+function renderHistory() {
+  let fp = [...allPicks()];
+  if(hFilter.type!=='all') fp=fp.filter(p=>p.type===hFilter.type);
+  if(hFilter.period==='f5') fp=fp.filter(p=>p.f5===0||p.f5===1||p.f5===2);
+  if(hFilter.period==='ft') fp=fp.filter(p=>p.ft===0||p.ft===1||p.ft===2);
+  if(hFilter.result==='win') fp=fp.filter(p=>p.f5===1);
+  if(hFilter.result==='loss') fp=fp.filter(p=>p.f5===0);
+  if(hFilter.result==='push') fp=fp.filter(p=>p.f5===2);
+  if(hFilter.conf==='likeplus') fp=fp.filter(p=>(p.notes||'').includes('like+'));
+  if(hFilter.conf==='like') fp=fp.filter(p=>(p.notes||'').includes('like')&&!(p.notes||'').includes('like+'));
+
+  // Sort
+  fp.sort((a,b)=>{
+    let av=a[hSort.key],bv=b[hSort.key];
+    if(hSort.key==='date'){av=a.date;bv=b.date;}
+    if(hSort.dir==='desc') return bv>av?1:bv<av?-1:0;
+    return av>bv?1:av<bv?-1:0;
+  });
+
+  const resultBadge = (v) => {
+    if(v===1) return '<span class="badge badge-green">W</span>';
+    if(v===0) return '<span class="badge badge-red">L</span>';
+    if(v===2) return '<span class="badge badge-white">P</span>';
+    return '<span style="color:var(--muted)">—</span>';
+  };
+  const unitStr = (v) => {
+    if(v===1) return '<span style="color:var(--green)">+1.0u</span>';
+    if(v===0) return '<span style="color:var(--red)">-1.5u</span>';
+    return '—';
+  };
+  const typeBadge = (t) => {
+    if(t==='ml') return '<span class="badge badge-white">ML</span>';
+    if(t==='over') return '<span class="badge badge-yellow">OVER</span>';
+    return '<span class="badge badge-muted">UNDER</span>';
+  };
+  const confTag = (n) => {
+    if((n||'').includes('like+')) return '<span class="badge badge-green">like+</span>';
+    if((n||'').includes('like')) return '<span class="badge badge-white">like</span>';
+    return '';
+  };
+
+  const tbody = document.getElementById('history-tbody');
+  if(!fp.length){
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px">No picks match filters</td></tr>';
+    return;
+  }
+
+  // Compute history totals
+  const hF5 = calcGroup(fp.map(p=>p.f5).filter(v=>v===0||v===1||v===2));
+  const hFT = calcGroup(fp.map(p=>p.ft).filter(v=>v===0||v===1||v===2));
+  const hF5ROI = hF5.total>0?(hF5.units/(hF5.total*1.5)*100).toFixed(1):'—';
+  const hFTROI = hFT.total>0?(hFT.units/(hFT.total*1.5)*100).toFixed(1):'—';
+
+  // Find pick index in allPicks for today picks
+  tbody.innerHTML = fp.map((p)=>{
+    const d = p.date>1e9 ? new Date(p.date) : excelToDate(parseFloat(p.date));
+    const isToday = !!(p.uid && todayPicks.find(tp=>tp.uid==p.uid));
+    return `<tr>
+      <td class="td-mono">${fmtDate(d)}</td>
+      <td style="max-width:180px;white-space:normal;font-size:11px">${p.pick}</td>
+      <td>${typeBadge(p.type)}</td>
+      <td>${confTag(p.notes)}</td>
+      <td>${resultBadge(p.f5)}</td>
+      <td>${resultBadge(p.ft)}</td>
+      <td>${unitStr(p.f5)}</td>
+      <td>${unitStr(p.ft)}</td>
+      <td style="color:var(--muted2);font-size:10px;max-width:160px;white-space:normal">${p.notes||'—'}</td>
+      <td class="hist-action-cell" data-uid="${p.uid}" data-istoday="${isToday}">
+        ${isToday ?
+          (p.locked ?
+            '<span style="color:var(--green);font-size:9px;font-weight:700;letter-spacing:1px">🔒 LOCKED</span>' :
+            '<span style="color:var(--muted);font-size:10px">See Today tab</span>'
+          ) : '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>'
+        }
+      </td>
+    </tr>`;
+  }).join('') + `
+  <tr style="background:var(--bg4);border-top:2px solid var(--border2)">
+    <td colspan="2" class="td-mono" style="color:var(--green);font-weight:700;font-size:10px;letter-spacing:1px">TOTALS — ${fp.length} picks shown</td>
+    <td></td>
+    <td></td>
+    <td style="font-weight:700">
+      <span class="badge badge-green">${hF5.w}W</span>
+      <span class="badge badge-red" style="margin-left:4px">${hF5.l}L</span>
+      ${hF5.p>0?`<span class="badge badge-white" style="margin-left:4px">${hF5.p}P</span>`:''}
+    </td>
+    <td style="font-weight:700">
+      <span class="badge badge-green">${hFT.w}W</span>
+      <span class="badge badge-red" style="margin-left:4px">${hFT.l}L</span>
+      ${hFT.p>0?`<span class="badge badge-white" style="margin-left:4px">${hFT.p}P</span>`:''}
+    </td>
+    <td class="td-mono" style="color:${hF5.units>=0?'var(--green)':'var(--red)'};font-weight:700">
+      ${hF5.units>=0?'+':''}${hF5.units}u
+      <span style="color:var(--muted);font-size:9px;font-weight:400;margin-left:4px">${hF5.pct}% · ROI ${hF5ROI}%</span>
+    </td>
+    <td class="td-mono" style="color:${hFT.units>=0?'var(--green)':'var(--red)'};font-weight:700">
+      ${hFT.units>=0?'+':''}${hFT.units}u
+      <span style="color:var(--muted);font-size:9px;font-weight:400;margin-left:4px">${hFT.pct}% · ROI ${hFTROI}%</span>
+    </td>
+    <td colspan="2" style="color:var(--muted);font-size:10px">Win +1u · Loss -1.5u · Risk 1.5u</td>
+  </tr>`;
+}
+
+function setResult(uid, side, val) {
+  const pick = todayPicks.find(p => p.uid == uid);
+  if (!pick) return;
+  pick[side] = val;
+  localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+  renderHistory();
+  renderDashboard();
+  buildTicker();
+  buildHeaderStats();
+  renderTodayPicksSummary();
+  const labels = {1:'🔥 WIN logged',0:'❌ LOSS logged',2:'➖ PUSH logged'};
+  showToast(labels[val]);
+}
+
+// ============================================================
+// TRENDS
+// ============================================================
+function renderTrends() {
+  const period = document.getElementById('trend-period').value;
+  const s = getStats(allPicks(), period);
+  const windows = ['7','30','all'];
+  const labels = {'7':'Last 7 Days','30':'Last 30 Days','all':'All Time'};
+
+  // Rolling table
+  const tbody = document.getElementById('rolling-tbody');
+  const allS = getStats(allPicks(), 'all');
+  tbody.innerHTML = windows.map(w=>{
+    const ws = getStats(allPicks(), w);
+    const delta = (parseFloat(ws.f5.units) - parseFloat(ws.ft.units)).toFixed(2);
+    return `<tr>
+      <td style="font-weight:700">${labels[w]}</td>
+      <td>${ws.f5.w}-${ws.f5.l}-${ws.f5.p}</td>
+      <td style="color:${parseFloat(ws.f5.pct)>=55?'var(--green)':parseFloat(ws.f5.pct)<45?'var(--red)':'var(--text2)'}">${ws.f5.pct}%</td>
+      <td style="color:${ws.f5.units>=0?'var(--green)':'var(--red)'}">${ws.f5.units>=0?'+':''}${ws.f5.units}u</td>
+      <td style="color:${parseFloat(ws.f5.roi)>=0?'var(--green)':'var(--red)'}">${ws.f5.roi}%</td>
+      <td>${ws.ft.w}-${ws.ft.l}-${ws.ft.p}</td>
+      <td style="color:${parseFloat(ws.ft.pct)>=55?'var(--green)':parseFloat(ws.ft.pct)<45?'var(--red)':'var(--text2)'}">${ws.ft.pct}%</td>
+      <td style="color:${ws.ft.units>=0?'var(--green)':'var(--red)'}">${ws.ft.units>=0?'+':''}${ws.ft.units}u</td>
+      <td style="color:${parseFloat(ws.ft.roi)>=0?'var(--green)':'var(--red)'}">${ws.ft.roi}%</td>
+      <td style="color:${parseFloat(delta)>=0?'var(--green)':'var(--red)'}">
+        ${parseFloat(delta)>=0?'+':''}${delta}u
+      </td>
+    </tr>`;
+  }).join('') + `
+  <tr style="background:var(--bg4);border-top:2px solid var(--border2)">
+    <td class="td-mono" style="color:var(--green);font-weight:700;font-size:10px;letter-spacing:1px">ALL TIME</td>
+    <td style="font-weight:700">${allS.f5.w}-${allS.f5.l}-${allS.f5.p}</td>
+    <td style="font-weight:700;color:${parseFloat(allS.f5.pct)>=55?'var(--green)':parseFloat(allS.f5.pct)<45?'var(--red)':'var(--text2)'}">${allS.f5.pct}%</td>
+    <td style="font-weight:700;color:${allS.f5.units>=0?'var(--green)':'var(--red)'}">${allS.f5.units>=0?'+':''}${allS.f5.units}u</td>
+    <td style="font-weight:700;color:${parseFloat(allS.f5.roi)>=0?'var(--green)':'var(--red)'}">${allS.f5.roi}%</td>
+    <td style="font-weight:700">${allS.ft.w}-${allS.ft.l}-${allS.ft.p}</td>
+    <td style="font-weight:700;color:${parseFloat(allS.ft.pct)>=55?'var(--green)':parseFloat(allS.ft.pct)<45?'var(--red)':'var(--text2)'}">${allS.ft.pct}%</td>
+    <td style="font-weight:700;color:${allS.ft.units>=0?'var(--green)':'var(--red)'}">${allS.ft.units>=0?'+':''}${allS.ft.units}u</td>
+    <td style="font-weight:700;color:${parseFloat(allS.ft.roi)>=0?'var(--green)':'var(--red)'}">${allS.ft.roi}%</td>
+    <td style="font-weight:700;color:${parseFloat(allS.f5.units)-parseFloat(allS.ft.units)>=0?'var(--green)':'var(--red)'}">${(parseFloat(allS.f5.units)-parseFloat(allS.ft.units)).toFixed(2)>=0?'+':''}${(parseFloat(allS.f5.units)-parseFloat(allS.ft.units)).toFixed(2)}u</td>
+  </tr>`;
+
+  // Confidence
+  const lp = getConfStats(allPicks(),'likeplus');
+  const li = getConfStats(allPicks(),'like');
+  setText('t-likeplus-rec',`${lp.w}-${lp.l}`);
+  setText('t-likeplus-sub',`${lp.pct}% win`);
+  setText('t-likeplus-units',`${lp.units>=0?'+':''}${lp.units}u`);
+  setText('t-likeplus-roi',`ROI ${lp.roi}%`);
+  setText('t-like-rec',`${li.w}-${li.l}`);
+  setText('t-like-sub',`${li.pct}% win`);
+  setText('t-like-units',`${li.units>=0?'+':''}${li.units}u`);
+  setText('t-like-roi',`ROI ${li.roi}%`);
+
+  // Trend cards
+  document.getElementById('trend-cards').innerHTML = `
+    <div class="trend-panel">
+      <div class="trend-title">F5 by Bet Type</div>
+      <div class="trend-row"><span class="trend-key">ML</span><span class="trend-val ${parseFloat(s.f5ml.pct)>=55?'pos':parseFloat(s.f5ml.pct)<45?'neg':'neu'}">${s.f5ml.w}-${s.f5ml.l} (${s.f5ml.pct}%)</span></div>
+      <div class="trend-row"><span class="trend-key">Overs</span><span class="trend-val ${parseFloat(s.f5ov.pct)>=55?'pos':parseFloat(s.f5ov.pct)<45?'neg':'neu'}">${s.f5ov.w}-${s.f5ov.l} (${s.f5ov.pct}%)</span></div>
+      <div class="trend-row"><span class="trend-key">Unders</span><span class="trend-val ${parseFloat(s.f5un.pct)>=55?'pos':parseFloat(s.f5un.pct)<45?'neg':'neu'}">${s.f5un.w}-${s.f5un.l} (${s.f5un.pct}%)</span></div>
+      <div class="trend-row"><span class="trend-key">F5 ROI</span><span class="trend-val ${parseFloat(s.f5.roi)>=0?'pos':'neg'}">${s.f5.roi}%</span></div>
+    </div>
+    <div class="trend-panel">
+      <div class="trend-title">FT by Bet Type</div>
+      <div class="trend-row"><span class="trend-key">ML</span><span class="trend-val ${parseFloat(s.ftml.pct)>=55?'pos':parseFloat(s.ftml.pct)<45?'neg':'neu'}">${s.ftml.w}-${s.ftml.l} (${s.ftml.pct}%)</span></div>
+      <div class="trend-row"><span class="trend-key">Overs</span><span class="trend-val ${parseFloat(s.ftov.pct)>=55?'pos':parseFloat(s.ftov.pct)<45?'neg':'neu'}">${s.ftov.w}-${s.ftov.l} (${s.ftov.pct}%)</span></div>
+      <div class="trend-row"><span class="trend-key">Unders</span><span class="trend-val ${parseFloat(s.ftun.pct)>=55?'pos':parseFloat(s.ftun.pct)<45?'neg':'neu'}">${s.ftun.w}-${s.ftun.l} (${s.ftun.pct}%)</span></div>
+      <div class="trend-row"><span class="trend-key">FT ROI</span><span class="trend-val ${parseFloat(s.ft.roi)>=0?'pos':'neg'}">${s.ft.roi}%</span></div>
+    </div>
+    <div class="trend-panel">
+      <div class="trend-title">Key Ratios</div>
+      <div class="trend-row"><span class="trend-key">F5 vs FT gap</span><span class="trend-val pos">+${(parseFloat(s.f5.units)-parseFloat(s.ft.units)).toFixed(2)}u</span></div>
+      <div class="trend-row"><span class="trend-key">Avg units/day</span><span class="trend-val ${parseFloat(s.f5.units)>=0?'pos':'neg'}">${(parseFloat(s.f5.units)/Object.keys(getDailyData(allPicks())).length).toFixed(2)}u</span></div>
+      <div class="trend-row"><span class="trend-key">Pick volume/day</span><span class="trend-val neu">${(s.total/Object.keys(getDailyData(allPicks())).length).toFixed(1)}</span></div>
+      <div class="trend-row"><span class="trend-key">Verdict</span><span class="trend-val pos">STICK TO F5</span></div>
+    </div>
+  `;
+
+  // Hot/Cold
+  const hotItems=[], coldItems=[];
+  if(parseFloat(s.f5ml.pct)>=65) hotItems.push(`F5 ML: ${s.f5ml.pct}% (${s.f5ml.w}-${s.f5ml.l})`);
+  if(parseFloat(s.f5ov.pct)>=65) hotItems.push(`F5 Overs: ${s.f5ov.pct}% (${s.f5ov.w}-${s.f5ov.l})`);
+  if(parseFloat(s.f5un.pct)>=65) hotItems.push(`F5 Unders: ${s.f5un.pct}% (${s.f5un.w}-${s.f5un.l})`);
+  if(parseFloat(s.f5.pct)>=65) hotItems.push(`Overall F5: ${s.f5.pct}%`);
+  if(parseFloat(s.ftml.pct)<45) coldItems.push(`FT ML: ${s.ftml.pct}% — avoid`);
+  if(parseFloat(s.ft.pct)<50) coldItems.push(`FT Overall: ${s.ft.pct}% — stop betting FT`);
+  if(parseFloat(s.f5un.pct)<45) coldItems.push(`F5 Unders: ${s.f5un.pct}% — cooling`);
+
+  document.getElementById('hot-list').innerHTML = hotItems.length ?
+    hotItems.map(i=>`<div class="trend-row"><span class="trend-key">◆</span><span class="trend-val pos">${i}</span></div>`).join('') :
+    '<div style="color:var(--muted);font-size:11px">Build more history</div>';
+  document.getElementById('cold-list').innerHTML = coldItems.length ?
+    coldItems.map(i=>`<div class="trend-row"><span class="trend-key">◆</span><span class="trend-val neg">${i}</span></div>`).join('') :
+    '<div style="color:var(--muted);font-size:11px">No major failing trends</div>';
+}
+
+// ============================================================
+// TODAY — DATA PROCESSING
+// ============================================================
+let matchupData=[], pitcherData=[], parkData=[], gameSimData=[];
+const gameDataMap = {}; // idx -> {away, home}
+
+function updateStatus(inputId, statusId) {
+  const v = document.getElementById(inputId).value.trim();
+  const el = document.getElementById(statusId);
+  el.textContent = v ? 'READY' : 'EMPTY';
+  el.className = v ? 'status-ready' : 'status-empty';
+  if (inputId === 'sim-paste') {
+    if (v) localStorage.setItem('harriSimPaste', v);
+    else localStorage.removeItem('harriSimPaste');
+  }
+  checkDataBanner();
+}
+
+function checkDataBanner() {
+  const sim = document.getElementById('sim-paste').value.trim();
+  const banner = document.getElementById('data-loaded-banner');
+  if (banner) banner.style.display = sim ? 'flex' : 'none';
+}
+
+function clearAllData() {
+  document.getElementById('sim-paste').value = '';
+  document.getElementById('sim-status').textContent = 'EMPTY';
+  document.getElementById('sim-status').className = 'status-empty';
+  document.getElementById('matchup-status').textContent = 'EMPTY';
+  document.getElementById('matchup-status').className = 'status-empty';
+  document.getElementById('pitcher-status').textContent = 'EMPTY';
+  document.getElementById('pitcher-status').className = 'status-empty';
+  document.getElementById('park-status').textContent = 'EMPTY';
+  document.getElementById('park-status').className = 'status-empty';
+  matchupData=[]; pitcherData=[]; parkData=[]; gameSimData=[];
+  localStorage.removeItem('harriSimPaste');
+  localStorage.removeItem('harriMatchupData');
+  localStorage.removeItem('harriPitcherData');
+  localStorage.removeItem('harriParkData');
+  document.getElementById('data-loaded-banner').style.display = 'none';
+  document.getElementById('watchlist-section').style.display = 'none';
+  document.getElementById('games-header').style.display = 'none';
+  document.getElementById('games-container').innerHTML = '<div class="empty-state"><div class="e-icon">⚾</div><div class="e-text">No Data Loaded</div><div class="e-sub">Load BallparkPal data and hit Generate Report</div></div>';
+  showToast('Data cleared');
+}
+
+function handleMatchupFile(input) {
+  const file = input.files[0]; if(!file) return;
+  document.getElementById('matchup-status').textContent = '✓ '+file.name;
+  document.getElementById('matchup-status').className = 'status-ready';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    const headers = lines[0].split(',').map(h=>h.trim().replace(/["\uFEFF]/g,''));
+    matchupData = lines.slice(1).map(line=>{
+      const vals = parseCSV(line), obj={};
+      headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
+      return obj;
+    });
+    checkDataBanner();
+    localStorage.setItem('harriMatchupData', JSON.stringify(matchupData));
+    checkDataBanner();
+    showToast('Matchup data loaded');
+  };
+  reader.readAsText(file);
+}
+
+function handlePitcherFile(input) {
+  const file = input.files[0]; if(!file) return;
+  document.getElementById('pitcher-status').textContent = '✓ '+file.name;
+  document.getElementById('pitcher-status').className = 'status-ready';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    const headers = lines[0].split(',').map(h=>h.trim().replace(/["\uFEFF]/g,''));
+    pitcherData = lines.slice(1).map(line=>{
+      const vals = parseCSV(line), obj={};
+      headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
+      return obj;
+    });
+    localStorage.setItem('harriPitcherData', JSON.stringify(pitcherData));
+    checkDataBanner();
+    showToast('Pitcher data loaded');
+  };
+  reader.readAsText(file);
+}
+
+function handleParkFile(input) {
+  const file = input.files[0]; if(!file) return;
+  document.getElementById('park-status').textContent = '✓ '+file.name;
+  document.getElementById('park-status').className = 'status-ready';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    const headers = lines[0].split(',').map(h=>h.trim().replace(/["\uFEFF]/g,''));
+    parkData = lines.slice(1).map(line=>{
+      const vals = parseCSV(line), obj={};
+      headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim().replace(/"/g,''));
+      return obj;
+    });
+    localStorage.setItem('harriParkData', JSON.stringify(parkData));
+    buildWatchlists();
+    showToast('Park factors loaded');
+  };
+  reader.readAsText(file);
+}
+
+function populateManualDateDropdown() {
+  const sel = document.getElementById('manual-date');
+  if (!sel) return;
+  sel.innerHTML = '';
+  for (let d = 0; d < 7; d++) {
+    const dt = new Date();
+    dt.setDate(dt.getDate() - d);
+    const label = d === 0 ? 'Today' : d === 1 ? 'Yesterday' : dt.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+    const opt = document.createElement('option');
+    opt.value = dt.getTime();
+    opt.textContent = label;
+    sel.appendChild(opt);
+  }
+}
+
+function saveManualPick() {
+  const pickEl = document.getElementById('manual-pick');
+  const pick = pickEl ? pickEl.value.trim() : '';
+  if (!pick) { showToast('⚠ Enter a pick first'); return; }
+
+  const type = document.getElementById('manual-type')?.value || 'ml';
+  const period = document.getElementById('manual-period')?.value || 'f5';
+  const notes = document.getElementById('manual-notes')?.value.trim() || '';
+
+  // Date — use selected value or default to yesterday
+  const dateSelEl = document.getElementById('manual-date');
+  let pickDate = Date.now();
+  if (dateSelEl && dateSelEl.value && !isNaN(parseInt(dateSelEl.value))) {
+    pickDate = parseInt(dateSelEl.value);
+  }
+
+  const uid = Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const newPick = {uid, date:pickDate, type, pick, f5:null, ft:null, notes, isToday:true, locked:false};
+
+  todayPicks.push(newPick);
+  localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+
+  // Clear inputs
+  if (pickEl) pickEl.value = '';
+  const notesEl = document.getElementById('manual-notes');
+  if (notesEl) notesEl.value = '';
+
+  renderTodayPicksSummary();
+  renderDashboard();
+  buildTicker();
+  buildHeaderStats();
+  renderHistory();
+  showToast('✓ ' + pick + ' added');
+}
+
+function setupDropZone(boxId, fileId, handler) {
+  const box = document.getElementById(boxId);
+  const input = document.getElementById(fileId);
+  if (!box || !input) return;
+
+  // Single click handler
+  box.addEventListener('click', () => input.click());
+
+  // File input change
+  input.addEventListener('change', () => {
+    if (input.files[0]) handler({files: input.files});
+  });
+
+  // Drag events
+  box.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    box.style.borderColor = 'var(--green)';
+    box.style.background = 'var(--green-dim)';
+  });
+  box.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    box.style.borderColor = 'var(--border2)';
+    box.style.background = 'var(--bg)';
+  });
+  box.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    box.style.borderColor = 'var(--border2)';
+    box.style.background = 'var(--bg)';
+    const file = e.dataTransfer.files[0];
+    if (file) handler({files: [file]});
+  });
+}
+
+function parseCSV(line) {
+  const res=[]; let cur='', inQ=false;
+  for(let c of line){
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){res.push(cur);cur='';}
+    else{cur+=c;}
+  }
+  res.push(cur); return res;
+}
+
+function buildWatchlists() {
+  const over=[], under=[];
+  parkData.forEach(row=>{
+    const pct=parseFloat((row['Runs %']||'').replace('%','').replace('+',''));
+    const game=(row['Game']||'').trim();
+    if(!isNaN(pct)){
+      if(pct>=7) over.push({game,pct});
+      else if(pct<=-7) under.push({game,pct});
+    }
+  });
+  document.getElementById('watchlist-section').style.display='block';
+  document.getElementById('watchlists').innerHTML = `
+    <div class="wl-panel">
+      <div class="wl-title over">⬆ OVER WATCH</div>
+      ${over.length ? over.map(g=>`<div class="wl-item">${g.game} <span style="color:var(--green);float:right">+${g.pct}%</span></div>`).join('') : '<div style="color:var(--muted);font-size:11px">Nothing notable</div>'}
+    </div>
+    <div class="wl-panel">
+      <div class="wl-title under">⬇ UNDER WATCH</div>
+      ${under.length ? under.map(g=>`<div class="wl-item">${g.game} <span style="color:var(--red);float:right">${g.pct}%</span></div>`).join('') : '<div style="color:var(--muted);font-size:11px">Nothing notable</div>'}
+    </div>
+  `;
+}
+
+function parseSimText(text) {
+  const games=[];
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+
+  // Always extract the plain XX.X% number, ignoring anything in parentheses
+  const extractPct = (str) => {
+    const cleaned = str.replace(/\([^)]*\)/g, '').trim();
+    const m = cleaned.match(/(\d+\.\d+)%/);
+    return m ? parseFloat(m[1]) : 0;
+  };
+
+  // Extract just the odds number e.g. '+108 (Caesars)' -> '+108'
+  const extractOdds = (str) => {
+    const m = str.match(/([-+]\d{2,3})(?=\s|$|\s*\()/g) || str.match(/([-+]\d{2,3})/); return m ? m[0] || m[1] : '';
+  };
+
+  let i=0;
+  while(i<lines.length){
+    if(lines[i]==='@' && i>0 && i<lines.length-1){
+      const g={
+        away:lines[i-1],home:lines[i+1],
+        awaySP:'',homeSP:'',
+        awayRuns:0,homeRuns:0,
+        awayWinPct:0,homeWinPct:0,
+        awayML:'',homeML:'',
+        awayF5Runs:0,homeF5Runs:0,
+        awayF5Lead:0,homeF5Lead:0,
+        park:'',parkRuns:'',time:'',lineups:'',
+        totalLine:'',impliedOdds:[]
+      };
+      let j=i+2;
+      while(j<Math.min(i+70,lines.length)){
+        const l=lines[j];
+        if(l==='Starter'&&!g.awaySP){g.awaySP=lines[j-1]||'';g.homeSP=lines[j+1]||'';}
+        if(l==='Runs'&&!g.awayRuns){g.awayRuns=parseFloat(lines[j-1])||0;g.homeRuns=parseFloat(lines[j+1])||0;}
+        if(l==='Win'&&!g.awayWinPct){
+          g.awayWinPct = extractPct(lines[j-1]||'');
+          g.homeWinPct = extractPct(lines[j+1]||'');
+        }
+        if(l==='ML'){
+          g.awayML = extractOdds(lines[j-1]||'');
+          g.homeML = extractOdds(lines[j+1]||'');
+        }
+        if(l==='F5 Runs'&&!g.awayF5Runs){g.awayF5Runs=parseFloat(lines[j-1])||0;g.homeF5Runs=parseFloat(lines[j+1])||0;}
+        if(l==='F5 Lead'&&!g.awayF5Lead){
+          g.awayF5Lead = extractPct(lines[j-1]||'');
+          g.homeF5Lead = extractPct(lines[j+1]||'');
+        }
+        if(l==='Total'){g.totalLine=(lines[j-1]||'')+' / '+(lines[j+1]||'');}
+        if(l.includes('Runs:')){g.park=l.split('|')[0].trim();g.parkRuns=l.match(/Runs: ([+-]?\d+%)/)?.[1]||'';}
+        if(/^\d+:\d+$/.test(l))g.time=l;
+        if(l.includes('Lineups'))g.lineups=l;
+        if(/^[-+]\d{2,3}(\s+[-+]\d{2,3}){3,}/.test(l)){
+          g.impliedOdds = l.split(/\s+/).filter(x=>/^[-+]\d+$/.test(x));
+        }
+        if(l==='@'&&j>i+2) break;
+        if(l==='Details'&&j>i+10) break;
+        j++;
+      }
+      if(g.away&&g.home) games.push(g);
+      i=j;
+    } else i++;
+  }
+  return games;
+}
+
+function getPark(away, home) {
+  if(!parkData.length) return null;
+  const tryMatch = (team) => parkData.find(p=>{
+    const g=(p['Game']||'').toLowerCase();
+    return g.includes(team.toLowerCase().slice(0,3));
+  });
+  return tryMatch(away) || tryMatch(home);
+}
+
+function getPitcher(team) {
+  if(!pitcherData.length) return null;
+  return pitcherData.find(p=>(p['Team']||'').toLowerCase()===team.toLowerCase().slice(0,3).toLowerCase() || (p['Team']||'').toLowerCase().startsWith(team.toLowerCase().slice(0,3)));
+}
+
+function getMatchupSummary(away, home) {
+  if (!matchupData.length) return null;
+
+  // BallparkPal exports Team as 3-letter abbreviation e.g. 'MIA', 'PHI'
+  // Try to match away/home team names to the Team column
+  const teamMap = {
+    'marlins':'MIA','nationals':'WAS','tigers':'DET','rays':'TB','white sox':'CHW',
+    'twins':'MIN','mets':'NYM','mariners':'SEA','padres':'SD','phillies':'PHI',
+    'orioles':'BAL','red sox':'BOS','guardians':'CLE','yankees':'NYY','royals':'KC',
+    'reds':'CIN','blue jays':'TOR','braves':'ATL','giants':'SF','brewers':'MIL',
+    'rangers':'TEX','cardinals':'STL','athletics':'ATH','cubs':'CHC','pirates':'PIT',
+    'astros':'HOU','rockies':'COL','angels':'LAA','dodgers':'LAD','diamondbacks':'ARI',
+    'dbacks':'ARI'
+  };
+
+  const getAbbr = (name) => {
+    const lower = name.toLowerCase();
+    // Direct 3-letter match
+    if (name.length <= 3) return name.toUpperCase();
+    // Check map
+    for (const [k,v] of Object.entries(teamMap)) {
+      if (lower.includes(k)) return v;
+    }
+    // Fallback: first 3 letters
+    return name.toUpperCase().slice(0,3);
+  };
+
+  const awayAbbr = getAbbr(away);
+  const homeAbbr = getAbbr(home);
+
+  // Only include starters (Starter === '1' or 1)
+  const awayRows = matchupData.filter(r => {
+    const t = (r['Team']||'').trim().toUpperCase();
+    return t === awayAbbr && (r['Starter']==='1'||r['Starter']===1||r['Starter']==='true');
+  });
+  const homeRows = matchupData.filter(r => {
+    const t = (r['Team']||'').trim().toUpperCase();
+    return t === homeAbbr && (r['Starter']==='1'||r['Starter']===1||r['Starter']==='true');
+  });
+
+  // Fallback: if starter filter gives nothing, use all rows for this team
+  const awayFinal = awayRows.length > 0 ? awayRows : matchupData.filter(r=>(r['Team']||'').trim().toUpperCase()===awayAbbr);
+  const homeFinal = homeRows.length > 0 ? homeRows : matchupData.filter(r=>(r['Team']||'').trim().toUpperCase()===homeAbbr);
+
+  const avg = (rows, col) => {
+    const vals = rows.map(r => parseFloat(r[col])).filter(v => !isNaN(v));
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+  };
+
+  // Use the actual BallparkPal column names from the export
+  return {
+    awayRC:  avg(awayFinal, 'RC'),
+    homeRC:  avg(homeFinal, 'RC'),
+    awayHR:  avg(awayFinal, 'HR Boost'),
+    homeHR:  avg(homeFinal, 'HR Boost'),
+    awayXB:  avg(awayFinal, 'XB Boost'),
+    homeXB:  avg(homeFinal, 'XB Boost'),
+    away1B:  avg(awayFinal, '1B Boost'),
+    home1B:  avg(homeFinal, '1B Boost'),
+    awayBB:  avg(awayFinal, 'BB Boost'),
+    homeBB:  avg(homeFinal, 'BB Boost'),
+    awayK:   avg(awayFinal, 'K Boost'),
+    homeK:   avg(homeFinal, 'K Boost'),
+    awayVsGrade: avg(awayFinal, 'vs Grade'),
+    homeVsGrade: avg(homeFinal, 'vs Grade'),
+    awayHRProb:  avg(awayFinal, 'HR Prob'),
+    homeHRProb:  avg(homeFinal, 'HR Prob'),
+    away1BProb:  avg(awayFinal, '1B Prob'),
+    home1BProb:  avg(homeFinal, '1B Prob'),
+    awayXBProb:  avg(awayFinal, 'XB Prob'),
+    homeXBProb:  avg(homeFinal, 'XB Prob'),
+    awayBBProb:  avg(awayFinal, 'BB Prob'),
+    homeBBProb:  avg(homeFinal, 'BB Prob'),
+    awayKProb:   avg(awayFinal, 'K Prob'),
+    homeKProb:   avg(homeFinal, 'K Prob'),
+    awayRows: awayFinal.length,
+    homeRows: homeFinal.length,
+    awayBatters: awayFinal.map(r => r['Batter'] || '').filter(Boolean),
+    homeBatters: homeFinal.map(r => r['Batter'] || '').filter(Boolean),
+  };
+}
+
+function harriAnalyze(g, park, matchup) {
+  const flags = [], points = [];
+  let awayScore = 0, homeScore = 0;
+
+  // ── 1. PARK FACTORS ──────────────────────────────────────────
+  const parkPct = park ? parseFloat((park['Runs %']||'').replace('%','').replace('+','')) : 0;
+  if (!isNaN(parkPct) && Math.abs(parkPct) >= 7) {
+    if (parkPct <= -7) {
+      flags.push({l:'⬇ UNDER WATCH',c:'neg'});
+      points.push({t:'Park suppressing runs ' + (park['Runs %']||'') + ' — lean under, both offenses hurt',cls:'neg'});
+    } else {
+      flags.push({l:'⬆ OVER WATCH',c:'pos'});
+      points.push({t:'Park boosting runs ' + (park['Runs %']||'') + ' — lean over',cls:'pos'});
     }
   }
 
-  function buildHeaderStats() {
-    const el = document.getElementById('header-stats');
-    if (!el) return;
+  // ── 2. GAME SIM RUNS (higher = that team projected to score more) ──
+  const awayScored = g.awayRuns;
+  const homeScored = g.homeRuns;
+  const runGap = homeScored - awayScored; // positive = home scores more
+  const absRunGap = Math.abs(runGap);
 
-    let units = 0;
-    let wins = 0;
-    let losses = 0;
-    let pushes = 0;
+  if (absRunGap >= 0.8) {
+    const betterOff = runGap > 0 ? g.home : g.away;
+    flags.push({l:'⚡ RUN ADVANTAGE',c:'pos'});
+    points.push({t:'Sim run advantage: ' + betterOff + ' projects ' + Math.max(awayScored,homeScored).toFixed(2) + 'R vs ' + Math.min(awayScored,homeScored).toFixed(2) + 'R (' + absRunGap.toFixed(2) + ' gap)',cls:'pos'});
+    if (runGap > 0) homeScore += 2; else awayScore += 2;
+  } else if (absRunGap >= 0.4) {
+    const betterOff = runGap > 0 ? g.home : g.away;
+    points.push({t:'Mild run edge: ' + betterOff + ' ' + Math.max(awayScored,homeScored).toFixed(2) + 'R vs ' + Math.min(awayScored,homeScored).toFixed(2) + 'R',cls:'pos'});
+    if (runGap > 0) homeScore += 1; else awayScore += 1;
+  } else {
+    points.push({t:'Runs projected even (' + awayScored.toFixed(2) + ' vs ' + homeScored.toFixed(2) + ')',cls:'neu'});
+  }
 
-    todayPicks.forEach(p => {
-      [p.f5, p.ft].forEach(status => {
-        if (status === 1) { wins++; units += 1.0; }
-        else if (status === 0) { losses++; units -= 1.1; }
-        else if (status === 3) { pushes++; }
-      });
-    });
+  // ── 3. PITCHER STATS (lower R allowed = better pitcher) ──────
+  const awayPRow = pitcherData.find(p => (p['Team']||'').toUpperCase().slice(0,3) === g.away.toUpperCase().slice(0,3));
+  const homePRow = pitcherData.find(p => (p['Team']||'').toUpperCase().slice(0,3) === g.home.toUpperCase().slice(0,3));
+  const awayPR = awayPRow ? parseFloat(awayPRow['R']||99) : null;
+  const homePR = homePRow ? parseFloat(homePRow['R']||99) : null;
 
-    const rate = (wins + losses) > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : '0.0';
+  if (awayPR !== null && homePR !== null) {
+    // Lower R = better pitcher = opposing batters face harder time
+    // Home pitcher lower R = home team advantage (their pitcher is better)
+    const pitcherGap = awayPR - homePR; // positive = home pitcher better
+    const absPG = Math.abs(pitcherGap);
+    if (absPG >= 0.5) {
+      const betterPTeam = pitcherGap > 0 ? g.home : g.away;
+      const betterR = Math.min(awayPR, homePR).toFixed(2);
+      const worseR  = Math.max(awayPR, homePR).toFixed(2);
+      points.push({t:'Pitcher edge: ' + betterPTeam + ' (' + betterR + 'R allowed) vs (' + worseR + 'R allowed) — ' + absPG.toFixed(2) + 'R gap',cls:'pos'});
+      if (absPG >= 0.8) {
+        flags.push({l:'⚡ PITCHER MISMATCH',c:'pos'});
+        if (pitcherGap > 0) homeScore += 2; else awayScore += 2;
+      } else {
+        if (pitcherGap > 0) homeScore += 1; else awayScore += 1;
+      }
+    } else {
+      points.push({t:'Pitchers evenly matched (' + awayPR.toFixed(2) + 'R vs ' + homePR.toFixed(2) + 'R allowed)',cls:'neu'});
+    }
+  }
 
-    el.innerHTML = `
-      <div class="stat-block">
-        <div class="stat-label">Net Balance</div>
-        <div class="stat-val ${units >= 0 ? 'pos' : 'neg'}">${units >= 0 ? '+' : ''}${units.toFixed(2)}U</div>
+  // ── 4. BATTER vs PITCHER MATCHUPS ────────────────────────────
+  // awayRC/1B/XB/HR/BB/K = away batters vs home pitcher (positive = good for away batters)
+  // homeRC/1B/XB/HR/BB/K = home batters vs away pitcher (positive = good for home batters)
+  if (matchup && (matchup.awayRows > 0 || matchup.homeRows > 0)) {
+    let awayMatchup = 0, homeMatchup = 0;
+
+    // RC — summary stat, weight highest (3)
+    if (matchup.awayRC > 8)  awayMatchup += 3;
+    else if (matchup.awayRC > 3) awayMatchup += 1;
+    else if (matchup.awayRC < -8) awayMatchup -= 3;
+    else if (matchup.awayRC < -3) awayMatchup -= 1;
+
+    if (matchup.homeRC > 8)  homeMatchup += 3;
+    else if (matchup.homeRC > 3) homeMatchup += 1;
+    else if (matchup.homeRC < -8) homeMatchup -= 3;
+    else if (matchup.homeRC < -3) homeMatchup -= 1;
+
+    // 1B — best indicator for run scoring (weight 2)
+    const a1b = matchup.away1B || 0, h1b = matchup.home1B || 0;
+    if (a1b > 5) awayMatchup += 2; else if (a1b < -5) awayMatchup -= 2;
+    if (h1b > 5) homeMatchup += 2; else if (h1b < -5) homeMatchup -= 2;
+
+    // XB — extra bases (weight 2)
+    const axb = matchup.awayXB || 0, hxb = matchup.homeXB || 0;
+    if (axb > 5) awayMatchup += 2; else if (axb < -5) awayMatchup -= 2;
+    if (hxb > 5) homeMatchup += 2; else if (hxb < -5) homeMatchup -= 2;
+
+    // HR (weight 1)
+    const ahr = matchup.awayHR || 0, hhr = matchup.homeHR || 0;
+    if (ahr > 5) awayMatchup += 1; else if (ahr < -5) awayMatchup -= 1;
+    if (hhr > 5) homeMatchup += 1; else if (hhr < -5) homeMatchup -= 1;
+
+    // BB — weakest signal (weight 0.5)
+    const abb = matchup.awayBB || 0, hbb = matchup.homeBB || 0;
+    if (abb > 8) awayMatchup += 0.5; else if (abb < -8) awayMatchup -= 0.5;
+    if (hbb > 8) homeMatchup += 0.5; else if (hbb < -8) homeMatchup -= 0.5;
+
+    // K — high K bad for batters (weight 0.5, inverted)
+    const ak = matchup.awayK || 0, hk = matchup.homeK || 0;
+    if (ak > 8) awayMatchup -= 0.5; else if (ak < -8) awayMatchup += 0.5;
+    if (hk > 8) homeMatchup -= 0.5; else if (hk < -8) homeMatchup += 0.5;
+
+    const matchupGap = Math.abs(awayMatchup - homeMatchup);
+    const matchupWinner = awayMatchup > homeMatchup ? g.away : g.home;
+
+    if (matchupGap >= 5) {
+      flags.push({l:'🟢 MATCHUP DOMINANT',c:'pos'});
+      points.push({t:matchupWinner + ' batters heavily green across RC, 1B, XB vs opposing pitcher',cls:'pos'});
+      if (awayMatchup > homeMatchup) awayScore += 3; else homeScore += 3;
+    } else if (matchupGap >= 3) {
+      flags.push({l:'📊 MATCHUP EDGE',c:'pos'});
+      points.push({t:matchupWinner + ' batters showing clear edge in matchup data (RC, 1B, XB)',cls:'pos'});
+      if (awayMatchup > homeMatchup) awayScore += 2; else homeScore += 2;
+    } else if (matchupGap >= 1.5) {
+      points.push({t:'Mild matchup edge for ' + matchupWinner + ' — not decisive alone',cls:'neu'});
+      if (awayMatchup > homeMatchup) awayScore += 1; else homeScore += 1;
+    } else {
+      points.push({t:'Matchup data mixed — no clear batter advantage',cls:'neu'});
+    }
+
+    // Highlight dominant individual signals
+    if (Math.abs(matchup.awayRC) > 12 || Math.abs(matchup.homeRC) > 12) {
+      const domTeam = Math.abs(matchup.awayRC) > Math.abs(matchup.homeRC) ? g.away : g.home;
+      const domRC = (matchup.awayRC > matchup.homeRC ? matchup.awayRC : matchup.homeRC).toFixed(0);
+      const isGreen = parseFloat(domRC) > 0;
+      points.push({t:domTeam + ' lineup RC avg ' + (isGreen?'+':'') + domRC + ' vs opposing pitcher — ' + (isGreen?'significant green':'heavy red'),cls:isGreen?'pos':'neg'});
+    }
+  }
+
+  // ── 5. F5 LEAD % ─────────────────────────────────────────────
+  const f5gap = Math.abs(g.awayF5Lead - g.homeF5Lead);
+  const f5fav = g.awayF5Lead > g.homeF5Lead ? g.away : g.home;
+  const f5max = Math.max(g.awayF5Lead, g.homeF5Lead);
+  const f5min = Math.min(g.awayF5Lead, g.homeF5Lead);
+
+  if (f5gap >= 20) {
+    flags.push({l:'⚡ F5 LEAD DOMINANT',c:'pos'});
+    points.push({t:'F5 lead % dominant: ' + f5fav + ' ' + f5max.toFixed(1) + '% vs ' + f5min.toFixed(1) + '% — textbook F5 play',cls:'pos'});
+    if (g.awayF5Lead > g.homeF5Lead) awayScore += 3; else homeScore += 3;
+  } else if (f5gap >= 10) {
+    flags.push({l:'📊 F5 LEAD GAP',c:'pos'});
+    points.push({t:'F5 lead gap: ' + f5fav + ' ' + f5max.toFixed(1) + '% vs ' + f5min.toFixed(1) + '%',cls:'pos'});
+    if (g.awayF5Lead > g.homeF5Lead) awayScore += 2; else homeScore += 2;
+  } else {
+    points.push({t:'F5 lead % close: ' + g.away + ' ' + g.awayF5Lead.toFixed(1) + '% vs ' + g.home + ' ' + g.homeF5Lead.toFixed(1) + '%',cls:'neu'});
+  }
+
+  // ── 6. SIM WIN % vs MARKET VALUE GAP ────────────────────────
+  const awayOdds = parseInt(g.awayML);
+  const homeOdds = parseInt(g.homeML);
+  if (!isNaN(awayOdds) && !isNaN(homeOdds) && g.awayWinPct > 0) {
+    const awayImplied = awayOdds > 0 ? (100/(awayOdds+100)*100) : ((-awayOdds)/((-awayOdds)+100)*100);
+    const homeImplied = homeOdds > 0 ? (100/(homeOdds+100)*100) : ((-homeOdds)/((-homeOdds)+100)*100);
+    const awayVgap = g.awayWinPct - awayImplied;
+    const homeVgap = g.homeWinPct - homeImplied;
+    const bestVgap = awayVgap > homeVgap ? awayVgap : homeVgap;
+    const valueTeam = awayVgap > homeVgap ? g.away : g.home;
+    const simPct = awayVgap > homeVgap ? g.awayWinPct : g.homeWinPct;
+    const mktPct = awayVgap > homeVgap ? awayImplied : homeImplied;
+    if (bestVgap >= 8) {
+      flags.push({l:'💰 VALUE GAP',c:'yel'});
+      points.push({t:'Market mispricing: ' + valueTeam + ' sim ' + simPct.toFixed(1) + '% vs market ' + mktPct.toFixed(1) + '% implied (+' + bestVgap.toFixed(1) + 'pts)',cls:'pos'});
+      if (awayVgap > homeVgap) awayScore += 1; else homeScore += 1;
+    } else {
+      points.push({t:'Market price roughly in line with sim (' + g.away + ' sim ' + g.awayWinPct.toFixed(1) + '% / mkt ' + awayImplied.toFixed(1) + '%)',cls:'neu'});
+    }
+  }
+
+  // ── 7. ELITE PITCHER TRAP ────────────────────────────────────
+  const eliteArms = ['ohtani','skenes','cole','wheeler','degrom','burnes','gilbert','kirby','bieber'];
+  const isEliteAway = eliteArms.some(e => (g.awaySP||'').toLowerCase().includes(e));
+  const isEliteHome = eliteArms.some(e => (g.homeSP||'').toLowerCase().includes(e));
+  if (isEliteAway || isEliteHome) {
+    flags.push({l:'👁 LIVE FLAG',c:'yel'});
+    points.push({t:'Elite arm (' + (isEliteAway?g.awaySP:g.homeSP) + ') — price likely inflated standalone. Parlay or live bet only.',cls:'neu'});
+  }
+
+  // ── FINAL RECOMMENDATION ─────────────────────────────────────
+  const winner = awayScore > homeScore ? g.away : homeScore > awayScore ? g.home : null;
+  const margin = Math.abs(awayScore - homeScore);
+  const f5favWinner = winner === g.away ? g.awayF5Lead : g.homeF5Lead;
+  const loserF5 = winner === g.away ? g.homeF5Lead : g.awayF5Lead;
+
+  let rec = 'PASS — signals not converging';
+  let recClass = 'pass';
+
+  if (winner && margin >= 5 && f5gap >= 10) {
+    rec = winner + ' F5 ML — all signals stacking (' + awayScore.toFixed(1) + ' vs ' + homeScore.toFixed(1) + ')';
+    recClass = 'go';
+  } else if (winner && margin >= 4) {
+    rec = winner + ' F5 ML — strong convergence (' + awayScore.toFixed(1) + ' vs ' + homeScore.toFixed(1) + ')';
+    recClass = 'go';
+  } else if (winner && margin >= 3) {
+    rec = 'Lean ' + winner + ' F5 — confirm matchup data before logging';
+    recClass = 'go';
+  } else if (parkPct <= -7 && (g.awayRuns + g.homeRuns) < 7.5 && (g.awayF5Runs + g.homeF5Runs) < 4.0) {
+    rec = 'Under F5 — park suppression + low run projection';
+    recClass = 'go';
+  } else if (isEliteAway || isEliteHome) {
+    const eliteTeam = isEliteAway ? g.away : g.home;
+    rec = eliteTeam + ' parlay candidate / live bet — skip standalone';
+    recClass = 'parlay';
+  } else {
+    rec = 'Pass — no strong convergence (away ' + awayScore.toFixed(1) + ' / home ' + homeScore.toFixed(1) + ')';
+    recClass = 'pass';
+  }
+
+  return {flags, points, rec, recClass, isFlagged: recClass==='go', isParlay: recClass==='parlay'};
+}
+
+function renderGames(games) {
+  document.getElementById('games-header').style.display='flex';
+  const container=document.getElementById('games-container');
+  if(!games.length){
+    container.innerHTML='<div class="empty-state"><div class="e-icon">🤔</div><div class="e-text">Couldn\'t parse games</div><div class="e-sub">Paste the full Game Simulations page</div></div>';
+    return;
+  }
+  container.innerHTML='';
+  const wrap=document.createElement('div');
+  wrap.className='games-grid';
+
+  games.forEach((g,idx)=>{
+    const park=getPark(g.away,g.home);
+    const matchup=getMatchupSummary(g.away,g.home);
+    const harri=harriAnalyze(g,park,matchup);
+    const parkPct=park?(park['Runs %']||''):g.parkRuns;
+    const parkNum=parseFloat(parkPct.replace('%','').replace('+',''));
+    const parkColor=parkNum>0?'var(--green)':parkNum<0?'var(--red)':'var(--muted2)';
+    const gap=Math.abs(g.awayRuns-g.homeRuns);
+    const gapColor=gap>=0.8?'var(--green)':gap>=0.5?'var(--yellow)':'var(--muted2)';
+
+    gameDataMap[idx] = {away: g.away, home: g.home};
+    const card=document.createElement('div');
+    card.className=`game-card${harri.isFlagged?' flagged':harri.isParlay?' parlay-flag':' pass-flag'}`;
+    card.innerHTML=`
+      <div class="game-header" onclick="toggleGame(this)" id="gh-${idx}">
+        <div class="gh-time">${g.time||'—'}</div>
+        <div>
+          <div class="gh-matchup">${g.away} @ ${g.home}</div>
+          <div class="gh-pitchers">${g.awaySP||'—'} vs ${g.homeSP||'—'}</div>
+        </div>
+        <div class="gh-park" style="color:${parkColor}">${park?park['Venue']||g.park:g.park||'—'} <span style="font-weight:700">${parkPct?`(${parkPct})`:'(—)'}</span></div>
+        <div>
+          <div style="font-size:11px;color:${gapColor};font-weight:700">Gap: ${gap.toFixed(2)}R</div>
+          <div style="font-size:10px;color:var(--muted)">F5Δ: ${Math.abs(g.awayF5Lead-g.homeF5Lead).toFixed(1)}%</div>
+        </div>
+        <div class="gh-flags">
+          ${harri.flags.map(f=>`<span class="badge ${f.c==='pos'?'badge-green':f.c==='neg'?'badge-red':f.c==='yel'?'badge-yellow':'badge-white'}">${f.l}</span>`).join('')}
+        </div>
+        <div class="gh-toggle">▼</div>
       </div>
-      <div class="stat-block">
-        <div class="stat-label">Record (W-L-P)</div>
-        <div class="stat-val">${wins}-${losses}-${pushes}</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-label">Win Efficiency</div>
-        <div class="stat-val">${rate}%</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-label">Total Plays</div>
-        <div class="stat-val">${todayPicks.length}</div>
+      <div class="game-body" id="gb-${idx}">
+        <div class="harri-box">
+          <div class="harri-rec ${harri.recClass}">${harri.rec}</div>
+          <div class="harri-points">
+            ${harri.points.map(p=>`<div class="harri-point ${p.cls}">${p.t}</div>`).join('')}
+          </div>
+        </div>
+
+        <div class="game-analytics">
+          <div class="ga-cell">
+            <div class="ga-label">Win % (Sim)</div>
+            <div class="ga-away" style="color:${g.awayWinPct>g.homeWinPct?'var(--green)':'var(--text2)'}">${g.away}: ${g.awayWinPct.toFixed(1)}%</div>
+            <div class="ga-home" style="color:${g.homeWinPct>g.awayWinPct?'var(--green)':'var(--text2)'}">${g.home}: ${g.homeWinPct.toFixed(1)}%</div>
+          </div>
+          <div class="ga-cell">
+            <div class="ga-label">ML (Market)</div>
+            <div class="ga-away" style="color:${parseInt(g.awayML)>0?'var(--green)':'var(--red)'}">${g.away}: ${g.awayML||'—'}</div>
+            <div class="ga-home" style="color:${parseInt(g.homeML)>0?'var(--green)':'var(--red)'}">${g.home}: ${g.homeML||'—'}</div>
+          </div>
+          <div class="ga-cell">
+            <div class="ga-label">Runs (Proj)</div>
+            <div class="ga-away">${g.away}: ${g.awayRuns.toFixed(2)}</div>
+            <div class="ga-home">${g.home}: ${g.homeRuns.toFixed(2)}</div>
+          </div>
+          <div class="ga-cell">
+            <div class="ga-label">F5 Runs</div>
+            <div class="ga-away">${g.away}: ${g.awayF5Runs.toFixed(2)}</div>
+            <div class="ga-home">${g.home}: ${g.homeF5Runs.toFixed(2)}</div>
+          </div>
+          <div class="ga-cell">
+            <div class="ga-label">F5 Lead %</div>
+            <div class="ga-away" style="color:${g.awayF5Lead>g.homeF5Lead?'var(--green)':'var(--text2)'}">${g.away}: ${g.awayF5Lead.toFixed(1)}%</div>
+            <div class="ga-home" style="color:${g.homeF5Lead>g.awayF5Lead?'var(--green)':'var(--text2)'}">${g.home}: ${g.homeF5Lead.toFixed(1)}%</div>
+          </div>
+          <div class="ga-cell">
+            <div class="ga-label">Total Line</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">${g.totalLine||'—'}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px">Proj: ${(g.awayRuns+g.homeRuns).toFixed(2)} total</div>
+          </div>
+        </div>
+
+        ${matchup && matchup.awayRows > 0 ? `
+        <div style="margin-bottom:16px">
+          <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;font-weight:700">BATTER vs PITCHER — MATCHUP MACHINE</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border)">
+            <div style="background:var(--bg2);padding:10px 14px">
+              <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:8px;font-weight:700">${g.away.toUpperCase()} BATTERS vs ${g.homeSP}</div>
+              ${[
+                ['RC', matchup.awayRC],
+                ['HR Boost', matchup.awayHR],
+                ['XB Boost', matchup.awayXB],
+                ['1B Boost', matchup.away1B],
+                ['BB Boost', matchup.awayBB],
+                ['K Boost', matchup.awayK],
+              ].map(([label, val]) => {
+                const color = val > 5 ? 'var(--green)' : val < -5 ? 'var(--red)' : 'var(--muted2)';
+                return `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px">
+                  <span style="color:var(--muted2)">${label}</span>
+                  <span style="color:${color};font-weight:700;font-family:monospace">${val > 0 ? '+' : ''}${val.toFixed(1)}</span>
+                </div>`;
+              }).join('')}
+            </div>
+            <div style="background:var(--bg2);padding:10px 14px">
+              <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:8px;font-weight:700">${g.home.toUpperCase()} BATTERS vs ${g.awaySP}</div>
+              ${[
+                ['RC', matchup.homeRC],
+                ['HR Boost', matchup.homeHR],
+                ['XB Boost', matchup.homeXB],
+                ['1B Boost', matchup.home1B],
+                ['BB Boost', matchup.homeBB],
+                ['K Boost', matchup.homeK],
+              ].map(([label, val]) => {
+                const color = val > 5 ? 'var(--green)' : val < -5 ? 'var(--red)' : 'var(--muted2)';
+                return `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px">
+                  <span style="color:var(--muted2)">${label}</span>
+                  <span style="color:${color};font-weight:700;font-family:monospace">${val > 0 ? '+' : ''}${val.toFixed(1)}</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>` : ''}
+
+        ${g.impliedOdds.length ? `
+        <div style="margin-bottom:16px">
+          <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">IMPLIED OVER/UNDER TABLE</div>
+          <div class="implied-grid">
+            ${['5.5','6.5','7.5','8.5','9.5','10.5','11.5','12.5'].map((line,i)=>{
+              const odds=g.impliedOdds[i]||'—';
+              const num=parseInt(odds);
+              const cls=num>0?'pos':'neg';
+              const isHot=!isNaN(num)&&Math.abs(num)<=115;
+              return `<div class="implied-cell">
+                <div class="implied-line">${line}</div>
+                <div class="implied-val ${isHot?'hot':cls}">${odds}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>` : ''}
+
+        <div class="pick-entry">
+          <div style="height:12px"></div>
+          <div class="pick-type-grid" id="ptg-${idx}">
+            <button class="pick-type-btn" onclick="selPick(${idx},'f5ml-away',this)">${g.away} F5 ML</button>
+            <button class="pick-type-btn" onclick="selPick(${idx},'f5ml-home',this)">${g.home} F5 ML</button>
+            <button class="pick-type-btn" onclick="selPick(${idx},'f5over',this)">F5 OVER</button>
+            <button class="pick-type-btn" onclick="selPick(${idx},'f5under',this)">F5 UNDER</button>
+            <button class="pick-type-btn" onclick="selPick(${idx},'ftml-away',this)">${g.away} FT ML</button>
+            <button class="pick-type-btn" onclick="selPick(${idx},'ftml-home',this)">${g.home} FT ML</button>
+            <button class="pick-type-btn" onclick="selPick(${idx},'parlay',this)">+ PARLAY LEG</button>
+          </div>
+          <div class="pick-row">
+            <input type="text" class="pick-input" id="notes-${idx}" placeholder="Notes... (like, like+, reasoning)">
+            <select id="pick-date-${idx}" style="background:var(--bg);border:1px solid var(--border2);color:var(--text2);font-family:monospace;font-size:10px;padding:8px 10px;outline:none;cursor:pointer;flex-shrink:0">
+              ${(()=>{
+                const opts = [];
+                for(let d=0;d<3;d++){
+                  const dt = new Date();
+                  dt.setDate(dt.getDate()-d);
+                  const label = d===0?'Today':d===1?'Yesterday':dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+                  const val = dt.getTime();
+                  opts.push(`<option value="${val}">${label}</option>`);
+                }
+                return opts.join('');
+              })()}
+            </select>
+            <button class="save-btn" onclick="savePick(${idx})">SAVE →</button>
+          </div>
+          <div id="saved-${idx}"></div>
+        </div>
       </div>
     `;
+    wrap.appendChild(card);
+  });
+  container.appendChild(wrap);
+}
+
+function toggleGame(header) {
+  const body = header.nextElementSibling;
+  const toggle = header.querySelector('.gh-toggle');
+  header.classList.toggle('open');
+  body.classList.toggle('open');
+  toggle.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+function selPick(idx, type, btn) {
+  document.querySelectorAll(`#ptg-${idx} .pick-type-btn`).forEach(b=>b.className='pick-type-btn');
+  btn.className = type==='parlay' ? 'pick-type-btn sel-parlay' : 'pick-type-btn sel';
+  selectedTypes[idx]=type;
+}
+
+function savePick(idx) {
+  const gameInfo = gameDataMap[idx] || {};
+  const away = gameInfo.away || '';
+  const home = gameInfo.home || '';
+  const type=selectedTypes[idx];
+  if(!type){showToast('⚠ Select a bet type');return;}
+  const notes=document.getElementById(`notes-${idx}`).value;
+  let pick='',betType='ml';
+  const isF5=!type.startsWith('ftml');
+  if(type==='f5ml-away'){pick=away;betType='ml';}
+  else if(type==='f5ml-home'){pick=home;betType='ml';}
+  else if(type==='f5over'){pick=`${away} / ${home} over`;betType='over';}
+  else if(type==='f5under'){pick=`${away} / ${home} under`;betType='under';}
+  else if(type==='ftml-away'){pick=away;betType='ml';}
+  else if(type==='ftml-home'){pick=home;betType='ml';}
+  else if(type==='parlay'){pick=`PARLAY: ${away}/${home}`;betType='ml';}
+
+  const uid = Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const dateSelect = document.getElementById('pick-date-'+idx);
+  const pickDate = dateSelect ? parseInt(dateSelect.value) : Date.now();
+  const newPick={uid,date:pickDate,type:betType,pick,f5:null,ft:null,notes,isToday:true,locked:false};
+  todayPicks.push(newPick);
+  localStorage.setItem('harriPicks_v2',JSON.stringify(todayPicks));
+
+  // Store uid on the game card so we can reference it
+  const savedDiv = document.getElementById('saved-'+idx);
+  if (savedDiv) {
+    savedDiv.dataset.uid = uid;
+    savedDiv.innerHTML = '<div class="saved-pick"><div class="sp-info">✓ ' + pick.toUpperCase() + ' — ' + betType.toUpperCase() + ' ' + (isF5?'F5':'FT') + '</div><div class="sp-notes">' + (notes||'No notes') + ' · <span style="color:var(--muted)">See Today\'s Picks below</span></div></div>';
+  }
+  showToast('✓ Saved: ' + pick);
+  populateManualDateDropdown();
+  buildTicker();
+  buildHeaderStats();
+  renderDashboard();
+  renderTodayPicksSummary();
+  renderHistory();
+}
+
+function deletePick(uid, gameIdx) {
+  // Try uid match first, fallback to pick string match or index
+  let idx = todayPicks.findIndex(p => p.uid == uid);
+  if (idx === -1) {
+    // Fallback: uid might be an index number for old picks
+    const numIdx = parseInt(uid);
+    if (!isNaN(numIdx) && numIdx < todayPicks.length) idx = numIdx;
+  }
+  if (idx === -1 && String(uid).startsWith('idx_')) {
+    // Fallback for on-the-fly assigned uids
+    const numIdx = parseInt(String(uid).replace('idx_', ''));
+    if (!isNaN(numIdx) && numIdx < todayPicks.length) idx = numIdx;
+  }
+  if (idx === -1) { 
+    // Last resort: remove first unlocked pick with no uid
+    idx = todayPicks.findIndex(p => !p.uid && !p.locked);
+  }
+  if (idx === -1) { showToast('Could not find pick — try refreshing'); return; }
+  todayPicks.splice(idx, 1);
+  localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+  // Remove the saved pick UI
+  // Clear the saved-gameIdx div
+  const savedEl = document.getElementById('saved-' + gameIdx);
+  if (savedEl) savedEl.innerHTML = '';
+  // Reset pick type selection
+  selectedTypes[gameIdx] = null;
+  document.querySelectorAll('#ptg-' + gameIdx + ' .pick-type-btn').forEach(b => b.className = 'pick-type-btn');
+  // Re-index remaining picks
+  renderDashboard();
+  buildTicker();
+  buildHeaderStats();
+  showToast('Pick removed');
+  renderTodayPicksSummary();
+}
+
+function setTodayRes(uid, side, val) {
+  const pick = todayPicks.find(p => p.uid == uid);
+  if (!pick) { console.log('pick not found', uid); return; }
+  pick[side] = val;
+  localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+
+  // Update button styles
+  const sides={f5:['f5w','f5l','f5p'],ft:['ftw','ftl','ftp']};
+  const activeClass={1:'rb-active-win',0:'rb-active-loss',2:'rb-active-push'};
+  const baseClass={1:'rb-win',0:'rb-loss',2:'rb-push'};
+  sides[side].forEach((s,i)=>{
+    const btn=document.getElementById('sp'+s+'-'+uid);
+    if(btn){
+      const resVal=i===0?1:i===1?0:2;
+      btn.className=`result-btn ${resVal===val?activeClass[val]:baseClass[resVal]}`;
+    }
+  });
+
+  renderDashboard();
+  buildTicker();
+  buildHeaderStats();
+  const msgs={1:'🔥 WIN',0:'❌ LOSS',2:'➖ PUSH'};
+  showToast(msgs[val]+' logged');
+  renderTodayPicksSummary();
+}
+
+function renderTodayPicksSummary() {
+  const panel = document.getElementById('today-picks-summary');
+  const tbody = document.getElementById('today-picks-tbody');
+  const countEl = document.getElementById('today-picks-count');
+  if (!panel || !tbody) return;
+
+  if (!todayPicks.length) {
+    panel.style.display = 'none';
+    return;
   }
 
-  function buildTicker() {
-    const el = document.getElementById('system-ticker-inner');
-    if (!el) return;
-    if (!todayPicks.length) {
-      el.innerText = "STANDBY // NO TRANSACTIONS COMMITTED TO CURRENT FRAME LOCALSTORAGE ENGINE";
-      return;
-    }
-    const tailEntries = todayPicks.slice(-3).reverse().map(p => `[${p.date} ${p.type}: ${p.pick}]`);
-    el.innerText = `STREAM PIPELINE SUBSYSTEM ACTIVE // RECENT INGESTS: ${tailEntries.join(' == ')}`;
-  }
+  panel.style.display = 'block';
+  const pending = todayPicks.filter(p => p.f5 === null || p.f5 === undefined).length;
+  countEl.textContent = todayPicks.length + ' logged · ' + (pending > 0 ? pending + ' pending result' : 'all results in');
 
-  function renderTodayPicksSummary() {
-    const el = document.getElementById('dashboard-pending-container');
-    if (!el) return;
-    el.innerHTML = '';
+  const resBadge = (v) => {
+    if (v === 1) return '<span class="badge badge-green">W</span>';
+    if (v === 0) return '<span class="badge badge-red">L</span>';
+    if (v === 2) return '<span class="badge badge-white">P</span>';
+    return '<span style="color:var(--muted);font-size:10px">PENDING</span>';
+  };
 
-    const pending = todayPicks.filter(p => p.f5 === null || p.ft === null);
+  const rows = todayPicks.map((p, i) => {
+    if (!p.uid) p.uid = 'idx_' + i;
+    const typeBadge = p.type === 'ml' ? 'badge-white' : p.type === 'over' ? 'badge-yellow' : 'badge-muted';
+    const isLocked = p.locked === true;
+    const d = p.date > 1e9 ? new Date(p.date) : excelToDate(parseFloat(p.date));
+    const dateStr = fmtDate(d);
+    const f5color = p.f5===1?'var(--green)':p.f5===0?'var(--red)':'var(--muted2)';
 
-    if (!pending.length) {
-      el.innerHTML = `<div style="font-size:12px; color:var(--muted); text-align:center; padding:16px; border:1px dashed var(--border);">All committed play structures balanced / resolved.</div>`;
-      return;
-    }
+    return '<tr data-uid="' + p.uid + '" style="' + (isLocked?'opacity:0.85':'') + '">' +
+      '<td class="td-mono" style="color:var(--muted2);font-size:10px">' + dateStr + '</td>' +
+      '<td style="font-weight:600;max-width:160px;white-space:normal">' + p.pick + '</td>' +
+      '<td><span class="badge ' + typeBadge + '">' + p.type.toUpperCase() + '</span></td>' +
+      '<td style="color:var(--muted2);font-size:10px;max-width:120px;white-space:normal">' + (p.notes||'—') + '</td>' +
+      '<td>' + resBadge(p.f5) + '</td>' +
+      '<td>' + resBadge(p.ft) + '</td>' +
+      '<td style="color:' + f5color + ';font-weight:700;font-family:monospace">' + (p.f5===1?'+1.0u':p.f5===0?'-1.5u':'—') + '</td>' +
+      '<td>' +
+        (!isLocked ?
+          '<div style="display:flex;gap:3px;flex-wrap:wrap">' +
+            '<button class="result-btn rb-win pick-res-btn" data-uid="' + p.uid + '" data-side="f5" data-val="1" style="padding:3px 7px;font-size:9px">F5W</button>' +
+            '<button class="result-btn rb-loss pick-res-btn" data-uid="' + p.uid + '" data-side="f5" data-val="0" style="padding:3px 7px;font-size:9px">F5L</button>' +
+            '<button class="result-btn rb-push pick-res-btn" data-uid="' + p.uid + '" data-side="f5" data-val="2" style="padding:3px 7px;font-size:9px">F5P</button>' +
+            '<button class="result-btn rb-win pick-res-btn" data-uid="' + p.uid + '" data-side="ft" data-val="1" style="padding:3px 7px;font-size:9px">FTW</button>' +
+            '<button class="result-btn rb-loss pick-res-btn" data-uid="' + p.uid + '" data-side="ft" data-val="0" style="padding:3px 7px;font-size:9px">FTL</button>' +
+            '<button class="result-btn rb-push pick-res-btn" data-uid="' + p.uid + '" data-side="ft" data-val="2" style="padding:3px 7px;font-size:9px">FTP</button>' +
+          '</div>'
+        : '<span style="color:var(--green);font-size:9px;font-weight:700;letter-spacing:1px">🔒 LOCKED</span>') +
+      '</td>' +
+      '<td>' +
+        '<div style="display:flex;gap:4px">' +
+          '<button class="pick-lock-btn" data-uid="' + p.uid + '" style="background:' + (isLocked?'var(--green-dim2)':'transparent') + ';border:1px solid ' + (isLocked?'var(--green)':'var(--border2)') + ';color:' + (isLocked?'var(--green)':'var(--muted)') + ';font-family:monospace;font-size:9px;font-weight:700;padding:3px 8px;cursor:pointer">' + (isLocked?'🔒':'🔓') + '</button>' +
+          (!isLocked ? '<button class="pick-del-btn" data-uid="' + p.uid + '" style="background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;padding:3px 8px;cursor:pointer;font-family:monospace;font-weight:700">✕</button>' : '') +
+        '</div>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
 
-    pending.forEach(p => {
-      const row = document.createElement('div');
-      row.className = 'quick-list-item';
-      
-      let segments = [];
-      if (p.f5 === null) segments.push('F5');
-      if (p.ft === null) segments.push('FT');
+  // Totals row
+  const totW = todayPicks.filter(p=>p.f5===1).length;
+  const totL = todayPicks.filter(p=>p.f5===0).length;
+  const totP = todayPicks.filter(p=>p.f5===2).length;
+  const totU = todayPicks.reduce((a,p)=>a+(p.f5===1?1:p.f5===0?-1.5:0),0);
 
-      row.innerHTML = `
-        <div>
-          <div style="font-weight:500;">${p.pick}</div>
-          <div class="quick-meta">${p.date} // TYPE: ${p.type}</div>
-        </div>
-        <div style="font-size:11px; color:var(--blue); font-weight:600; background:var(--blue-dim); padding:2px 6px;">REQ: ${segments.join(' + ')}</div>
-      `;
-      el.appendChild(row);
+  tbody.innerHTML = rows + '<tr style="background:var(--bg4);border-top:2px solid var(--border2)">' +
+    '<td colspan="4" style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:1px">TODAY TOTAL</td>' +
+    '<td><span style="color:var(--green)">' + totW + 'W</span> <span style="color:var(--red)">' + totL + 'L</span> <span style="color:var(--muted2)">' + totP + 'P</span></td>' +
+    '<td></td>' +
+    '<td style="font-weight:700;font-family:monospace;color:' + (totU>=0?'var(--green)':'var(--red)') + '">' + (totU>=0?'+':'') + totU.toFixed(1) + 'u</td>' +
+    '<td colspan="2"></td>' +
+  '</tr>';
+
+  // Wire up event delegation for result buttons, lock, delete
+  tbody.querySelectorAll('.pick-res-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setTodayRes(btn.dataset.uid, btn.dataset.side, parseInt(btn.dataset.val));
     });
+  });
+  tbody.querySelectorAll('.pick-lock-btn').forEach(btn => {
+    btn.addEventListener('click', () => toggleLock(btn.dataset.uid));
+  });
+  tbody.querySelectorAll('.pick-del-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (confirm('Remove this pick?')) deletePick(btn.dataset.uid, -1);
+    });
+  });
+}
+
+
+function toggleLock(uid) {
+  const pick = todayPicks.find(p => p.uid == uid);
+  if (!pick) return;
+  pick.locked = !pick.locked;
+  localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+  renderTodayPicksSummary();
+  if (document.getElementById('tab-history').classList.contains('active')) renderHistory();
+  showToast(pick.locked ? '🔒 Result locked' : '🔓 Result unlocked');
+}
+
+async function processAllData() {
+  const simText=document.getElementById('sim-paste').value.trim();
+  if(!simText){showToast('⚠ Paste Game Simulations first');return;}
+  showToast('Generating report...');
+  gameSimData=parseSimText(simText);
+
+  // Fetch odds
+  try {
+    const resp = await fetch(`https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey=${ODDS_API_KEY}&regions=us&markets=h2h,totals&bookmakers=fanduel,draftkings&oddsFormat=american`);
+    if(resp.ok){
+      const data=await resp.json();
+      document.getElementById('odds-status').textContent=`✓ Live odds loaded (${data.length} games)`;
+    }
+  } catch(e){}
+
+  renderGames(gameSimData);
+  saveReport(gameSimData);
+  showToast(`Report ready — ${gameSimData.length} games`);
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportCSV() {
+  const ap=allPicks();
+  const headers=['Date','Type','Pick','F5','FT','F5 Units','FT Units','Notes'];
+  const rows=ap.map(p=>{
+    const d=p.date>1e9?new Date(p.date):excelToDate(parseFloat(p.date));
+    const f5r=p.f5===1?'W':p.f5===0?'L':p.f5===2?'P':'';
+    const ftr=p.ft===1?'W':p.ft===0?'L':p.ft===2?'P':'';
+    const f5u=p.f5===1?'+1.0':p.f5===0?'-1.5':'';
+    const ftu=p.ft===1?'+1.0':p.ft===0?'-1.5':'';
+    return [fmtDate(d),p.type,p.pick,f5r,ftr,f5u,ftu,p.notes||''].map(v=>`"${v}"`).join(',');
+  });
+  const blob=new Blob([[headers.join(','),...rows].join('\n')],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`baseball-harri-${new Date().toISOString().split('T')[0]}.csv`;a.click();
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+function setClass(id,cls){const el=document.getElementById(id);if(el)el.className=cls;}
+
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function switchTab(tab,btn) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+  localStorage.setItem('harriActiveTab', tab);
+  if(tab==='dashboard'){renderDashboard();}
+  if(tab==='history'){renderHistory();}
+  if(tab==='trends'){renderTrends();}
+  if(tab==='reports'){renderReports();}
+  if(tab==='today'){
+    document.getElementById('today-title').textContent=`Today's Slate — ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}`;
+    renderTodayPicksSummary();
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded',()=>{
+  buildTicker();
+  buildHeaderStats();
+  renderDashboard();
+
+  // Restore last active tab AFTER data is loaded
+  const savedTab = localStorage.getItem('harriActiveTab') || 'dashboard';
+  if (savedTab !== 'dashboard' && document.getElementById('tab-'+savedTab)) {
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('tab-'+savedTab).classList.add('active');
+    // Activate correct nav button
+    document.querySelectorAll('.nav-btn').forEach(b=>{
+      if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+savedTab+"'")) b.classList.add('active');
+    });
+    if (savedTab === 'history') renderHistory();
+    else if (savedTab === 'trends') renderTrends();
+    else if (savedTab === 'reports') renderReports();
+    else if (savedTab === 'today') renderTodayPicksSummary();
   }
 
-  function renderHistory() {
-    const tbody = document.getElementById('history-table-rows');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+  // Wire up all upload/drop zones
+  setupDropZone('drop-matchup', 'matchup-file', handleMatchupFile);
+  setupDropZone('drop-pitcher', 'pitcher-file', handlePitcherFile);
+  setupDropZone('drop-park', 'park-file', handleParkFile);
 
-    const displayList = [...todayPicks].sort((a, b) => b.date.localeCompare(a.date));
+  // Restore sim paste and regenerate report if saved
+  const savedSim = localStorage.getItem('harriSimPaste');
+  const savedMatchup = localStorage.getItem('harriMatchupData');
+  const savedPitcher = localStorage.getItem('harriPitcherData');
+  const savedPark = localStorage.getItem('harriParkData');
 
-    if (!displayList.length) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--muted); font-style:italic;">Historical system registry files empty. Open log panel view to inject plays.</td></tr>`;
-      return;
-    }
+  if (savedSim) {
+    document.getElementById('sim-paste').value = savedSim;
+    document.getElementById('sim-status').textContent = 'READY';
+    document.getElementById('sim-status').className = 'status-ready';
+    checkDataBanner();
+  }
+  if (savedMatchup) {
+    matchupData = JSON.parse(savedMatchup);
+    document.getElementById('matchup-status').textContent = '✓ Restored';
+    document.getElementById('matchup-status').className = 'status-ready';
+  }
+  if (savedPitcher) {
+    pitcherData = JSON.parse(savedPitcher);
+    document.getElementById('pitcher-status').textContent = '✓ Restored';
+    document.getElementById('pitcher-status').className = 'status-ready';
+  }
+  if (savedPark) {
+    parkData = JSON.parse(savedPark);
+    document.getElementById('park-status').textContent = '✓ Restored';
+    document.getElementById('park-status').className = 'status-ready';
+    buildWatchlists();
+  }
+  if (savedSim) {
+    // Auto-regenerate without fetching odds again
+    gameSimData = parseSimText(savedSim);
+    renderGames(gameSimData);
+    document.getElementById('games-header').style.display = 'flex';
+    document.getElementById('today-title').textContent = 'Today\'s Slate — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  }
+  // Show today's picks if any exist
+  renderTodayPicksSummary();
+});
 
-    displayList.forEach(p => {
-      const tr = document.createElement('tr');
-      if (p.locked) tr.className = 'locked-row';
+// ============================================================
+// REPORTS — SAVE & RENDER
+// ============================================================
 
-      const buildSplitCellDropdown = (splitType, currentValue) => {
-        if (currentValue === 2) return `<span style="color:var(--muted);">—</span>`;
-        if (p.locked) {
-          if (currentValue === 1) return `<span class="status-badge win">WIN</span>`;
-          if (currentValue === 0) return `<span class="status-badge loss">LOSS</span>`;
-          if (currentValue === 3) return `<span class="status-badge push">PUSH</span>`;
-          return `<span class="status-badge pending">PEND</span>`;
-        }
-        return `
-          <select class="select-status" onchange="updatePickStatus('${p.uid}', '${splitType}', this.value)">
-            <option value="null" ${currentValue === null ? 'selected' : ''}>PENDING</option>
-            <option value="1" ${currentValue === 1 ? 'selected' : ''}>WIN</option>
-            <option value="0" ${currentValue === 0 ? 'selected' : ''}>LOSS</option>
-            <option value="3" ${currentValue === 3 ? 'selected' : ''}>PUSH</option>
-          </select>
-        `;
+function saveReport(games) {
+  const dateKey = new Date().toLocaleDateString('en-US', {
+    weekday:'long', month:'long', day:'numeric', year:'numeric'
+  });
+  const dateShort = new Date().toLocaleDateString('en-US', {
+    month:'2-digit', day:'2-digit', year:'2-digit'
+  });
+
+  // Build report data
+  const report = {
+    date: dateKey,
+    dateShort,
+    timestamp: Date.now(),
+    games: games.map(g => {
+      const park = getPark(g.away, g.home);
+      const matchup = getMatchupSummary(g.away, g.home);
+      const harri = harriAnalyze(g, park, matchup);
+      const parkPct = park ? (park['Runs %'] || '') : g.parkRuns;
+      return {
+        away: g.away,
+        home: g.home,
+        time: g.time,
+        awaySP: g.awaySP,
+        homeSP: g.homeSP,
+        awayWinPct: g.awayWinPct,
+        homeWinPct: g.homeWinPct,
+        awayML: g.awayML,
+        homeML: g.homeML,
+        awayRuns: g.awayRuns,
+        homeRuns: g.homeRuns,
+        awayF5Lead: g.awayF5Lead,
+        homeF5Lead: g.homeF5Lead,
+        awayF5Runs: g.awayF5Runs,
+        homeF5Runs: g.homeF5Runs,
+        parkPct,
+        totalLine: g.totalLine,
+        rec: harri.rec,
+        recClass: harri.recClass,
+        flags: harri.flags,
+        points: harri.points,
       };
+    }),
+    picks: todayPicks.filter(p => p.isToday),
+    overWatch: parkData.filter(r => parseFloat((r['Runs %']||'').replace('%','').replace('+','')) >= 7).map(r => r['Game'] || ''),
+    underWatch: parkData.filter(r => parseFloat((r['Runs %']||'').replace('%','').replace('+','')) <= -7).map(r => r['Game'] || ''),
+  };
 
-      tr.innerHTML = `
-        <td style="font-weight:600; white-space:nowrap;">${p.date}</td>
-        <td><span style="font-size:11px; font-weight:600; padding:2px 4px; background:var(--bg3); border:1px solid var(--border2);">${p.type}</span></td>
-        <td style="font-weight:500; color:var(--text); max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.pick}">${p.pick}</td>
-        <td style="text-align:center;">${buildSplitCellDropdown('f5', p.f5)}</td>
-        <td style="text-align:center;">${buildSplitCellDropdown('ft', p.ft)}</td>
-        <td style="color:var(--text2); font-size:12px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.notes || ''}">${p.notes || '<span style="color:var(--muted);">—</span>'}</td>
-        <td style="text-align:center;">
-          <button class="lock-toggle" onclick="togglePickLockStatus('${p.uid}')">${p.locked ? '🔒' : '🔓'}</button>
-        </td>
-        <td style="text-align:center;">
-          <button class="delete-btn" onclick="purgePickEntry('${p.uid}')" ${p.locked ? 'disabled style="opacity:0.2; cursor:not-allowed;"' : ''}>✕</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
+  // Load existing reports
+  const existing = JSON.parse(localStorage.getItem('harriReports') || '[]');
+  // Replace if same date exists
+  const idx = existing.findIndex(r => r.dateShort === dateShort);
+  if (idx >= 0) existing[idx] = report;
+  else existing.unshift(report);
+  // Keep last 30 days
+  const trimmed = existing.slice(0, 30);
+  localStorage.setItem('harriReports', JSON.stringify(trimmed));
+  console.log('Report saved for', dateKey);
+}
+
+function renderReports() {
+  const reports = JSON.parse(localStorage.getItem('harriReports') || '[]');
+  const container = document.getElementById('reports-list');
+
+  if (!reports.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="e-icon">📋</div>
+      <div class="e-text">No Reports Saved Yet</div>
+      <div class="e-sub">Generate a report on the Today tab — it saves here automatically</div>
+    </div>`;
+    return;
   }
 
-  function updatePickStatus(uid, field, inputVal) {
-    const match = todayPicks.find(p => p.uid === uid);
-    if (!match || match.locked) return;
+  container.innerHTML = reports.map((report, ri) => {
+    const flagged = report.games.filter(g => g.recClass === 'go').length;
+    const passes = report.games.filter(g => g.recClass === 'pass').length;
+    const parlays = report.games.filter(g => g.recClass === 'parlay').length;
+    const picksLogged = report.picks ? report.picks.length : 0;
 
-    match[field] = inputVal === 'null' ? null : parseInt(inputVal);
-    localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
-    
-    buildHeaderStats();
-    renderTodayPicksSummary();
-  }
+    const gamesHtml = report.games.map((g, gi) => {
+      const gap = Math.abs(g.awayRuns - g.homeRuns);
+      const f5gap = Math.abs(g.awayF5Lead - g.homeF5Lead);
+      const parkColor = g.parkPct && g.parkPct.startsWith('+') ? 'var(--green)' : g.parkPct && g.parkPct.startsWith('-') ? 'var(--red)' : 'var(--muted2)';
 
-  function togglePickLockStatus(uid) {
-    const match = todayPicks.find(p => p.uid === uid);
-    if (!match) return;
+      // Find any logged pick for this game
+      const loggedPick = report.picks ? report.picks.find(p =>
+        p.pick.toLowerCase().includes(g.away.toLowerCase().slice(0,3)) ||
+        p.pick.toLowerCase().includes(g.home.toLowerCase().slice(0,3))
+      ) : null;
 
-    match.locked = !match.locked;
-    localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
-    
-    renderHistory();
-    showToast(match.locked ? '🔒 Row configuration state locked' : '🔓 Row configuration state unfrozen');
-  }
+      return `<div class="report-game">
+        <div class="rg-header">
+          <div>
+            <div class="rg-matchup">${g.away} @ ${g.home}</div>
+            <div class="rg-time">${g.time || '—'} · ${g.awaySP || '—'} vs ${g.homeSP || '—'} · Park: <span style="color:${parkColor}">${g.parkPct || '—'}</span></div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:10px;color:var(--muted2)">Sim: ${g.away} ${g.awayWinPct.toFixed(1)}% / ${g.home} ${g.homeWinPct.toFixed(1)}%</div>
+            <div style="font-size:10px;color:var(--muted2)">ML: ${g.awayML || '—'} / ${g.homeML || '—'}</div>
+          </div>
+        </div>
+        <div class="rg-rec ${g.recClass}">${g.rec}</div>
+        <div class="rg-points">
+          ${(g.points||[]).map(p => `<div class="rg-point ${p.cls}">${p.t}</div>`).join('')}
+        </div>
+        <div class="rg-stats">
+          <div class="rg-stat">
+            <div class="rg-stat-label">Pitcher Gap</div>
+            <div class="rg-stat-val" style="color:${gap>=0.8?'var(--green)':gap>=0.5?'var(--yellow)':'var(--muted2)'}">${gap.toFixed(2)}R</div>
+          </div>
+          <div class="rg-stat">
+            <div class="rg-stat-label">F5 Lead Δ</div>
+            <div class="rg-stat-val" style="color:${f5gap>=15?'var(--green)':f5gap>=8?'var(--yellow)':'var(--muted2)'}">${f5gap.toFixed(1)}%</div>
+          </div>
+          <div class="rg-stat">
+            <div class="rg-stat-label">F5 Proj</div>
+            <div class="rg-stat-val">${(g.awayF5Runs+g.homeF5Runs).toFixed(2)}</div>
+          </div>
+          <div class="rg-stat">
+            <div class="rg-stat-label">Total Proj</div>
+            <div class="rg-stat-val">${(g.awayRuns+g.homeRuns).toFixed(2)}</div>
+          </div>
+        </div>
+        ${loggedPick ? `<div class="rg-pick-logged">✓ PICKED: ${loggedPick.pick.toUpperCase()} — ${loggedPick.type.toUpperCase()} ${loggedPick.notes ? '· ' + loggedPick.notes : ''}</div>` : ''}
+      </div>`;
+    }).join('');
 
-  function purgePickEntry(uid) {
-    const match = todayPicks.find(p => p.uid === uid);
-    if (!match || match.locked) return;
+    return `<div class="report-day" id="rd-${ri}">
+      <div class="report-day-header" onclick="toggleReport(${ri})">
+        <div class="rdh-left">
+          <div class="rdh-date">${report.date}</div>
+          <div class="rdh-meta">${report.games.length} games · ${flagged} flagged · ${picksLogged} picks logged</div>
+          ${report.overWatch && report.overWatch.length ? `<span class="badge badge-green">⬆ ${report.overWatch.length} over</span>` : ''}
+          ${report.underWatch && report.underWatch.length ? `<span class="badge badge-red">⬇ ${report.underWatch.length} under</span>` : ''}
+        </div>
+        <div class="rdh-toggle" id="rdt-${ri}">▼</div>
+      </div>
+      <div class="report-day-body" id="rdb-${ri}">
+        ${report.overWatch && report.overWatch.length ? `
+          <div style="padding:10px 18px;border-bottom:1px solid var(--border);font-size:10px">
+            <span style="color:var(--green);font-weight:700;letter-spacing:1px">⬆ OVER WATCH: </span>
+            <span style="color:var(--muted2)">${report.overWatch.join(' · ')}</span>
+          </div>` : ''}
+        ${report.underWatch && report.underWatch.length ? `
+          <div style="padding:10px 18px;border-bottom:1px solid var(--border);font-size:10px">
+            <span style="color:var(--red);font-weight:700;letter-spacing:1px">⬇ UNDER WATCH: </span>
+            <span style="color:var(--muted2)">${report.underWatch.join(' · ')}</span>
+          </div>` : ''}
+        ${gamesHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
 
-    if (confirm("Execute clear command sequence targeting this row log permanently?")) {
-      todayPicks = todayPicks.filter(p => p.uid !== uid);
+function toggleReport(ri) {
+  const body = document.getElementById('rdb-' + ri);
+  const toggle = document.getElementById('rdt-' + ri);
+  const header = body.previousElementSibling;
+  body.classList.toggle('open');
+  header.classList.toggle('open');
+  toggle.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+function clearAllReports() {
+  if (!confirm('Clear all saved reports?')) return;
+  localStorage.removeItem('harriReports');
+  renderReports();
+  showToast('All reports cleared');
+}
+
+// ============================================================
+// SNAPSHOT BACKUP / RESTORE
+// ============================================================
+function exportSnapshot() {
+  const snapshot = {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    exportedDate: new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}),
+    picks: todayPicks,
+    reports: JSON.parse(localStorage.getItem('harriReports')||'[]'),
+  };
+  const blob = new Blob([JSON.stringify(snapshot, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'harri-backup-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('💾 Backup saved');
+}
+
+function importSnapshot(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const snap = JSON.parse(e.target.result);
+      if (!snap.version || !snap.picks) { showToast('⚠ Invalid backup file'); return; }
+      
+      // Merge picks — add any from snapshot not already in todayPicks (by uid)
+      const existingUids = new Set(todayPicks.map(p=>p.uid));
+      const newPicks = snap.picks.filter(p => !existingUids.has(p.uid));
+      todayPicks = [...todayPicks, ...newPicks];
       localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
-      
-      buildHeaderStats();
-      buildTicker();
-      renderTodayPicksSummary();
-      renderHistory();
-      showToast('✓ Entry dropped');
-    }
-  }
 
-  function openDayCloseModal() {
-    const select = document.getElementById('close-date-target-select');
-    if(!select) return;
-    select.innerHTML = '';
-    
-    const uniqueDates = [...new Set(todayPicks.map(p=>p.date))].sort((a,b)=>b.localeCompare(a));
-    if(!uniqueDates.length) {
-      alert('No logged parameters detected inside data stream channels.');
-      return;
-    }
-    
-    uniqueDates.forEach(d => {
-      const opt = document.createElement('option');
-      opt.value = d;
-      opt.innerText = d;
-      select.appendChild(opt);
-    });
-
-    document.getElementById('day-close-modal').classList.add('active');
-  }
-
-  function closeDayCloseModal() {
-    document.getElementById('day-close-modal').classList.remove('active');
-  }
-
-  function processDayCloseExecution() {
-    const targetDate = document.getElementById('close-date-target-select').value;
-    if(!targetDate) return;
-
-    const targets = todayPicks.filter(p => p.date === targetDate);
-    const fullySettled = targets.every(p => p.f5 !== null && p.ft !== null);
-    
-    if(!fullySettled) {
-      if(!confirm('Warning: Unresolved split targets detected on matching date line. Force system balance anyway?')) {
-        return;
+      // Merge reports
+      if (snap.reports && snap.reports.length) {
+        const existing = JSON.parse(localStorage.getItem('harriReports')||'[]');
+        const existingDates = new Set(existing.map(r=>r.dateShort));
+        const newReports = snap.reports.filter(r => !existingDates.has(r.dateShort));
+        const merged = [...newReports, ...existing].slice(0,30);
+        localStorage.setItem('harriReports', JSON.stringify(merged));
       }
-    }
 
-    let dailyUnits = 0;
-    let w = 0, l = 0, p = 0;
-
-    targets.forEach(pick => {
-      pick.locked = true; // Lock down entries
-      [pick.f5, pick.ft].forEach(status => {
-        if (status === 1) { w++; dailyUnits += 1.0; }
-        else if (status === 0) { l++; dailyUnits -= 1.1; }
-        else if (status === 3) { p++; }
-      });
-    });
-
-    localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
-
-    let reports = JSON.parse(localStorage.getItem('harriReports') || '[]');
-    reports = reports.filter(r => r.dateShort !== targetDate);
-    
-    reports.unshift({
-      dateShort: targetDate,
-      netUnits: parseFloat(dailyUnits.toFixed(2)),
-      record: `${w}-${l}-${p}`,
-      volume: targets.length
-    });
-
-    // Cap reports data window size at 30 items
-    if(reports.length > 30) reports = reports.slice(0, 30);
-    localStorage.setItem('harriReports', JSON.stringify(reports));
-
-    closeDayCloseModal();
-    renderDashboard();
-    renderHistory();
-    buildHeaderStats();
-    showToast('✓ Consolidated report generated for ' + targetDate);
-  }
-
-  function renderDashboard() {
-    renderTodayPicksSummary();
-    const performanceGrid = document.getElementById('dashboard-historical-performance-grid');
-    const chartWrapper = document.getElementById('pnl-distribution-chart-wrapper');
-    if(!performanceGrid || !chartWrapper) return;
-
-    const reports = JSON.parse(localStorage.getItem('harriReports') || '[]');
-    
-    if(!reports.length) {
-      performanceGrid.innerHTML = `<div style="font-size:12px; color:var(--muted); text-align:center; padding:12px; border:1px dashed var(--border);">No consolidated closed daily profiles detected. Use the modal engine to lock dates.</div>`;
-      chartWrapper.innerHTML = `<div style="font-size:11px; color:var(--muted); line-height:120px; text-align:center; width:100%;">Awaiting data array matrices...</div>`;
-      return;
-    }
-
-    performanceGrid.innerHTML = '';
-    reports.forEach(r => {
-      const item = document.createElement('div');
-      item.className = 'quick-list-item';
-      item.innerHTML = `
-        <div>
-          <span style="font-weight:600;">${r.dateShort}</span>
-          <span class="quick-meta" style="margin-left:8px;">VOL: ${r.volume} PLAYS // REC: ${r.record}</span>
-        </div>
-        <div style="font-weight:700;" class="${r.netUnits >= 0 ? 'text-green' : 'text-red'}">
-          ${r.netUnits >= 0 ? '+' : ''}${r.netUnits.toFixed(2)}U
-        </div>
-      `;
-      performanceGrid.appendChild(item);
-    });
-
-    // Draw Column Graphs distribution matrices
-    chartWrapper.innerHTML = '';
-    const maxVal = Math.max(...reports.map(r => Math.abs(r.netUnits)), 1);
-    
-    const displayReports = [...reports].reverse();
-    displayReports.forEach(r => {
-      const pct = (Math.abs(r.netUnits) / maxVal) * 80; // normalized max box height ceiling bounds
-      const isPos = r.netUnits >= 0;
-      
-      const container = document.createElement('div');
-      container.className = 'chart-bar-container';
-      
-      container.innerHTML = `
-        <div class="chart-bar ${isPos ? 'pos' : 'neg'}" style="height: ${pct}%;">
-          <div class="chart-tooltip">${r.dateShort}<br><b>${isPos ? '+' : ''}${r.netUnits}U</b><br>${r.record}</div>
-        </div>
-        <div class="chart-label">${r.dateShort.split('-')[2] || r.dateShort}</div>
-      `;
-      chartWrapper.appendChild(container);
-    });
-  }
-
-  function exportBackupPackage() {
-    const pack = {
-      version: '2.0',
-      exportedDate: new Date().toISOString(),
-      picks: todayPicks,
-      reports: JSON.parse(localStorage.getItem('harriReports') || '[]')
-    };
-    const dataString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pack, null, 2));
-    const shadowAnchor = document.createElement('a');
-    shadowAnchor.setAttribute("href", dataString);
-    shadowAnchor.setAttribute("download", `HARRI_SYSTEM_SNAPSHOT_${new Date().toISOString().slice(0,10)}.json`);
-    document.body.appendChild(shadowAnchor);
-    shadowAnchor.click();
-    shadowAnchor.remove();
-    showToast('📥 Local file layer snapshot generated');
-  }
-
-  function triggerBackupFileInput() {
-    document.getElementById('import-file-broker').click();
-  }
-
-  function importBackupPackage(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const snap = JSON.parse(e.target.result);
-        if (!snap.version || !snap.picks) { showToast('⚠ Invalid backup file'); return; }
-        
-        const existingUids = new Set(todayPicks.map(p=>p.uid));
-        const newPicks = snap.picks.filter(p => !existingUids.has(p.uid));
-        todayPicks = [...todayPicks, ...newPicks];
-        localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
-
-        if (snap.reports && snap.reports.length) {
-          const existing = JSON.parse(localStorage.getItem('harriReports')||'[]');
-          const existingDates = new Set(existing.map(r=>r.dateShort));
-          const newReports = snap.reports.filter(r => !existingDates.has(r.dateShort));
-          const merged = [...newReports, ...existing].slice(0,30);
-          localStorage.setItem('harriReports', JSON.stringify(merged));
-        }
-
-        renderDashboard();
-        buildTicker();
-        buildHeaderStats();
-        renderTodayPicksSummary();
-        renderHistory();
-        showToast('✓ Restored ' + snap.picks.length + ' picks from ' + snap.exportedDate);
-      } catch(err) {
-        showToast('⚠ Could not read backup file');
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function clearAllSystemStorageData() {
-    if (confirm("☢ CLEARING DANGER WARNING ☢\nWipe cache memory records completely?")) {
-      localStorage.removeItem('harriPicks_v2');
-      localStorage.removeItem('harriReports');
-      todayPicks = [];
       renderDashboard();
       buildTicker();
       buildHeaderStats();
       renderTodayPicksSummary();
-      renderHistory();
-      showToast('☣ System cache dropped clean');
+      showToast('✓ Restored ' + snap.picks.length + ' picks from ' + snap.exportedDate);
+    } catch(err) {
+      showToast('⚠ Could not read backup file');
     }
-  }
-
-  function saveManualPick() {
-    const dateEl = document.getElementById('pick-date');
-    const typeEl = document.getElementById('pick-type');
-    const specEl = document.getElementById('pick-specification');
-    const periodEl = document.getElementById('pick-period');
-    const notesEl = document.getElementById('pick-notes');
-
-    if (!specEl || !specEl.value.trim()) {
-      showToast('⚠ Specification field cannot compile empty');
-      return;
-    }
-
-    const pickDate = dateEl.value;
-    const type = typeEl.value;
-    const pick = specEl.value.trim();
-    const period = periodEl.value;
-    const notes = notesEl ? notesEl.value.trim() : '';
-
-    const isDuplicate = todayPicks.some(p => p.date === pickDate && p.type === type && p.pick.toLowerCase() === pick.toLowerCase());
-    if (isDuplicate) {
-      showToast('⚠ Match line registry duplicates blocked across the current timeline split');
-      return;
-    }
-
-    // THIS IS THE EXACT LINE 1024 WHERE YOUR UNCLOSED SYNTAX ERROR WAS FIXED
-    const uid = Date.now() + '_' + Math.random().toString(36).substring(2,9);
-    
-    const newPick = {
-      uid: uid,
-      date: pickDate,
-      type: type,
-      pick: pick,
-      f5: period === 'ft' ? 2 : null,
-      ft: period === 'f5' ? 2 : null,
-      notes: notes,
-      locked: false
-    };
-
-    todayPicks.push(newPick);
-    localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
-
-    specEl.value = '';
-    if (notesEl) notesEl.value = '';
-
-    renderDashboard();
-    buildTicker();
-    buildHeaderStats();
-    renderTodayPicksSummary();
-    renderHistory();
-    showToast('✓ Pick logged successfully');
-    
-    switchView('history');
-  }
-
-  function switchView(targetViewId) {
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
-
-    const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(btn => btn.innerText.toLowerCase().includes(targetViewId.replace('-', ' ')));
-    if (activeBtn) activeBtn.classList.add('active');
-
-    const targetPanel = document.getElementById(`view-${targetViewId}`);
-    if (targetPanel) targetPanel.classList.add('active');
-  }
-
-  window.onload = function() {
-    populateDropdownDates();
-    buildHeaderStats();
-    buildTicker();
-    renderDashboard();
-    renderHistory();
   };
-  </script>
+  reader.readAsText(file);
+  input.value = '';
+}
+
+window.addEventListener('resize',()=>{
+  if(document.getElementById('tab-dashboard').classList.contains('active')) drawPnlChart();
+});
+</script>
 </body>
 </html>
