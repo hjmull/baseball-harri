@@ -1956,6 +1956,8 @@ function renderHistory() {
               style="background:transparent;border:1px solid ${p.locked?'var(--green)':'var(--border2)'};color:${p.locked?'var(--green)':'var(--muted)'};font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer">
               ${p.locked?'🔒 UNLOCK':'🔓 LOCK'}
             </button>
+            ${!p.locked ? `<button onclick="deletePick('${p.uid}',-1)"
+              style="background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer">✕ DEL</button>` : ''}
           </div>
         ` : '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>'}
       </td>
