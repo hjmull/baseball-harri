@@ -2502,67 +2502,69 @@ function harriAnalyze(g, park, matchup) {
   if (matchup && (matchup.awayRows > 0 || matchup.homeRows > 0)) {
     let awayMatchup = 0, homeMatchup = 0;
 
-    // RC — summary stat, weight highest (3)
-    if (matchup.awayRC > 8)  awayMatchup += 3;
-    else if (matchup.awayRC > 3) awayMatchup += 1;
-    else if (matchup.awayRC < -8) awayMatchup -= 3;
-    else if (matchup.awayRC < -3) awayMatchup -= 1;
+    const aRC = matchup.awayRC||0, hRC = matchup.homeRC||0;
+    const a1b = matchup.away1B||0, h1b = matchup.home1B||0;
+    const axb = matchup.awayXB||0, hxb = matchup.homeXB||0;
+    const ahr = matchup.awayHR||0, hhr = matchup.homeHR||0;
+    const abb = matchup.awayBB||0, hbb = matchup.homeBB||0;
+    const ak  = matchup.awayK||0,  hk  = matchup.homeK||0;
 
-    if (matchup.homeRC > 8)  homeMatchup += 3;
-    else if (matchup.homeRC > 3) homeMatchup += 1;
-    else if (matchup.homeRC < -8) homeMatchup -= 3;
-    else if (matchup.homeRC < -3) homeMatchup -= 1;
-
-    // 1B — best indicator for run scoring (weight 2)
-    const a1b = matchup.away1B || 0, h1b = matchup.home1B || 0;
+    // Score each side (RC weight 3, 1B/XB weight 2, HR weight 1, BB 0.5, K 0.5 inverted)
+    if (aRC > 8) awayMatchup += 3; else if (aRC > 3) awayMatchup += 1; else if (aRC < -8) awayMatchup -= 3; else if (aRC < -3) awayMatchup -= 1;
+    if (hRC > 8) homeMatchup += 3; else if (hRC > 3) homeMatchup += 1; else if (hRC < -8) homeMatchup -= 3; else if (hRC < -3) homeMatchup -= 1;
     if (a1b > 5) awayMatchup += 2; else if (a1b < -5) awayMatchup -= 2;
     if (h1b > 5) homeMatchup += 2; else if (h1b < -5) homeMatchup -= 2;
-
-    // XB — extra bases (weight 2)
-    const axb = matchup.awayXB || 0, hxb = matchup.homeXB || 0;
     if (axb > 5) awayMatchup += 2; else if (axb < -5) awayMatchup -= 2;
     if (hxb > 5) homeMatchup += 2; else if (hxb < -5) homeMatchup -= 2;
-
-    // HR (weight 1)
-    const ahr = matchup.awayHR || 0, hhr = matchup.homeHR || 0;
     if (ahr > 5) awayMatchup += 1; else if (ahr < -5) awayMatchup -= 1;
     if (hhr > 5) homeMatchup += 1; else if (hhr < -5) homeMatchup -= 1;
-
-    // BB — weakest signal (weight 0.5)
-    const abb = matchup.awayBB || 0, hbb = matchup.homeBB || 0;
     if (abb > 8) awayMatchup += 0.5; else if (abb < -8) awayMatchup -= 0.5;
     if (hbb > 8) homeMatchup += 0.5; else if (hbb < -8) homeMatchup -= 0.5;
-
-    // K — high K bad for batters (weight 0.5, inverted)
-    const ak = matchup.awayK || 0, hk = matchup.homeK || 0;
     if (ak > 8) awayMatchup -= 0.5; else if (ak < -8) awayMatchup += 0.5;
     if (hk > 8) homeMatchup -= 0.5; else if (hk < -8) homeMatchup += 0.5;
 
     const matchupGap = Math.abs(awayMatchup - homeMatchup);
     const matchupWinner = awayMatchup > homeMatchup ? g.away : g.home;
+    const matchupLoser  = awayMatchup > homeMatchup ? g.home : g.away;
+    const winRC  = awayMatchup > homeMatchup ? aRC  : hRC;
+    const win1B  = awayMatchup > homeMatchup ? a1b  : h1b;
+    const winXB  = awayMatchup > homeMatchup ? axb  : hxb;
+    const winHR  = awayMatchup > homeMatchup ? ahr  : hhr;
+    const winBB  = awayMatchup > homeMatchup ? abb  : hbb;
+    const winK   = awayMatchup > homeMatchup ? ak   : hk;
+    const loseRC = awayMatchup > homeMatchup ? hRC  : aRC;
+    const lose1B = awayMatchup > homeMatchup ? h1b  : a1b;
+    const loseXB = awayMatchup > homeMatchup ? hxb  : axb;
+
+    const fmt = (v) => (v > 0 ? '+' : '') + v.toFixed(0);
+    const edgeStr = (v, label) => {
+      if (Math.abs(v) < 3) return null;
+      return label + ' ' + fmt(v);
+    };
+
+    // Always show matchup summary with actual numbers
+    const awayLine = 'RC ' + fmt(aRC) + '  1B ' + fmt(a1b) + '  XB ' + fmt(axb) + '  HR ' + fmt(ahr) + '  BB ' + fmt(abb);
+    const homeLine = 'RC ' + fmt(hRC) + '  1B ' + fmt(h1b) + '  XB ' + fmt(hxb) + '  HR ' + fmt(hhr) + '  BB ' + fmt(hbb);
+
+    points.push({t:g.away + ' batters vs ' + g.homeSP + ': ' + awayLine, cls: aRC > 5 ? 'pos' : aRC < -5 ? 'neg' : 'neu'});
+    points.push({t:g.home + ' batters vs ' + g.awaySP + ': ' + homeLine, cls: hRC > 5 ? 'pos' : hRC < -5 ? 'neg' : 'neu'});
 
     if (matchupGap >= 5) {
       flags.push({l:'🟢 MATCHUP DOMINANT',c:'pos'});
-      points.push({t:matchupWinner + ' batters heavily green across RC, 1B, XB vs opposing pitcher',cls:'pos'});
+      points.push({t:'Edge: ' + matchupWinner + ' lineup clearly green, ' + matchupLoser + ' lineup red — RC/1B/XB all confirm',cls:'pos'});
       if (awayMatchup > homeMatchup) awayScore += 3; else homeScore += 3;
     } else if (matchupGap >= 3) {
       flags.push({l:'📊 MATCHUP EDGE',c:'pos'});
-      points.push({t:matchupWinner + ' batters showing clear edge in matchup data (RC, 1B, XB)',cls:'pos'});
+      points.push({t:'Edge: ' + matchupWinner + ' has meaningful batter advantage vs opposing pitcher',cls:'pos'});
       if (awayMatchup > homeMatchup) awayScore += 2; else homeScore += 2;
     } else if (matchupGap >= 1.5) {
-      points.push({t:'Mild matchup edge for ' + matchupWinner + ' — not decisive alone',cls:'neu'});
+      points.push({t:'Mild edge: ' + matchupWinner + ' slightly favored in matchup — not decisive alone',cls:'neu'});
       if (awayMatchup > homeMatchup) awayScore += 1; else homeScore += 1;
     } else {
-      points.push({t:'Matchup data mixed — no clear batter advantage',cls:'neu'});
+      points.push({t:'Matchup: no clear batter advantage either way',cls:'neu'});
     }
-
-    // Highlight dominant individual signals
-    if (Math.abs(matchup.awayRC) > 12 || Math.abs(matchup.homeRC) > 12) {
-      const domTeam = Math.abs(matchup.awayRC) > Math.abs(matchup.homeRC) ? g.away : g.home;
-      const domRC = (matchup.awayRC > matchup.homeRC ? matchup.awayRC : matchup.homeRC).toFixed(0);
-      const isGreen = parseFloat(domRC) > 0;
-      points.push({t:domTeam + ' lineup RC avg ' + (isGreen?'+':'') + domRC + ' vs opposing pitcher — ' + (isGreen?'significant green':'heavy red'),cls:isGreen?'pos':'neg'});
-    }
+  } else {
+    points.push({t:'Matchup data not loaded — upload Matchup Machine CSV for batter vs pitcher analysis',cls:'neu'});
   }
 
   // ── 5. F5 LEAD % ─────────────────────────────────────────────
