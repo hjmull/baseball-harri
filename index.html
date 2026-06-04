@@ -1942,12 +1942,22 @@ function renderHistory() {
       <td>${unitStr(p.ft)}</td>
       <td style="color:var(--muted2);font-size:10px;max-width:160px;white-space:normal">${p.notes||'—'}</td>
       <td class="hist-action-cell" data-uid="${p.uid}" data-istoday="${isToday}">
-        ${isToday ?
-          (p.locked ?
-            '<span style="color:var(--green);font-size:9px;font-weight:700;letter-spacing:1px">🔒 LOCKED</span>' :
-            '<span style="color:var(--muted);font-size:10px">See Today tab</span>'
-          ) : '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>'
-        }
+        ${isToday ? `
+          <div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center">
+            ${p.locked ? '' : `
+              <button class="result-btn rb-win"  onclick="setResult('${p.uid}','f5',1)" style="font-size:9px;padding:2px 5px">F5W</button>
+              <button class="result-btn rb-loss" onclick="setResult('${p.uid}','f5',0)" style="font-size:9px;padding:2px 5px">F5L</button>
+              <button class="result-btn rb-push" onclick="setResult('${p.uid}','f5',2)" style="font-size:9px;padding:2px 5px">F5P</button>
+              <button class="result-btn rb-win"  onclick="setResult('${p.uid}','ft',1)" style="font-size:9px;padding:2px 5px">FTW</button>
+              <button class="result-btn rb-loss" onclick="setResult('${p.uid}','ft',0)" style="font-size:9px;padding:2px 5px">FTL</button>
+              <button class="result-btn rb-push" onclick="setResult('${p.uid}','ft',2)" style="font-size:9px;padding:2px 5px">FTP</button>
+            `}
+            <button onclick="setResult('${p.uid}','lock',-1)"
+              style="background:transparent;border:1px solid ${p.locked?'var(--green)':'var(--border2)'};color:${p.locked?'var(--green)':'var(--muted)'};font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer">
+              ${p.locked?'🔒 UNLOCK':'🔓 LOCK'}
+            </button>
+          </div>
+        ` : '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>'}
       </td>
     </tr>`;
   }).join('') + `
@@ -1980,6 +1990,17 @@ function renderHistory() {
 function setResult(uid, side, val) {
   const pick = todayPicks.find(p => p.uid == uid);
   if (!pick) return;
+  // Lock toggle
+  if (side === 'lock') {
+    pick.locked = !pick.locked;
+    localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+    renderHistory();
+    renderTodayPicksSummary();
+    showToast(pick.locked ? '🔒 Locked' : '🔓 Unlocked');
+    return;
+  }
+  // Block changes on locked picks
+  if (pick.locked) { showToast('🔒 Unlock first to change result'); return; }
   pick[side] = val;
   localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
   renderHistory();
@@ -2259,20 +2280,23 @@ function saveManualPick() {
   if (!pick) { showToast('⚠ Enter a pick first'); return; }
 
   const type = document.getElementById('manual-type')?.value || 'ml';
-  const dateSelEl = document.getElementById('manual-date');
-  let pickDate = Date.now();
-  if (dateSelEl && dateSelEl.value && !isNaN(parseInt(dateSelEl.value))) pickDate = parseInt(dateSelEl.value);
-  const dateStr = new Date(pickDate).toISOString().slice(0,10);
-
-  // Check for duplicate: same pick + type + date
-  const isDuplicate = todayPicks.some(p => {
-    const pDate = p.date > 1e9 ? new Date(p.date).toISOString().slice(0,10) : new Date(p.date*86400000).toISOString().slice(0,10);
-    return p.pick.toLowerCase() === pick.toLowerCase() && p.type === type && pDate === dateStr;
-  });
-  if (isDuplicate) { showToast('⚠ Duplicate pick — already logged'); return; }
-
   const period = document.getElementById('manual-period')?.value || 'f5';
   const notes = document.getElementById('manual-notes')?.value.trim() || '';
+
+  // Date — use selected value or default to yesterday
+  const dateSelEl = document.getElementById('manual-date');
+  let pickDate = Date.now();
+  if (dateSelEl && dateSelEl.value && !isNaN(parseInt(dateSelEl.value))) {
+    pickDate = parseInt(dateSelEl.value);
+  }
+
+  // Duplicate check
+  const pickDateStr = new Date(pickDate).toISOString().slice(0,10);
+  const isDupe = todayPicks.some(p => {
+    const pd = p.date > 1e9 ? new Date(p.date).toISOString().slice(0,10) : '';
+    return p.pick.toLowerCase()===pick.toLowerCase() && p.type===type && pd===pickDateStr;
+  });
+  if (isDupe) { showToast('⚠ Pick already logged: ' + pick); return; }
 
   const uid = Date.now() + '_' + Math.random().toString(36).slice(2,6);
   const newPick = {uid, date:pickDate, type, pick, f5:null, ft:null, notes, isToday:true, locked:false};
@@ -2945,18 +2969,17 @@ function savePick(idx) {
   else if(type==='ftml-home'){pick=home;betType='ml';}
   else if(type==='parlay'){pick=`PARLAY: ${away}/${home}`;betType='ml';}
 
-  const dateSelect = document.getElementById('pick-date-'+idx);
-  const pickDate = dateSelect ? parseInt(dateSelect.value) : Date.now();
-  const pickDateStr = new Date(pickDate).toISOString().slice(0,10);
-
-  // Check for duplicate
-  const isDuplicate = todayPicks.some(p => {
-    const pDate = p.date > 1e9 ? new Date(p.date).toISOString().slice(0,10) : '';
-    return p.pick.toLowerCase() === pick.toLowerCase() && p.type === betType && pDate === pickDateStr;
+  // Duplicate check — same pick + type already logged today
+  const todayStr = new Date().toISOString().slice(0,10);
+  const isDupe = todayPicks.some(p => {
+    const pd = p.date > 1e9 ? new Date(p.date).toISOString().slice(0,10) : '';
+    return p.pick.toLowerCase()===pick.toLowerCase() && p.type===betType && pd===todayStr;
   });
-  if (isDuplicate) { showToast('⚠ Already logged this pick'); return; }
+  if (isDupe) { showToast('⚠ Pick already logged: ' + pick); return; }
 
   const uid = Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const dateSelect = document.getElementById('pick-date-'+idx);
+  const pickDate = dateSelect ? parseInt(dateSelect.value) : Date.now();
   const newPick={uid,date:pickDate,type:betType,pick,f5:null,ft:null,notes,isToday:true,locked:false};
   todayPicks.push(newPick);
   localStorage.setItem('harriPicks_v2',JSON.stringify(todayPicks));
@@ -3048,8 +3071,8 @@ function renderTodayPicksSummary() {
   panel.style.display = 'block';
 
   if (!visiblePicks.length) {
-    countEl.textContent = 'No picks yet — log below';
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;font-size:11px">No picks logged yet — use the game cards or manual entry above</td></tr>';
+    countEl.textContent = '0 picks — log below';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;font-size:11px;letter-spacing:1px">NO PICKS YET — USE GAME CARDS OR MANUAL ENTRY ABOVE</td></tr>';
     return;
   }
   const pending = visiblePicks.filter(p => p.f5 === null || p.f5 === undefined).length;
