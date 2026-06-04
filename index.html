@@ -1350,8 +1350,8 @@ const SEED = [
   {date:46168,type:'ml',pick:'yankees',f5:1,ft:1,notes:''},
   {date:46168,type:'ml',pick:'blue jays',f5:1,ft:1,notes:''},
   {date:46168,type:'ml',pick:'rays',f5:0,ft:0,notes:''},
-  {date:46169,type:'over',pick:'braves / red sox o4 / 8',f5:1,ft:null,notes:''},
-  {date:46169,type:'ml',pick:'rangers',f5:null,ft:0,notes:''},
+  {date:46169,type:'over',pick:'braves / red sox o4 / 8',f5:1,ft:2,notes:''},
+  {date:46169,type:'ml',pick:'rangers',f5:2,ft:0,notes:''},
   {date:46169,type:'over',pick:'cubs / pirates o5 / 9',f5:1,ft:1,notes:''},
   {date:46169,type:'ml',pick:'mariners',f5:1,ft:1,notes:''},
   {date:46169,type:'ml',pick:'guardians',f5:1,ft:1,notes:''},
@@ -1365,7 +1365,7 @@ const SEED = [
   {date:46170,type:'ml',pick:'white sox',f5:1,ft:1,notes:''},
   {date:46170,type:'over',pick:'white sox / twins o4 / 7.5',f5:1,ft:1,notes:''},
   {date:46170,type:'over',pick:'braves / red sox o3.5 / 6.5',f5:1,ft:1,notes:'low line'},
-  {date:46170,type:'ml',pick:'blue jays',f5:null,ft:1,notes:''},
+  {date:46170,type:'ml',pick:'blue jays',f5:2,ft:1,notes:''},
   {date:46170,type:'ml',pick:'pirates',f5:0,ft:0,notes:''},
   {date:46170,type:'ml',pick:'rangers',f5:0,ft:0,notes:''},
   {date:46171,type:'over',pick:'braves / reds o5 / 9.5',f5:1,ft:1,notes:''},
@@ -1377,7 +1377,7 @@ const SEED = [
   {date:46171,type:'ml',pick:'angels',f5:1,ft:0,notes:''},
   {date:46172,type:'over',pick:'braves o5 / 9.5',f5:1,ft:0,notes:''},
   {date:46172,type:'ml',pick:'braves',f5:1,ft:1,notes:''},
-  {date:46172,type:'ml',pick:'cubs',f5:null,ft:1,notes:''},
+  {date:46172,type:'ml',pick:'cubs',f5:2,ft:1,notes:''},
   {date:46172,type:'over',pick:'giants / rockies o6.5 / 11.5',f5:0,ft:0,notes:''},
   {date:46172,type:'over',pick:'yankees / athletics o5 / 9.5',f5:0,ft:1,notes:''},
   {date:46172,type:'under',pick:'phillies / dodgers u8.5',f5:1,ft:1,notes:''},
@@ -1390,7 +1390,7 @@ const SEED = [
   {date:46173,type:'over',pick:'royals / rangers o4 / 8.5',f5:1,ft:1,notes:'like; batter net score no, rest yes'},
   {date:46173,type:'under',pick:'giants / rockies u5.5 / 11.5',f5:0,ft:0,notes:'like; weird'},
   {date:46173,type:'over',pick:'yankees / athletics o10.5',f5:1,ft:1,notes:'like; weird'},
-  {date:46173,type:'ml',pick:'cubs',f5:null,ft:null,notes:'like'},
+  {date:46173,type:'ml',pick:'cubs',f5:2,ft:2,notes:'like'},
   {date:46173,type:'over',pick:'cubs / cardinals o4 / 8.5',f5:1,ft:0,notes:'like; green / red'},
   {date:46173,type:'ml',pick:'padres',f5:0,ft:0,notes:'like+'},
   {date:46173,type:'ml',pick:'pirates',f5:1,ft:1,notes:'like+'},
@@ -1401,8 +1401,8 @@ const SEED = [
   {date:46173,type:'ml',pick:'dodgers',f5:1,ft:1,notes:'like+'},
   {date:46174,type:'ml',pick:'angels',f5:1,ft:0,notes:''},
   {date:46174,type:'ml',pick:'dodgers',f5:1,ft:0,notes:''},
-  {date:46174,type:'ml',pick:'mariners',f5:null,ft:1,notes:''},
-  {date:46175,type:'ml',pick:'marlins',f5:1,ft:1,notes:'pitcher change push'},
+  {date:46174,type:'ml',pick:'mariners',f5:2,ft:1,notes:''},
+  {date:46175,type:'ml',pick:'marlins',f5:2,ft:2,notes:'pitcher change push'},
   {date:46175,type:'ml',pick:'yankees',f5:0,ft:0,notes:'big fav'},
   {date:46175,type:'ml',pick:'royals',f5:1,ft:0,notes:''},
   {date:46175,type:'ml',pick:'white sox',f5:0,ft:0,notes:''},
@@ -1502,13 +1502,23 @@ function getDailyData(picks) {
 // ============================================================
 function buildTicker() {
   const s = getStats(allPicks(), 'all');
+  const s1 = getStats(allPicks(), '1');
+  const s7 = getStats(allPicks(), '7');
   const streak = getStreak();
+
+  const dayChange = parseFloat(s1.f5.units);
+  const dayChangeStr = (dayChange >= 0 ? '+' : '') + dayChange.toFixed(1) + 'u';
+  const weekChange = parseFloat(s7.f5.units);
+  const weekChangeStr = (weekChange >= 0 ? '+' : '') + weekChange.toFixed(1) + 'u';
+
   const items = [
     `F5: ${s.f5.w}-${s.f5.l} (${s.f5.pct}%)`,
-    `F5 UNITS: ${s.f5.units>=0?'+':''}${s.f5.units}`,
+    `F5 UNITS: ${s.f5.units>=0?'+':''}${s.f5.units}u`,
     `F5 ROI: ${s.f5.roi}%`,
+    `YESTERDAY: ${s1.f5.w}-${s1.f5.l} · ${dayChangeStr}`,
+    `LAST 7: ${s7.f5.w}-${s7.f5.l} · ${weekChangeStr}`,
     `FT: ${s.ft.w}-${s.ft.l} (${s.ft.pct}%)`,
-    `FT UNITS: ${s.ft.units>=0?'+':''}${s.ft.units}`,
+    `FT UNITS: ${s.ft.units>=0?'+':''}${s.ft.units}u`,
     `F5 ML: ${s.f5ml.w}-${s.f5ml.l} (${s.f5ml.pct}%)`,
     `F5 OVERS: ${s.f5ov.w}-${s.f5ov.l} (${s.f5ov.pct}%)`,
     `F5 UNDERS: ${s.f5un.w}-${s.f5un.l} (${s.f5un.pct}%)`,
