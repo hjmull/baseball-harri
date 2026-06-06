@@ -762,16 +762,150 @@ select.filter-select:focus { border-color: var(--green); }
   font-weight: 700;
 }
 
+/* DAY DETAIL PANEL */
+.day-detail {
+  display: none;
+  background: var(--bg3);
+  border-top: 1px solid var(--border2);
+}
+.day-detail.open { display: table-row; }
+.day-detail td { padding: 0!important; }
+.day-detail-inner {
+  padding: 16px;
+  border-bottom: 2px solid var(--border2);
+}
+.day-detail-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.day-pick-table { width: 100%; border-collapse: collapse; }
+.day-pick-table th {
+  background: var(--bg4);
+  padding: 6px 10px;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border2);
+  font-weight: 700;
+}
+.day-pick-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  min-width: auto;
+}
+.day-pick-table tr:last-child td { border-bottom: none; }
+.day-pick-table tr:hover td { background: var(--bg4); }
+.day-totals-row td {
+  background: var(--bg4)!important;
+  font-weight: 700;
+  border-top: 2px solid var(--border2);
+  font-size: 11px;
+}
+.date-clickable {
+  cursor: pointer;
+  color: var(--text);
+  text-decoration: none;
+}
+.date-clickable:hover { color: var(--green); }
+.date-expand-icon {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 9px;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.date-expand-icon.open { transform: rotate(180deg); }
+
 @media(max-width:768px){
-  .metric-grid-6,.metric-grid-8{grid-template-columns:repeat(3,1fr);}
-  .metric-grid-4{grid-template-columns:repeat(2,1fr);}
-  .split-grid,.watchlist-grid,.trend-grid,.input-grid{grid-template-columns:1fr;}
-  .game-analytics{grid-template-columns:repeat(3,1fr);}
-  .game-header{grid-template-columns:60px 1fr auto;gap:10px;}
-  .gh-park,.gh-flags{display:none;}
-  .implied-grid{grid-template-columns:repeat(4,1fr);}
+  /* Core */
+  *{box-sizing:border-box;}
+  
+  /* Layout */
+  .page{padding:10px;width:100%;overflow-x:hidden;}
+  .split-grid,.watchlist-grid,.trend-grid,.input-grid,.hot-cold-grid{grid-template-columns:1fr;}
+  
+  /* Header */
+  .header{padding:0 8px;height:44px;position:sticky;top:28px;overflow:hidden;}
   .header-stats{display:none;}
-  .page{padding:12px;}
+  .logo{font-size:14px;letter-spacing:1px;}
+  .logo-tag{display:none;}
+  .nav{gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:1;min-width:0;}
+  .nav-btn{padding:0 8px;font-size:10px;height:44px;white-space:nowrap;flex-shrink:0;}
+  .header > div:first-of-type button,
+  .header > div:first-of-type label{font-size:8px;padding:3px 5px;}
+
+  /* Ticker */
+  .ticker-wrap{font-size:9px;}
+
+  /* Metrics */
+  .metric-grid-8,.metric-grid-6,.metric-grid-5,.metric-grid-4,.metric-grid-3{grid-template-columns:repeat(2,1fr);}
+  .metric-grid-2{grid-template-columns:1fr;}
+  .metric{padding:10px 12px;}
+  .metric-value{font-size:18px;}
+  .metric-value.lg{font-size:22px;}
+  .metric-label{font-size:8px;}
+  .metric-sub{font-size:9px;}
+  
+  /* PNL chart */
+  .pnl-chart{height:70px;}
+
+  /* Tables — contained horizontal scroll */
+  .table-wrap{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    max-width:100%;
+    display:block;
+  }
+  .table-wrap table{min-width:520px;width:max-content;}
+  th,td{padding:6px 8px;font-size:10px;white-space:nowrap;}
+
+  /* Filter bars */
+  .flex{flex-wrap:wrap;gap:6px;}
+  .filter-bar{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    max-width:100%;
+    display:flex;
+    flex-shrink:0;
+  }
+  .filter-btn{white-space:nowrap;flex-shrink:0;font-size:9px;padding:5px 10px;}
+
+  /* Game cards */
+  .game-header{display:flex;flex-direction:column;gap:6px;padding:10px;}
+  .gh-matchup{font-size:15px;}
+  .gh-park,.gh-toggle{font-size:10px;}
+  .gh-flags{display:flex;flex-wrap:wrap;gap:4px;}
+  .game-analytics{grid-template-columns:repeat(2,1fr);}
+  .implied-grid{grid-template-columns:repeat(4,1fr);}
+  .game-body{padding:12px;}
+  .pick-type-grid{display:flex;flex-wrap:wrap;gap:1px;}
+  .pick-type-btn{font-size:9px;padding:5px 7px;}
+  .pick-row{flex-wrap:wrap;gap:6px;}
+  .pick-input{min-width:0;width:100%;}
+
+  /* Input grid */
+  .input-grid{grid-template-columns:1fr;}
+  .input-panel{padding:12px;}
+
+  /* Section headers */
+  .section-header{flex-wrap:wrap;gap:8px;}
+  .section-title{font-size:10px;}
+
+  /* Trend cards */
+  .trend-grid{grid-template-columns:1fr;}
+  .trend-panel{padding:12px;}
+
+  /* Today picks summary table */
+  #today-picks-summary .table-wrap{overflow-x:auto;max-width:100%;}
+
+  /* Badges */
+  .badge{font-size:8px;padding:1px 5px;}
 }
 </style>
 </head>
@@ -947,7 +1081,7 @@ select.filter-select:focus { border-color: var(--green); }
           <th onclick="sortDaily('ftpct')" id="th-ftpct">FT Win% ↕</th>
           <th onclick="sortDaily('ftunits')" id="th-ftunits">FT Units ↕</th>
           <th>Picks</th>
-          <th>Day Δ (F5)</th>
+          <th onclick="sortDaily('f5roi')" style="cursor:pointer">F5 ROI% ↕</th>
         </tr>
       </thead>
       <tbody id="daily-tbody"></tbody>
@@ -1747,8 +1881,13 @@ function renderDailyTable() {
   // Compute day delta
   const sorted = [...rows].sort((a,b)=>a.dk>b.dk?1:-1);
   const deltaMap={};
+  const todayDateStr = new Date().toISOString().slice(0,10);
   sorted.forEach((r,i)=>{
-    if(i>0) deltaMap[r.dk] = (r.ds.units - sorted[i-1].ds.units).toFixed(2);
+    if(i>0) {
+      // Don't show delta for today if picks are still pending
+      const isPending = r.dk === todayDateStr;
+      if (!isPending) deltaMap[r.dk] = (r.ds.units - sorted[i-1].ds.units).toFixed(2);
+    }
   });
 
   // Compute totals
@@ -1773,8 +1912,9 @@ function renderDailyTable() {
     const delta = deltaMap[r.dk];
     const dc = delta!==undefined ? (parseFloat(delta)>=0?'pos':'neg') : '';
     const f5pct = r.ds.total>0?parseFloat(r.ds.pct):0;
-    return `<tr>
-      <td class="td-mono">${fmtDate(r.d)}</td>
+    const safedk = r.dk.replace(/-/g,'');
+    return `<tr style="cursor:pointer" onclick="toggleDayDetail('${safedk}', '${r.dk}')">
+      <td class="td-mono" style="color:var(--green)">${fmtDate(r.d)} <span id="icon-${safedk}" style="font-size:9px;color:var(--muted);margin-left:4px">▼</span></td>
       <td style="color:var(--green)">${r.ds.w}</td>
       <td style="color:var(--red)">${r.ds.l}</td>
       <td style="color:var(--muted2)">${r.ds.p}</td>
@@ -1794,8 +1934,15 @@ function renderDailyTable() {
         ${r.dts.units>=0?'+':''}${r.dts.units}u
       </td>
       <td><span class="badge badge-white">${r.count}</span></td>
-      <td class="td-mono" style="color:${dc==='pos'?'var(--green)':'var(--red)'}">
-        ${delta!==undefined?(parseFloat(delta)>=0?'+':'')+delta+'u':'—'}
+      <td class="td-mono" style="color:${r.ds.roi!=='—'?(parseFloat(r.ds.roi)>=0?'var(--green)':'var(--red)'):'var(--muted)'}">
+        ${r.ds.roi!=='—'?(parseFloat(r.ds.roi)>=0?'+':'')+r.ds.roi+'%':'—'}
+      </td>
+    </tr>`;
+  }).join('') + rows.map(r => {
+    const safedk = r.dk.replace(/-/g,'');
+    return `<tr class="day-detail" id="detail-${safedk}">
+      <td colspan="13" style="padding:0!important">
+        <div id="detail-inner-${safedk}" style="display:none"></div>
       </td>
     </tr>`;
   }).join('') + `
@@ -1816,9 +1963,82 @@ function renderDailyTable() {
       ${totFTU>=0?'+':''}${totFTU.toFixed(2)}u <span style="color:var(--muted);font-size:9px;font-weight:400">ROI ${totFTROI}%</span>
     </td>
     <td><span class="badge badge-green">${totPicks}</span></td>
-    <td style="color:var(--muted)">—</td>
+    <td class="td-mono" style="color:var(--green);font-weight:700">${totF5ROI}%</td>
   </tr>`;
 }
+
+function toggleDayDetail(safedk, dk) {
+  var inner = document.getElementById('detail-inner-' + safedk);
+  var icon = document.getElementById('icon-' + safedk);
+  if (!inner) return;
+
+  if (inner.style.display !== 'none') {
+    inner.style.display = 'none';
+    if (icon) icon.textContent = '\u25bc';
+    return;
+  }
+
+  var dayPicks = allPicks().filter(function(p) {
+    var d = p.date > 1e9 ? new Date(p.date) : excelToDate(parseFloat(p.date));
+    if (!d) return false;
+    var y = d.getUTCFullYear();
+    var m = String(d.getUTCMonth()+1).padStart(2,'0');
+    var day = String(d.getUTCDate()).padStart(2,'0');
+    return y+'-'+m+'-'+day === dk;
+  });
+
+  if (!dayPicks.length) {
+    inner.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:11px">No picks found for this date</div>';
+    inner.style.display = 'block';
+    if (icon) icon.textContent = '\u25b2';
+    return;
+  }
+
+  var f5g = calcGroup(dayPicks.map(function(p){return p.f5;}).filter(function(v){return v===0||v===1||v===2;}));
+  var ftg = calcGroup(dayPicks.map(function(p){return p.ft;}).filter(function(v){return v===0||v===1||v===2;}));
+  var f5roi = f5g.total>0 ? (f5g.units/(f5g.total*1.5)*100).toFixed(1)+'%' : '\u2014';
+  var ftroi = ftg.total>0 ? (ftg.units/(ftg.total*1.5)*100).toFixed(1)+'%' : '\u2014';
+
+  function rb(v) {
+    if(v===1) return '<span class="badge badge-green">W</span>';
+    if(v===0) return '<span class="badge badge-red">L</span>';
+    if(v===2) return '<span class="badge badge-white">P</span>';
+    return '<span style="color:var(--muted)">\u2014</span>';
+  }
+  function us(v) {
+    return v===1 ? '<span style="color:var(--green)">+1.0u</span>' : v===0 ? '<span style="color:var(--red)">-1.5u</span>' : '\u2014';
+  }
+  function tb(t) {
+    return t==='ml' ? '<span class="badge badge-white">ML</span>' : t==='over' ? '<span class="badge badge-yellow">OVER</span>' : '<span class="badge badge-muted">UNDER</span>';
+  }
+
+  var rows = dayPicks.map(function(p) {
+    return '<tr><td style="font-weight:600;max-width:160px;white-space:normal">'+p.pick+'</td><td>'+tb(p.type)+'</td><td>'+rb(p.f5)+'</td><td>'+rb(p.ft)+'</td><td>'+us(p.f5)+'</td><td>'+us(p.ft)+'</td><td style="color:var(--muted2);font-size:10px;max-width:140px;white-space:normal">'+(p.notes||'\u2014')+'</td></tr>';
+  }).join('');
+
+  var f5col = parseFloat(f5g.units)>=0 ? 'var(--green)' : 'var(--red)';
+  var ftcol = parseFloat(ftg.units)>=0 ? 'var(--green)' : 'var(--red)';
+  var f5u = (parseFloat(f5g.units)>=0?'+':'')+f5g.units+'u';
+  var ftu = (parseFloat(ftg.units)>=0?'+':'')+ftg.units+'u';
+
+  inner.innerHTML = '<div style="padding:14px 16px">'
+    + '<div style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">'
+    + fmtDate(new Date(dk+'T12:00:00Z')) + ' \u2014 ' + dayPicks.length + ' Picks</div>'
+    + '<table class="day-pick-table"><thead><tr>'
+    + '<th>Pick</th><th>Type</th><th>F5</th><th>FT</th><th>F5 Units</th><th>FT Units</th><th>Notes</th>'
+    + '</tr></thead><tbody>' + rows + '</tbody>'
+    + '<tfoot><tr class="day-totals-row">'
+    + '<td style="color:var(--green);letter-spacing:1px">TOTALS</td><td></td>'
+    + '<td><span style="color:var(--green)">'+f5g.w+'W</span> <span style="color:var(--red)">'+f5g.l+'L</span> <span style="color:var(--muted2)">'+f5g.p+'P</span></td>'
+    + '<td><span style="color:var(--green)">'+ftg.w+'W</span> <span style="color:var(--red)">'+ftg.l+'L</span> <span style="color:var(--muted2)">'+ftg.p+'P</span></td>'
+    + '<td style="color:'+f5col+'">'+f5u+' <span style="color:var(--muted);font-size:9px">ROI '+f5roi+'</span></td>'
+    + '<td style="color:'+ftcol+'">'+ftu+' <span style="color:var(--muted);font-size:9px">ROI '+ftroi+'</span></td>'
+    + '<td></td></tr></tfoot></table></div>';
+
+  inner.style.display = 'block';
+  if (icon) icon.textContent = '\u25b2';
+}
+
 
 function sortDaily(key) {
   if (dailySortKey === key) {
@@ -1873,6 +2093,28 @@ function sortHistory(key) {
   else { hSort.key=key; hSort.dir='desc'; }
   renderHistory();
 }
+
+function buildHistoryActions(p) {
+  var uid = p.uid || '';
+  var locked = p.locked === true;
+  var parts = [];
+  if (!locked) {
+    parts.push("<button class='result-btn rb-win hist-res-btn' data-uid='" + uid + "' data-side='f5' data-val='1' style='font-size:9px;padding:2px 5px'>F5W</button>");
+    parts.push("<button class='result-btn rb-loss hist-res-btn' data-uid='" + uid + "' data-side='f5' data-val='0' style='font-size:9px;padding:2px 5px'>F5L</button>");
+    parts.push("<button class='result-btn rb-push hist-res-btn' data-uid='" + uid + "' data-side='f5' data-val='2' style='font-size:9px;padding:2px 5px'>F5P</button>");
+    parts.push("<button class='result-btn rb-win hist-res-btn' data-uid='" + uid + "' data-side='ft' data-val='1' style='font-size:9px;padding:2px 5px'>FTW</button>");
+    parts.push("<button class='result-btn rb-loss hist-res-btn' data-uid='" + uid + "' data-side='ft' data-val='0' style='font-size:9px;padding:2px 5px'>FTL</button>");
+    parts.push("<button class='result-btn rb-push hist-res-btn' data-uid='" + uid + "' data-side='ft' data-val='2' style='font-size:9px;padding:2px 5px'>FTP</button>");
+  }
+  var lc = locked ? 'var(--green)' : 'var(--border2)';
+  var ltc = locked ? 'var(--green)' : 'var(--muted)';
+  parts.push("<button class='hist-lock-btn' data-uid='" + uid + "' style='background:transparent;border:1px solid " + lc + ";color:" + ltc + ";font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer'>" + (locked ? '🔒 UNLOCK' : '🔓 LOCK') + "</button>");
+  if (!locked) {
+    parts.push("<button class='hist-del-btn' data-uid='" + uid + "' style='background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer'>X DEL</button>");
+  }
+  return "<div style='display:flex;flex-wrap:wrap;gap:3px;align-items:center'>" + parts.join('') + "</div>";
+}
+
 
 function renderHistory() {
   let fp = [...allPicks()];
@@ -1942,24 +2184,7 @@ function renderHistory() {
       <td>${unitStr(p.ft)}</td>
       <td style="color:var(--muted2);font-size:10px;max-width:160px;white-space:normal">${p.notes||'—'}</td>
       <td class="hist-action-cell" data-uid="${p.uid}" data-istoday="${isToday}">
-        ${isToday ? `
-          <div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center">
-            ${p.locked ? '' : `
-              <button class="result-btn rb-win"  onclick="setResult('${p.uid}','f5',1)" style="font-size:9px;padding:2px 5px">F5W</button>
-              <button class="result-btn rb-loss" onclick="setResult('${p.uid}','f5',0)" style="font-size:9px;padding:2px 5px">F5L</button>
-              <button class="result-btn rb-push" onclick="setResult('${p.uid}','f5',2)" style="font-size:9px;padding:2px 5px">F5P</button>
-              <button class="result-btn rb-win"  onclick="setResult('${p.uid}','ft',1)" style="font-size:9px;padding:2px 5px">FTW</button>
-              <button class="result-btn rb-loss" onclick="setResult('${p.uid}','ft',0)" style="font-size:9px;padding:2px 5px">FTL</button>
-              <button class="result-btn rb-push" onclick="setResult('${p.uid}','ft',2)" style="font-size:9px;padding:2px 5px">FTP</button>
-            `}
-            <button onclick="setResult('${p.uid}','lock',-1)"
-              style="background:transparent;border:1px solid ${p.locked?'var(--green)':'var(--border2)'};color:${p.locked?'var(--green)':'var(--muted)'};font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer">
-              ${p.locked?'🔒 UNLOCK':'🔓 LOCK'}
-            </button>
-            ${!p.locked ? `<button onclick="deletePick('${p.uid}',-1)"
-              style="background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer">✕ DEL</button>` : ''}
-          </div>
-        ` : '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>'}
+        ${isToday ? buildHistoryActions(p) : '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>'}
       </td>
     </tr>`;
   }).join('') + `
