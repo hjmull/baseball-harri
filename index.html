@@ -1972,69 +1972,123 @@ function toggleDayDetail(safedk, dk) {
   var icon = document.getElementById('icon-' + safedk);
   if (!inner) return;
 
-  if (inner.style.display !== 'none') {
+  if (inner.style.display !== 'none' && inner.style.display !== '') {
     inner.style.display = 'none';
     if (icon) icon.textContent = '\u25bc';
     return;
   }
 
-  var dayPicks = allPicks().filter(function(p) {
-    var d = p.date > 1e9 ? new Date(p.date) : excelToDate(parseFloat(p.date));
-    if (!d) return false;
-    var y = d.getUTCFullYear();
-    var m = String(d.getUTCMonth()+1).padStart(2,'0');
-    var day = String(d.getUTCDate()).padStart(2,'0');
-    return y+'-'+m+'-'+day === dk;
-  });
+  // Match picks to this date using the same method as getDailyData
+  var dd = getDailyData(allPicks());
+  var dayPicks = dd[dk] || [];
 
   if (!dayPicks.length) {
-    inner.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:11px">No picks found for this date</div>';
+    inner.innerHTML = '<div style="padding:12px 16px;color:var(--muted);font-size:11px">No picks found for ' + dk + '</div>';
     inner.style.display = 'block';
     if (icon) icon.textContent = '\u25b2';
     return;
   }
 
-  var f5g = calcGroup(dayPicks.map(function(p){return p.f5;}).filter(function(v){return v===0||v===1||v===2;}));
-  var ftg = calcGroup(dayPicks.map(function(p){return p.ft;}).filter(function(v){return v===0||v===1||v===2;}));
-  var f5roi = f5g.total>0 ? (f5g.units/(f5g.total*1.5)*100).toFixed(1)+'%' : '\u2014';
-  var ftroi = ftg.total>0 ? (ftg.units/(ftg.total*1.5)*100).toFixed(1)+'%' : '\u2014';
-
-  function rb(v) {
-    if(v===1) return '<span class="badge badge-green">W</span>';
-    if(v===0) return '<span class="badge badge-red">L</span>';
-    if(v===2) return '<span class="badge badge-white">P</span>';
-    return '<span style="color:var(--muted)">\u2014</span>';
-  }
-  function us(v) {
-    return v===1 ? '<span style="color:var(--green)">+1.0u</span>' : v===0 ? '<span style="color:var(--red)">-1.5u</span>' : '\u2014';
-  }
-  function tb(t) {
-    return t==='ml' ? '<span class="badge badge-white">ML</span>' : t==='over' ? '<span class="badge badge-yellow">OVER</span>' : '<span class="badge badge-muted">UNDER</span>';
+  // Calculate stats
+  function cg(arr) {
+    var w=0,l=0,p=0,u=0;
+    arr.forEach(function(v){ if(v===1){w++;u+=1;} else if(v===0){l++;u-=1.5;} else if(v===2){p++;} });
+    var tot=w+l;
+    return {w:w,l:l,p:p,units:u.toFixed(2),pct:tot>0?(w/tot*100).toFixed(1):'—',roi:tot>0?(u/(tot*1.5)*100).toFixed(1):'—',total:tot};
   }
 
-  var rows = dayPicks.map(function(p) {
-    return '<tr><td style="font-weight:600;max-width:160px;white-space:normal">'+p.pick+'</td><td>'+tb(p.type)+'</td><td>'+rb(p.f5)+'</td><td>'+rb(p.ft)+'</td><td>'+us(p.f5)+'</td><td>'+us(p.ft)+'</td><td style="color:var(--muted2);font-size:10px;max-width:140px;white-space:normal">'+(p.notes||'\u2014')+'</td></tr>';
-  }).join('');
+  var types = ['ml','over','under'];
+  var typeLabels = {ml:'ML',over:'OVER',under:'UNDER'};
 
-  var f5col = parseFloat(f5g.units)>=0 ? 'var(--green)' : 'var(--red)';
-  var ftcol = parseFloat(ftg.units)>=0 ? 'var(--green)' : 'var(--red)';
-  var f5u = (parseFloat(f5g.units)>=0?'+':'')+f5g.units+'u';
-  var ftu = (parseFloat(ftg.units)>=0?'+':'')+ftg.units+'u';
+  function statRow(picks, side) {
+    return cg(picks.map(function(p){return p[side];}).filter(function(v){return v===0||v===1||v===2;}));
+  }
 
-  inner.innerHTML = '<div style="padding:14px 16px">'
-    + '<div style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">'
-    + fmtDate(new Date(dk+'T12:00:00Z')) + ' \u2014 ' + dayPicks.length + ' Picks</div>'
-    + '<table class="day-pick-table"><thead><tr>'
-    + '<th>Pick</th><th>Type</th><th>F5</th><th>FT</th><th>F5 Units</th><th>FT Units</th><th>Notes</th>'
-    + '</tr></thead><tbody>' + rows + '</tbody>'
-    + '<tfoot><tr class="day-totals-row">'
-    + '<td style="color:var(--green);letter-spacing:1px">TOTALS</td><td></td>'
-    + '<td><span style="color:var(--green)">'+f5g.w+'W</span> <span style="color:var(--red)">'+f5g.l+'L</span> <span style="color:var(--muted2)">'+f5g.p+'P</span></td>'
-    + '<td><span style="color:var(--green)">'+ftg.w+'W</span> <span style="color:var(--red)">'+ftg.l+'L</span> <span style="color:var(--muted2)">'+ftg.p+'P</span></td>'
-    + '<td style="color:'+f5col+'">'+f5u+' <span style="color:var(--muted);font-size:9px">ROI '+f5roi+'</span></td>'
-    + '<td style="color:'+ftcol+'">'+ftu+' <span style="color:var(--muted);font-size:9px">ROI '+ftroi+'</span></td>'
-    + '<td></td></tr></tfoot></table></div>';
+  function colorU(u) { return parseFloat(u)>=0?'var(--green)':'var(--red)'; }
+  function colorPct(p) { return p==='—'?'var(--muted)':parseFloat(p)>=55?'var(--green)':parseFloat(p)<45?'var(--red)':'var(--text2)'; }
 
+  function buildTypeRow(label, picks) {
+    var f5 = statRow(picks,'f5');
+    var ft = statRow(picks,'ft');
+    return '<tr>' +
+      '<td style="font-weight:700;color:var(--text2)">' + label + '</td>' +
+      '<td style="color:var(--green)">' + f5.w + '</td>' +
+      '<td style="color:var(--red)">' + f5.l + '</td>' +
+      '<td style="color:var(--muted2)">' + f5.p + '</td>' +
+      '<td style="color:' + colorPct(f5.pct) + '">' + f5.pct + (f5.pct!=='—'?'%':'') + '</td>' +
+      '<td style="color:' + colorU(f5.units) + ';font-weight:700">' + (parseFloat(f5.units)>=0?'+':'') + f5.units + 'u</td>' +
+      '<td style="color:' + colorU(f5.units) + ';font-size:9px">' + (f5.roi!=='—'?(parseFloat(f5.roi)>=0?'+':'')+f5.roi+'%':'—') + '</td>' +
+      '<td style="border-left:1px solid var(--border);color:var(--green)">' + ft.w + '</td>' +
+      '<td style="color:var(--red)">' + ft.l + '</td>' +
+      '<td style="color:var(--muted2)">' + ft.p + '</td>' +
+      '<td style="color:' + colorPct(ft.pct) + '">' + ft.pct + (ft.pct!=='—'?'%':'') + '</td>' +
+      '<td style="color:' + colorU(ft.units) + ';font-weight:700">' + (parseFloat(ft.units)>=0?'+':'') + ft.units + 'u</td>' +
+      '<td style="color:' + colorU(ft.units) + ';font-size:9px">' + (ft.roi!=='—'?(parseFloat(ft.roi)>=0?'+':'')+ft.roi+'%':'—') + '</td>' +
+      '</tr>';
+  }
+
+  var allF5 = statRow(dayPicks,'f5');
+  var allFT = statRow(dayPicks,'ft');
+
+  var html = '<div style="padding:16px">';
+  html += '<div style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">';
+  html += fmtDate(new Date(dk+'T12:00:00Z')) + ' \u2014 ' + dayPicks.length + ' picks</div>';
+
+  html += '<table style="width:100%;border-collapse:collapse;font-size:10px">';
+  html += '<thead><tr style="background:var(--bg4)">';
+  html += '<th style="padding:6px 10px;text-align:left;font-size:9px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid var(--border2)">TYPE</th>';
+  html += '<th colspan="6" style="padding:6px 10px;text-align:center;font-size:9px;color:var(--green);letter-spacing:1px;border-bottom:1px solid var(--border2);border-right:1px solid var(--border2)">\u26a1 F5</th>';
+  html += '<th colspan="6" style="padding:6px 10px;text-align:center;font-size:9px;color:var(--muted2);letter-spacing:1px;border-bottom:1px solid var(--border2)">\u25cf FT</th>';
+  html += '</tr><tr style="background:var(--bg3)">';
+  html += '<th style="padding:4px 10px;font-size:8px;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)"></th>';
+  ['W','L','P','Win%','Units','ROI','W','L','P','Win%','Units','ROI'].forEach(function(h,i) {
+    var border = i===6 ? 'border-left:1px solid var(--border);' : '';
+    html += '<th style="padding:4px 8px;font-size:8px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid var(--border);'+border+'">' + h + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  types.forEach(function(t) {
+    var tPicks = dayPicks.filter(function(p){return p.type===t;});
+    if (tPicks.length > 0) {
+      html += buildTypeRow(typeLabels[t], tPicks);
+    }
+  });
+
+  // Totals row
+  html += '<tr style="background:var(--bg4);border-top:2px solid var(--border2)">';
+  html += '<td style="font-weight:700;color:var(--green);font-size:9px;letter-spacing:1px">ALL</td>';
+  html += '<td style="color:var(--green);font-weight:700">' + allF5.w + '</td>';
+  html += '<td style="color:var(--red);font-weight:700">' + allF5.l + '</td>';
+  html += '<td style="color:var(--muted2)">' + allF5.p + '</td>';
+  html += '<td style="color:' + colorPct(allF5.pct) + ';font-weight:700">' + allF5.pct + (allF5.pct!=='—'?'%':'') + '</td>';
+  html += '<td style="color:' + colorU(allF5.units) + ';font-weight:700">' + (parseFloat(allF5.units)>=0?'+':'') + allF5.units + 'u</td>';
+  html += '<td style="color:' + colorU(allF5.units) + '">' + (allF5.roi!=='—'?(parseFloat(allF5.roi)>=0?'+':'')+allF5.roi+'%':'—') + '</td>';
+  html += '<td style="border-left:1px solid var(--border);color:var(--green);font-weight:700">' + allFT.w + '</td>';
+  html += '<td style="color:var(--red);font-weight:700">' + allFT.l + '</td>';
+  html += '<td style="color:var(--muted2)">' + allFT.p + '</td>';
+  html += '<td style="color:' + colorPct(allFT.pct) + ';font-weight:700">' + allFT.pct + (allFT.pct!=='—'?'%':'') + '</td>';
+  html += '<td style="color:' + colorU(allFT.units) + ';font-weight:700">' + (parseFloat(allFT.units)>=0?'+':'') + allFT.units + 'u</td>';
+  html += '<td style="color:' + colorU(allFT.units) + '">' + (allFT.roi!=='—'?(parseFloat(allFT.roi)>=0?'+':'')+allFT.roi+'%':'—') + '</td>';
+  html += '</tr></tbody></table>';
+
+  // Individual picks list
+  html += '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">';
+  html += '<div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">PICKS</div>';
+  dayPicks.forEach(function(p) {
+    var f5r = p.f5===1?'<span class="badge badge-green">W</span>':p.f5===0?'<span class="badge badge-red">L</span>':p.f5===2?'<span class="badge badge-white">P</span>':'<span style="color:var(--muted)">—</span>';
+    var ftr = p.ft===1?'<span class="badge badge-green">W</span>':p.ft===0?'<span class="badge badge-red">L</span>':p.ft===2?'<span class="badge badge-white">P</span>':'<span style="color:var(--muted)">—</span>';
+    var typeBadge = p.type==='ml'?'<span class="badge badge-white">ML</span>':p.type==='over'?'<span class="badge badge-yellow">OVER</span>':'<span class="badge badge-muted">UNDER</span>';
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px">';
+    html += '<span style="flex:1;font-weight:600">' + p.pick + '</span>';
+    html += typeBadge;
+    html += '<span style="font-size:10px;color:var(--muted)">F5:</span>' + f5r;
+    html += '<span style="font-size:10px;color:var(--muted)">FT:</span>' + ftr;
+    if (p.notes) html += '<span style="font-size:10px;color:var(--muted2);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + p.notes + '</span>';
+    html += '</div>';
+  });
+  html += '</div></div>';
+
+  inner.innerHTML = html;
   inner.style.display = 'block';
   if (icon) icon.textContent = '\u25b2';
 }
@@ -2094,23 +2148,165 @@ function sortHistory(key) {
   renderHistory();
 }
 
+// Global action registry for history buttons (avoids inline onclick quote issues)
+var _histReg = {};
+var _histRegId = 0;
+
+function registerHistAction(uid, side, val) {
+  var id = '_h' + (++_histRegId);
+  _histReg[id] = {uid:uid, side:side, val:val};
+  return id;
+}
+
+function fireHistAction(id) {
+  var a = _histReg[id];
+  if (!a) return;
+  if (a.side === 'del') { deletePick(a.uid, -1); }
+  else if (a.side === 'date') { showDatePicker(a.uid); }
+  else { setResult(a.uid, a.side, a.val); }
+}
+
+function getDateOptions() {
+  var opts = [];
+  for (var d = 0; d < 14; d++) {
+    var dt = new Date();
+    dt.setDate(dt.getDate() - d);
+    var label = d===0?'Today':d===1?'Yesterday':dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    opts.push({label:label, value:dt.getTime()});
+  }
+  return opts;
+}
+
+function showDatePicker(uid) {
+  var pick = todayPicks.find(function(p){ return p.uid == uid; });
+  if (!pick) return;
+  var opts = getDateOptions();
+  var curDate = new Date(pick.date > 1e9 ? pick.date : pick.date * 86400000);
+  var curStr = curDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit',timeZone:'UTC'});
+
+  // Build a small inline prompt using a modal div
+  var existing = document.getElementById('date-picker-modal');
+  if (existing) existing.remove();
+
+  // Store uid in global for modal to use
+  window._datePickerUid = uid;
+
+  var modal = document.createElement('div');
+  modal.id = 'date-picker-modal';
+  modal.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:1px solid var(--green);padding:20px 24px;z-index:9999;min-width:260px;font-family:monospace;box-shadow:0 0 40px rgba(0,0,0,0.8);';
+
+  var selHtml = opts.map(function(o){ return '<option value="'+o.value+'">'+o.label+'</option>'; }).join('');
+
+  var applyBtn = document.createElement('button');
+  applyBtn.textContent = 'APPLY';
+  applyBtn.style.cssText = 'flex:1;background:var(--green);color:#000;border:none;font-family:monospace;font-size:10px;font-weight:700;padding:8px;cursor:pointer;';
+  applyBtn.addEventListener('click', function(){ applyDateChange(); });
+
+  var cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'CANCEL';
+  cancelBtn.style.cssText = 'flex:1;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:10px;padding:8px;cursor:pointer;';
+  cancelBtn.addEventListener('click', function(){ modal.remove(); });
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-size:9px;color:var(--green);font-weight:700;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;';
+  title.textContent = 'Change Pick Date';
+
+  var cur = document.createElement('div');
+  cur.style.cssText = 'font-size:11px;color:var(--muted2);margin-bottom:12px;';
+  cur.textContent = 'Current: ' + curStr;
+
+  var sel = document.createElement('select');
+  sel.id = 'date-picker-sel';
+  sel.style.cssText = 'width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:monospace;font-size:11px;padding:8px;margin-bottom:12px;outline:none;';
+  sel.innerHTML = selHtml;
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;';
+  btnRow.appendChild(applyBtn);
+  btnRow.appendChild(cancelBtn);
+
+  modal.appendChild(title);
+  modal.appendChild(cur);
+  modal.appendChild(sel);
+  modal.appendChild(btnRow);
+  document.body.appendChild(modal);
+}
+
+function applyDateChange() {
+  var uid = window._datePickerUid;
+  var sel = document.getElementById('date-picker-sel');
+  if (!sel || !uid) return;
+  var newDate = parseInt(sel.value);
+  var pick = todayPicks.find(function(p){ return p.uid == uid; });
+  if (!pick) return;
+  pick.date = newDate;
+  localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+  document.getElementById('date-picker-modal').remove();
+  renderHistory();
+  renderDashboard();
+  renderTodayPicksSummary();
+  buildTicker();
+  showToast('Date updated');
+}
+
 function buildHistoryActions(p) {
   var uid = p.uid || '';
   var locked = p.locked === true;
   var parts = [];
+
+  function btn(label, cls, side, val, extraStyle) {
+    var id = registerHistAction(uid, side, val);
+    var baseStyle = 'font-size:9px;padding:2px 5px;cursor:pointer;';
+    return '<button id="' + id + '" class="' + cls + '" style="' + baseStyle + (extraStyle||'') + '" onclick="fireHistAction(this.id)">' + label + '</button>';
+  }
+
   if (!locked) {
-    parts.push("<button class='result-btn rb-win hist-res-btn' data-uid='" + uid + "' data-side='f5' data-val='1' style='font-size:9px;padding:2px 5px'>F5W</button>");
-    parts.push("<button class='result-btn rb-loss hist-res-btn' data-uid='" + uid + "' data-side='f5' data-val='0' style='font-size:9px;padding:2px 5px'>F5L</button>");
-    parts.push("<button class='result-btn rb-push hist-res-btn' data-uid='" + uid + "' data-side='f5' data-val='2' style='font-size:9px;padding:2px 5px'>F5P</button>");
-    parts.push("<button class='result-btn rb-win hist-res-btn' data-uid='" + uid + "' data-side='ft' data-val='1' style='font-size:9px;padding:2px 5px'>FTW</button>");
-    parts.push("<button class='result-btn rb-loss hist-res-btn' data-uid='" + uid + "' data-side='ft' data-val='0' style='font-size:9px;padding:2px 5px'>FTL</button>");
-    parts.push("<button class='result-btn rb-push hist-res-btn' data-uid='" + uid + "' data-side='ft' data-val='2' style='font-size:9px;padding:2px 5px'>FTP</button>");
+    parts.push(btn('F5W','result-btn rb-win','f5',1,''));
+    parts.push(btn('F5L','result-btn rb-loss','f5',0,''));
+    parts.push(btn('F5P','result-btn rb-push','f5',2,''));
+    parts.push(btn('FTW','result-btn rb-win','ft',1,''));
+    parts.push(btn('FTL','result-btn rb-loss','ft',0,''));
+    parts.push(btn('FTP','result-btn rb-push','ft',2,''));
+  }
+
+  var lColor = locked ? 'var(--green)' : 'var(--border2)';
+  var lTextColor = locked ? 'var(--green)' : 'var(--muted)';
+  var lockStyle = 'background:transparent;border:1px solid ' + lColor + ';color:' + lTextColor + ';font-family:monospace;font-weight:700;';
+  parts.push(btn(locked ? '🔒 UNLOCK' : '🔓 LOCK', '', 'lock', -1, lockStyle));
+
+  if (!locked) {
+    var delStyle = 'background:transparent;border:1px solid var(--red);color:var(--red);font-family:monospace;font-weight:700;';
+    parts.push(btn('✕ DEL', '', 'del', -1, delStyle));
+  }
+
+  return '<div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center">' + parts.join('') + '</div>';
+}
+
+
+function buildHistoryActions(p) {
+  var uid = (p.uid || '').replace(/'/g, '');
+  var locked = p.locked === true;
+  var s = 'font-size:9px;padding:2px 5px;';
+  var parts = [];
+  if (!locked) {
+    parts.push(histBtn('F5W','result-btn rb-win',uid,'f5',1,s));
+    parts.push(histBtn('F5L','result-btn rb-loss',uid,'f5',0,s));
+    parts.push(histBtn('F5P','result-btn rb-push',uid,'f5',2,s));
+    parts.push(histBtn('FTW','result-btn rb-win',uid,'ft',1,s));
+    parts.push(histBtn('FTL','result-btn rb-loss',uid,'ft',0,s));
+    parts.push(histBtn('FTP','result-btn rb-push',uid,'ft',2,s));
   }
   var lc = locked ? 'var(--green)' : 'var(--border2)';
   var ltc = locked ? 'var(--green)' : 'var(--muted)';
-  parts.push("<button class='hist-lock-btn' data-uid='" + uid + "' style='background:transparent;border:1px solid " + lc + ";color:" + ltc + ";font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer'>" + (locked ? '🔒 UNLOCK' : '🔓 LOCK') + "</button>");
+  var ls = 'background:transparent;border:1px solid ' + lc + ';color:' + ltc + ';font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer;';
+  parts.push(histBtn(locked ? '🔒 UNLOCK' : '🔓 LOCK', '', uid, 'lock', -1, ls));
+  // Date change button - always visible
+  var dateS = 'background:transparent;border:1px solid var(--border2);color:var(--muted2);font-size:9px;font-family:monospace;padding:2px 6px;cursor:pointer;';
+  parts.push(histBtn('DATE', '', uid, 'date', 0, dateS));
+
   if (!locked) {
-    parts.push("<button class='hist-del-btn' data-uid='" + uid + "' style='background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer'>X DEL</button>");
+    var ds = 'background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer;';
+    parts.push(histBtn('X DEL', '', uid, 'del', -1, ds));
   }
   return "<div style='display:flex;flex-wrap:wrap;gap:3px;align-items:center'>" + parts.join('') + "</div>";
 }
@@ -3084,7 +3280,10 @@ function renderGames(games) {
                 ['BB Boost', matchup.awayBB],
                 ['K Boost', matchup.awayK],
               ].map(([label, val]) => {
-                const color = val > 5 ? 'var(--green)' : val < -5 ? 'var(--red)' : 'var(--muted2)';
+                // K boost is inverted: negative = good for batters (pitcher not striking them out)
+                const color = label === 'K Boost'
+                  ? (val < -5 ? 'var(--green)' : val > 5 ? 'var(--red)' : 'var(--muted2)')
+                  : (val > 5 ? 'var(--green)' : val < -5 ? 'var(--red)' : 'var(--muted2)');
                 return `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px">
                   <span style="color:var(--muted2)">${label}</span>
                   <span style="color:${color};font-weight:700;font-family:monospace">${val > 0 ? '+' : ''}${val.toFixed(1)}</span>
@@ -3101,7 +3300,9 @@ function renderGames(games) {
                 ['BB Boost', matchup.homeBB],
                 ['K Boost', matchup.homeK],
               ].map(([label, val]) => {
-                const color = val > 5 ? 'var(--green)' : val < -5 ? 'var(--red)' : 'var(--muted2)';
+                const color = label === 'K Boost'
+                  ? (val < -5 ? 'var(--green)' : val > 5 ? 'var(--red)' : 'var(--muted2)')
+                  : (val > 5 ? 'var(--green)' : val < -5 ? 'var(--red)' : 'var(--muted2)');
                 return `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px">
                   <span style="color:var(--muted2)">${label}</span>
                   <span style="color:${color};font-weight:700;font-family:monospace">${val > 0 ? '+' : ''}${val.toFixed(1)}</span>
@@ -3357,6 +3558,7 @@ function renderTodayPicksSummary() {
       '<td>' +
         '<div style="display:flex;gap:4px">' +
           '<button class="pick-lock-btn" data-uid="' + p.uid + '" style="background:' + (isLocked?'var(--green-dim2)':'transparent') + ';border:1px solid ' + (isLocked?'var(--green)':'var(--border2)') + ';color:' + (isLocked?'var(--green)':'var(--muted)') + ';font-family:monospace;font-size:9px;font-weight:700;padding:3px 8px;cursor:pointer">' + (isLocked?'🔒 UNLOCK':'🔓 LOCK') + '</button>' +
+          '<button class="pick-date-btn" data-uid="' + p.uid + '" style="background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:monospace;font-size:9px;padding:3px 8px;cursor:pointer">DATE</button>' +
           (!isLocked ? '<button class="pick-del-btn" data-uid="' + p.uid + '" style="background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;padding:3px 8px;cursor:pointer;font-family:monospace;font-weight:700">✕</button>' : '') +
         '</div>' +
       '</td>' +
@@ -3390,6 +3592,9 @@ function renderTodayPicksSummary() {
     btn.addEventListener('click', () => {
       if (confirm('Remove this pick?')) deletePick(btn.dataset.uid, -1);
     });
+  });
+  tbody.querySelectorAll('.pick-date-btn').forEach(btn => {
+    btn.addEventListener('click', () => showDatePicker(btn.dataset.uid));
   });
 }
 
