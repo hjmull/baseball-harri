@@ -2274,6 +2274,10 @@ function buildHistoryActions(p) {
   var lockStyle = 'background:transparent;border:1px solid ' + lColor + ';color:' + lTextColor + ';font-family:monospace;font-weight:700;';
   parts.push(btn(locked ? '🔒 UNLOCK' : '🔓 LOCK', '', 'lock', -1, lockStyle));
 
+  // Date button - always visible
+  var dateStyle = 'background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:monospace;';
+  parts.push(btn('DATE', '', 'date', 0, dateStyle));
+
   if (!locked) {
     var delStyle = 'background:transparent;border:1px solid var(--red);color:var(--red);font-family:monospace;font-weight:700;';
     parts.push(btn('✕ DEL', '', 'del', -1, delStyle));
@@ -2283,33 +2287,7 @@ function buildHistoryActions(p) {
 }
 
 
-function buildHistoryActions(p) {
-  var uid = (p.uid || '').replace(/'/g, '');
-  var locked = p.locked === true;
-  var s = 'font-size:9px;padding:2px 5px;';
-  var parts = [];
-  if (!locked) {
-    parts.push(histBtn('F5W','result-btn rb-win',uid,'f5',1,s));
-    parts.push(histBtn('F5L','result-btn rb-loss',uid,'f5',0,s));
-    parts.push(histBtn('F5P','result-btn rb-push',uid,'f5',2,s));
-    parts.push(histBtn('FTW','result-btn rb-win',uid,'ft',1,s));
-    parts.push(histBtn('FTL','result-btn rb-loss',uid,'ft',0,s));
-    parts.push(histBtn('FTP','result-btn rb-push',uid,'ft',2,s));
-  }
-  var lc = locked ? 'var(--green)' : 'var(--border2)';
-  var ltc = locked ? 'var(--green)' : 'var(--muted)';
-  var ls = 'background:transparent;border:1px solid ' + lc + ';color:' + ltc + ';font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer;';
-  parts.push(histBtn(locked ? '🔒 UNLOCK' : '🔓 LOCK', '', uid, 'lock', -1, ls));
-  // Date change button - always visible
-  var dateS = 'background:transparent;border:1px solid var(--border2);color:var(--muted2);font-size:9px;font-family:monospace;padding:2px 6px;cursor:pointer;';
-  parts.push(histBtn('DATE', '', uid, 'date', 0, dateS));
 
-  if (!locked) {
-    var ds = 'background:transparent;border:1px solid var(--red);color:var(--red);font-size:9px;font-family:monospace;font-weight:700;padding:2px 6px;cursor:pointer;';
-    parts.push(histBtn('X DEL', '', uid, 'del', -1, ds));
-  }
-  return "<div style='display:flex;flex-wrap:wrap;gap:3px;align-items:center'>" + parts.join('') + "</div>";
-}
 
 
 function renderHistory() {
