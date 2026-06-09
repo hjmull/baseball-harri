@@ -2061,13 +2061,9 @@ function renderDailyTable() {
         ${r.ds.roi!=='—'?(parseFloat(r.ds.roi)>=0?'+':'')+r.ds.roi+'%':'—'}
       </td>
     </tr>`;
-  }).join('') + rows.map(r => {
-    const safedk = r.dk.replace(/-/g,'');
-    return `<tr class="day-detail" id="detail-${safedk}">
-      <td colspan="13" style="padding:0!important">
-        <div id="detail-inner-${safedk}" style="display:none"></div>
-      </td>
-    </tr>`;
+  }).map((html, i) => {
+    const safedk = rows[i].dk.replace(/-/g,'');
+    return html + `<tr class="day-detail" id="detail-${safedk}"><td colspan="13" style="padding:0!important"><div id="detail-inner-${safedk}" style="display:none;background:var(--bg3)"></div></td></tr>`;
   }).join('') + `
   <tr style="background:var(--bg4);border-top:2px solid var(--border2)">
     <td class="td-mono" style="color:var(--green);font-weight:700;letter-spacing:1px;font-size:10px">TOTALS</td>
