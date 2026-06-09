@@ -932,6 +932,7 @@ select.filter-select:focus { border-color: var(--green); }
     <button class="nav-btn" onclick="switchTab('history',this)">History</button>
     <button class="nav-btn" onclick="switchTab('trends',this)">Trends</button>
     <button class="nav-btn" onclick="switchTab('reports',this)">Reports</button>
+    <button class="nav-btn" onclick="switchTab('strategy',this)">Strategy</button>
   </nav>
   <div style="display:flex;gap:6px;align-items:center">
     <button onclick="exportSnapshot()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:9px;font-weight:700;padding:5px 10px;cursor:pointer;letter-spacing:1px;transition:all 0.1s" onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">💾 BACKUP</button>
@@ -1265,9 +1266,21 @@ select.filter-select:focus { border-color: var(--green); }
   <!-- GAMES -->
   <div class="section-header" id="games-header" style="display:none">
     <div class="section-title">Game Analysis</div>
-    <div class="flex">
+    <div class="flex" style="gap:8px;align-items:center">
       <span style="font-size:10px;color:var(--muted)" id="odds-status"></span>
+      <button onclick="runAIBrief()" style="background:var(--green);color:#000;border:none;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:5px 14px;cursor:pointer;letter-spacing:1px">⚡ AI BRIEF</button>
     </div>
+  </div>
+  <!-- AI BRIEF PANEL -->
+  <div id="ai-brief-panel" style="display:none;background:var(--bg2);border:1px solid var(--green);margin-bottom:20px">
+    <div style="background:var(--green-dim2);border-bottom:1px solid var(--green);padding:12px 18px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <span style="color:var(--green);font-size:11px;font-weight:700;letter-spacing:2px">⚡ AI MORNING BRIEF</span>
+        <span style="color:var(--muted);font-size:10px;margin-left:12px" id="ai-brief-subtitle"></span>
+      </div>
+      <button onclick="document.getElementById('ai-brief-panel').style.display='none'" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <div id="ai-brief-content" style="padding:16px"></div>
   </div>
   <div id="games-container">
     <div class="empty-state">
@@ -1333,6 +1346,116 @@ select.filter-select:focus { border-color: var(--green); }
         </tr>
       </thead>
       <tbody id="history-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== STRATEGY ===== -->
+<div class="tab-content" id="tab-strategy">
+<div class="page">
+
+  <div class="section-header">
+    <div class="section-title">Daily Strategy <span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-weight:400;margin-left:8px;letter-spacing:0">F5 ML + FT Overs</span></div>
+    <div style="font-size:10px;color:var(--muted2)">Tracking your core edge: F5 moneyline wins + full game overs</div>
+  </div>
+
+  <!-- STRATEGY METRICS -->
+  <div class="metric-grid metric-grid-4" style="margin-bottom:20px">
+    <div class="metric pos-border">
+      <div class="metric-label">F5 ML Record</div>
+      <div class="metric-value sm" id="strat-f5ml-rec">—</div>
+      <div class="metric-sub" id="strat-f5ml-sub">—% · —u</div>
+    </div>
+    <div class="metric pos-border">
+      <div class="metric-label">FT Overs Record</div>
+      <div class="metric-value sm" id="strat-ftov-rec">—</div>
+      <div class="metric-sub" id="strat-ftov-sub">—% · —u</div>
+    </div>
+    <div class="metric yel-border">
+      <div class="metric-label">Combined Units</div>
+      <div class="metric-value sm" id="strat-combined-units">—</div>
+      <div class="metric-sub" id="strat-combined-roi">ROI —%</div>
+    </div>
+    <div class="metric neu-border">
+      <div class="metric-label">Strategy Win%</div>
+      <div class="metric-value sm" id="strat-winpct">—</div>
+      <div class="metric-sub" id="strat-streak">—</div>
+    </div>
+  </div>
+
+  <!-- SPLIT VIEW -->
+  <div class="split-grid" style="margin-bottom:20px">
+    <div class="split-panel">
+      <div class="split-label green">⚡ F5 MONEYLINE</div>
+      <div class="metric-grid metric-grid-3" style="margin:0">
+        <div class="metric pos-border">
+          <div class="metric-label">Record</div>
+          <div class="metric-value sm" id="strat-f5ml-wlp">—</div>
+          <div class="metric-sub" id="strat-f5ml-pct2">—%</div>
+        </div>
+        <div class="metric pos-border">
+          <div class="metric-label">Units</div>
+          <div class="metric-value sm" id="strat-f5ml-units">—</div>
+          <div class="metric-sub" id="strat-f5ml-roi">ROI —%</div>
+        </div>
+        <div class="metric pos-border">
+          <div class="metric-label">Best Streak</div>
+          <div class="metric-value sm" id="strat-f5ml-streak">—</div>
+          <div class="metric-sub">consecutive wins</div>
+        </div>
+      </div>
+    </div>
+    <div class="split-panel">
+      <div class="split-label yellow" style="color:var(--yellow)">📈 FT OVERS</div>
+      <div class="metric-grid metric-grid-3" style="margin:0">
+        <div class="metric yel-border">
+          <div class="metric-label">Record</div>
+          <div class="metric-value sm" id="strat-ftov-wlp">—</div>
+          <div class="metric-sub" id="strat-ftov-pct2">—%</div>
+        </div>
+        <div class="metric yel-border">
+          <div class="metric-label">Units</div>
+          <div class="metric-value sm" id="strat-ftov-units">—</div>
+          <div class="metric-sub" id="strat-ftov-roi">ROI —%</div>
+        </div>
+        <div class="metric yel-border">
+          <div class="metric-label">Best Streak</div>
+          <div class="metric-value sm" id="strat-ftov-streak">—</div>
+          <div class="metric-sub">consecutive wins</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGY vs EVERYTHING ELSE -->
+  <div class="section-header"><div class="section-title">Strategy vs Everything Else</div></div>
+  <div class="table-wrap" style="margin-bottom:20px">
+    <table>
+      <thead>
+        <tr>
+          <th>Approach</th>
+          <th>W</th><th>L</th><th>P</th>
+          <th>Win%</th><th>Units</th><th>ROI%</th>
+        </tr>
+      </thead>
+      <tbody id="strat-compare-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- DAILY LOG -->
+  <div class="section-header"><div class="section-title">Strategy Picks Log</div></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th><th>Pick</th><th>Type</th>
+          <th>F5 ML Result</th><th>FT Over Result</th>
+          <th>Units</th><th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="strat-log-tbody"></tbody>
     </table>
   </div>
 
@@ -1970,129 +2093,129 @@ function renderDailyTable() {
 function toggleDayDetail(safedk, dk) {
   var inner = document.getElementById('detail-inner-' + safedk);
   var icon = document.getElementById('icon-' + safedk);
-  if (!inner) return;
+  if (!inner) { console.log('No element: detail-inner-' + safedk); return; }
 
-  if (inner.style.display !== 'none' && inner.style.display !== '') {
+  // Toggle
+  if (inner.dataset.open === '1') {
+    inner.dataset.open = '0';
     inner.style.display = 'none';
     if (icon) icon.textContent = '\u25bc';
     return;
   }
 
-  // Match picks to this date using the same method as getDailyData
+  // Get picks for this day
   var dd = getDailyData(allPicks());
   var dayPicks = dd[dk] || [];
 
   if (!dayPicks.length) {
     inner.innerHTML = '<div style="padding:12px 16px;color:var(--muted);font-size:11px">No picks found for ' + dk + '</div>';
+    inner.dataset.open = '1';
     inner.style.display = 'block';
     if (icon) icon.textContent = '\u25b2';
     return;
   }
 
-  // Calculate stats
+  // Stats helpers
   function cg(arr) {
     var w=0,l=0,p=0,u=0;
     arr.forEach(function(v){ if(v===1){w++;u+=1;} else if(v===0){l++;u-=1.5;} else if(v===2){p++;} });
     var tot=w+l;
     return {w:w,l:l,p:p,units:u.toFixed(2),pct:tot>0?(w/tot*100).toFixed(1):'—',roi:tot>0?(u/(tot*1.5)*100).toFixed(1):'—',total:tot};
   }
+  function sr(picks, side) {
+    return cg(picks.map(function(p){return p[side];}).filter(function(v){return v===0||v===1||v===2;}));
+  }
+  function cu(u) { return parseFloat(u)>=0?'var(--green)':'var(--red)'; }
+  function cp(p) { return p==='—'?'var(--muted)':parseFloat(p)>=55?'var(--green)':parseFloat(p)<45?'var(--red)':'var(--text2)'; }
 
   var types = ['ml','over','under'];
   var typeLabels = {ml:'ML',over:'OVER',under:'UNDER'};
+  var allF5 = sr(dayPicks,'f5');
+  var allFT = sr(dayPicks,'ft');
 
-  function statRow(picks, side) {
-    return cg(picks.map(function(p){return p[side];}).filter(function(v){return v===0||v===1||v===2;}));
-  }
-
-  function colorU(u) { return parseFloat(u)>=0?'var(--green)':'var(--red)'; }
-  function colorPct(p) { return p==='—'?'var(--muted)':parseFloat(p)>=55?'var(--green)':parseFloat(p)<45?'var(--red)':'var(--text2)'; }
-
-  function buildTypeRow(label, picks) {
-    var f5 = statRow(picks,'f5');
-    var ft = statRow(picks,'ft');
+  function buildRow(label, picks) {
+    var f5=sr(picks,'f5'), ft=sr(picks,'ft');
+    if (f5.total===0 && ft.total===0) return '';
     return '<tr>' +
-      '<td style="font-weight:700;color:var(--text2)">' + label + '</td>' +
-      '<td style="color:var(--green)">' + f5.w + '</td>' +
-      '<td style="color:var(--red)">' + f5.l + '</td>' +
-      '<td style="color:var(--muted2)">' + f5.p + '</td>' +
-      '<td style="color:' + colorPct(f5.pct) + '">' + f5.pct + (f5.pct!=='—'?'%':'') + '</td>' +
-      '<td style="color:' + colorU(f5.units) + ';font-weight:700">' + (parseFloat(f5.units)>=0?'+':'') + f5.units + 'u</td>' +
-      '<td style="color:' + colorU(f5.units) + ';font-size:9px">' + (f5.roi!=='—'?(parseFloat(f5.roi)>=0?'+':'')+f5.roi+'%':'—') + '</td>' +
-      '<td style="border-left:1px solid var(--border);color:var(--green)">' + ft.w + '</td>' +
-      '<td style="color:var(--red)">' + ft.l + '</td>' +
-      '<td style="color:var(--muted2)">' + ft.p + '</td>' +
-      '<td style="color:' + colorPct(ft.pct) + '">' + ft.pct + (ft.pct!=='—'?'%':'') + '</td>' +
-      '<td style="color:' + colorU(ft.units) + ';font-weight:700">' + (parseFloat(ft.units)>=0?'+':'') + ft.units + 'u</td>' +
-      '<td style="color:' + colorU(ft.units) + ';font-size:9px">' + (ft.roi!=='—'?(parseFloat(ft.roi)>=0?'+':'')+ft.roi+'%':'—') + '</td>' +
+      '<td style="font-weight:700;color:var(--text2);padding:6px 10px">' + label + '</td>' +
+      '<td style="color:var(--green);padding:6px 8px">' + f5.w + '</td>' +
+      '<td style="color:var(--red);padding:6px 8px">' + f5.l + '</td>' +
+      '<td style="color:var(--muted2);padding:6px 8px">' + f5.p + '</td>' +
+      '<td style="color:' + cp(f5.pct) + ';padding:6px 8px">' + (f5.pct!=='—'?f5.pct+'%':'—') + '</td>' +
+      '<td style="color:' + cu(f5.units) + ';font-weight:700;padding:6px 8px">' + (parseFloat(f5.units)>=0?'+':'') + f5.units + 'u</td>' +
+      '<td style="color:' + cu(f5.units) + ';font-size:9px;padding:6px 8px;border-right:2px solid var(--border2)">' + (f5.roi!=='—'?(parseFloat(f5.roi)>=0?'+':'')+f5.roi+'%':'—') + '</td>' +
+      '<td style="color:var(--green);padding:6px 8px">' + ft.w + '</td>' +
+      '<td style="color:var(--red);padding:6px 8px">' + ft.l + '</td>' +
+      '<td style="color:var(--muted2);padding:6px 8px">' + ft.p + '</td>' +
+      '<td style="color:' + cp(ft.pct) + ';padding:6px 8px">' + (ft.pct!=='—'?ft.pct+'%':'—') + '</td>' +
+      '<td style="color:' + cu(ft.units) + ';font-weight:700;padding:6px 8px">' + (parseFloat(ft.units)>=0?'+':'') + ft.units + 'u</td>' +
+      '<td style="color:' + cu(ft.units) + ';font-size:9px;padding:6px 8px">' + (ft.roi!=='—'?(parseFloat(ft.roi)>=0?'+':'')+ft.roi+'%':'—') + '</td>' +
       '</tr>';
   }
 
-  var allF5 = statRow(dayPicks,'f5');
-  var allFT = statRow(dayPicks,'ft');
+  var html = '<div style="padding:16px;background:var(--bg3);border-top:1px solid var(--border2)">';
+  html += '<div style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase">' + fmtDate(new Date(dk+'T12:00:00Z')) + ' \u2014 ' + dayPicks.length + ' picks</div>';
 
-  var html = '<div style="padding:16px">';
-  html += '<div style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">';
-  html += fmtDate(new Date(dk+'T12:00:00Z')) + ' \u2014 ' + dayPicks.length + ' picks</div>';
-
-  html += '<table style="width:100%;border-collapse:collapse;font-size:10px">';
+  // Stats table
+  html += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;min-width:500px">';
   html += '<thead><tr style="background:var(--bg4)">';
   html += '<th style="padding:6px 10px;text-align:left;font-size:9px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid var(--border2)">TYPE</th>';
-  html += '<th colspan="6" style="padding:6px 10px;text-align:center;font-size:9px;color:var(--green);letter-spacing:1px;border-bottom:1px solid var(--border2);border-right:1px solid var(--border2)">\u26a1 F5</th>';
+  html += '<th colspan="6" style="padding:6px 10px;text-align:center;font-size:9px;color:var(--green);letter-spacing:1px;border-bottom:1px solid var(--border2);border-right:2px solid var(--border2)">\u26a1 F5</th>';
   html += '<th colspan="6" style="padding:6px 10px;text-align:center;font-size:9px;color:var(--muted2);letter-spacing:1px;border-bottom:1px solid var(--border2)">\u25cf FT</th>';
-  html += '</tr><tr style="background:var(--bg3)">';
-  html += '<th style="padding:4px 10px;font-size:8px;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)"></th>';
-  ['W','L','P','Win%','Units','ROI','W','L','P','Win%','Units','ROI'].forEach(function(h,i) {
-    var border = i===6 ? 'border-left:1px solid var(--border);' : '';
-    html += '<th style="padding:4px 8px;font-size:8px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid var(--border);'+border+'">' + h + '</th>';
+  html += '</tr><tr style="background:var(--bg4)">';
+  html += '<th style="padding:4px 10px;font-size:8px;border-bottom:1px solid var(--border)"></th>';
+  ['W','L','P','Win%','Units','ROI'].forEach(function(h){
+    html += '<th style="padding:4px 8px;font-size:8px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid var(--border)">' + h + '</th>';
+  });
+  html += '<th style="padding:4px 8px;font-size:8px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid var(--border);border-left:2px solid var(--border2)">W</th>';
+  ['L','P','Win%','Units','ROI'].forEach(function(h){
+    html += '<th style="padding:4px 8px;font-size:8px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid var(--border)">' + h + '</th>';
   });
   html += '</tr></thead><tbody>';
 
   types.forEach(function(t) {
-    var tPicks = dayPicks.filter(function(p){return p.type===t;});
-    if (tPicks.length > 0) {
-      html += buildTypeRow(typeLabels[t], tPicks);
-    }
+    var row = buildRow(typeLabels[t], dayPicks.filter(function(p){return p.type===t;}));
+    if (row) html += row;
   });
 
-  // Totals row
+  // Totals
   html += '<tr style="background:var(--bg4);border-top:2px solid var(--border2)">';
-  html += '<td style="font-weight:700;color:var(--green);font-size:9px;letter-spacing:1px">ALL</td>';
-  html += '<td style="color:var(--green);font-weight:700">' + allF5.w + '</td>';
-  html += '<td style="color:var(--red);font-weight:700">' + allF5.l + '</td>';
-  html += '<td style="color:var(--muted2)">' + allF5.p + '</td>';
-  html += '<td style="color:' + colorPct(allF5.pct) + ';font-weight:700">' + allF5.pct + (allF5.pct!=='—'?'%':'') + '</td>';
-  html += '<td style="color:' + colorU(allF5.units) + ';font-weight:700">' + (parseFloat(allF5.units)>=0?'+':'') + allF5.units + 'u</td>';
-  html += '<td style="color:' + colorU(allF5.units) + '">' + (allF5.roi!=='—'?(parseFloat(allF5.roi)>=0?'+':'')+allF5.roi+'%':'—') + '</td>';
-  html += '<td style="border-left:1px solid var(--border);color:var(--green);font-weight:700">' + allFT.w + '</td>';
-  html += '<td style="color:var(--red);font-weight:700">' + allFT.l + '</td>';
-  html += '<td style="color:var(--muted2)">' + allFT.p + '</td>';
-  html += '<td style="color:' + colorPct(allFT.pct) + ';font-weight:700">' + allFT.pct + (allFT.pct!=='—'?'%':'') + '</td>';
-  html += '<td style="color:' + colorU(allFT.units) + ';font-weight:700">' + (parseFloat(allFT.units)>=0?'+':'') + allFT.units + 'u</td>';
-  html += '<td style="color:' + colorU(allFT.units) + '">' + (allFT.roi!=='—'?(parseFloat(allFT.roi)>=0?'+':'')+allFT.roi+'%':'—') + '</td>';
-  html += '</tr></tbody></table>';
+  html += '<td style="font-weight:700;color:var(--green);font-size:9px;letter-spacing:1px;padding:6px 10px">ALL</td>';
+  html += '<td style="color:var(--green);font-weight:700;padding:6px 8px">' + allF5.w + '</td>';
+  html += '<td style="color:var(--red);font-weight:700;padding:6px 8px">' + allF5.l + '</td>';
+  html += '<td style="color:var(--muted2);padding:6px 8px">' + allF5.p + '</td>';
+  html += '<td style="color:' + cp(allF5.pct) + ';font-weight:700;padding:6px 8px">' + (allF5.pct!=='—'?allF5.pct+'%':'—') + '</td>';
+  html += '<td style="color:' + cu(allF5.units) + ';font-weight:700;padding:6px 8px">' + (parseFloat(allF5.units)>=0?'+':'') + allF5.units + 'u</td>';
+  html += '<td style="color:' + cu(allF5.units) + ';padding:6px 8px;border-right:2px solid var(--border2)">' + (allF5.roi!=='—'?(parseFloat(allF5.roi)>=0?'+':'')+allF5.roi+'%':'—') + '</td>';
+  html += '<td style="color:var(--green);font-weight:700;padding:6px 8px">' + allFT.w + '</td>';
+  html += '<td style="color:var(--red);font-weight:700;padding:6px 8px">' + allFT.l + '</td>';
+  html += '<td style="color:var(--muted2);padding:6px 8px">' + allFT.p + '</td>';
+  html += '<td style="color:' + cp(allFT.pct) + ';font-weight:700;padding:6px 8px">' + (allFT.pct!=='—'?allFT.pct+'%':'—') + '</td>';
+  html += '<td style="color:' + cu(allFT.units) + ';font-weight:700;padding:6px 8px">' + (parseFloat(allFT.units)>=0?'+':'') + allFT.units + 'u</td>';
+  html += '<td style="color:' + cu(allFT.units) + ';padding:6px 8px">' + (allFT.roi!=='—'?(parseFloat(allFT.roi)>=0?'+':'')+allFT.roi+'%':'—') + '</td>';
+  html += '</tr></tbody></table></div>';
 
-  // Individual picks list
+  // Individual picks
   html += '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">';
   html += '<div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">PICKS</div>';
   dayPicks.forEach(function(p) {
-    var f5r = p.f5===1?'<span class="badge badge-green">W</span>':p.f5===0?'<span class="badge badge-red">L</span>':p.f5===2?'<span class="badge badge-white">P</span>':'<span style="color:var(--muted)">—</span>';
-    var ftr = p.ft===1?'<span class="badge badge-green">W</span>':p.ft===0?'<span class="badge badge-red">L</span>':p.ft===2?'<span class="badge badge-white">P</span>':'<span style="color:var(--muted)">—</span>';
-    var typeBadge = p.type==='ml'?'<span class="badge badge-white">ML</span>':p.type==='over'?'<span class="badge badge-yellow">OVER</span>':'<span class="badge badge-muted">UNDER</span>';
-    html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px">';
-    html += '<span style="flex:1;font-weight:600">' + p.pick + '</span>';
-    html += typeBadge;
-    html += '<span style="font-size:10px;color:var(--muted)">F5:</span>' + f5r;
-    html += '<span style="font-size:10px;color:var(--muted)">FT:</span>' + ftr;
-    if (p.notes) html += '<span style="font-size:10px;color:var(--muted2);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + p.notes + '</span>';
+    var rb = function(v){ return v===1?'<span class="badge badge-green">W</span>':v===0?'<span class="badge badge-red">L</span>':v===2?'<span class="badge badge-white">P</span>':'<span style="color:var(--muted)">\u2014</span>'; };
+    var tb = p.type==='ml'?'<span class="badge badge-white">ML</span>':p.type==='over'?'<span class="badge badge-yellow">OVER</span>':'<span class="badge badge-muted">UNDER</span>';
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px;flex-wrap:wrap">';
+    html += '<span style="flex:1;font-weight:600;min-width:120px">' + p.pick + '</span>';
+    html += tb;
+    html += '<span style="font-size:9px;color:var(--muted)">F5</span>' + rb(p.f5);
+    html += '<span style="font-size:9px;color:var(--muted)">FT</span>' + rb(p.ft);
+    if (p.notes) html += '<span style="font-size:10px;color:var(--muted2)">' + p.notes + '</span>';
     html += '</div>';
   });
   html += '</div></div>';
 
   inner.innerHTML = html;
+  inner.dataset.open = '1';
   inner.style.display = 'block';
   if (icon) icon.textContent = '\u25b2';
 }
-
 
 function sortDaily(key) {
   if (dailySortKey === key) {
@@ -3099,6 +3222,36 @@ function harriAnalyze(g, park, matchup) {
     points.push({t:'F5 lead % close: ' + g.away + ' ' + g.awayF5Lead.toFixed(1) + '% vs ' + g.home + ' ' + g.homeF5Lead.toFixed(1) + '%',cls:'neu'});
   }
 
+    // ── 5b. OVER / UNDER DETECTION
+  const lineIndexMap2 = [5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5];
+  const totalProjRuns = g.awayRuns + g.homeRuns;
+  const f5ProjRuns = (g.awayF5Runs||0) + (g.homeF5Runs||0);
+  const lineMatch2 = (g.totalLine||'').match(/(\d+\.?\d*)/);
+  const actualLine = lineMatch2 ? parseFloat(lineMatch2[1]) : null;
+  if (actualLine && g.impliedOdds && g.impliedOdds.length >= 3) {
+    const lineIdx2 = lineIndexMap2.indexOf(actualLine);
+    const impliedAtLine2 = lineIdx2 >= 0 ? parseInt(g.impliedOdds[lineIdx2]) : null;
+    const ftRunGap = totalProjRuns - actualLine;
+    const approxF5Line = actualLine * 0.52;
+    const f5RunGap = f5ProjRuns - approxF5Line;
+    if ((ftRunGap >= 1.5 && impliedAtLine2 !== null && impliedAtLine2 <= -130) || ftRunGap >= 2.0) {
+      flags.push({l:'⬆ OVER SIGNAL',c:'pos'});
+      const impStr2 = impliedAtLine2 ? ' · implied ' + impliedAtLine2 + ' at ' + actualLine : '';
+      points.push({t:'Over signal: sim ' + totalProjRuns.toFixed(2) + 'R vs line ' + actualLine + ' (+' + ftRunGap.toFixed(2) + 'R gap)' + impStr2, cls:'pos'});
+      if (f5RunGap >= 0.7) {
+        flags.push({l:'⬆ F5 OVER',c:'pos'});
+        points.push({t:'F5 over: ' + f5ProjRuns.toFixed(2) + 'R projected vs est F5 line ' + approxF5Line.toFixed(1) + ' (+' + f5RunGap.toFixed(2) + 'R)', cls:'pos'});
+      }
+    } else if (ftRunGap >= 1.0) {
+      points.push({t:'Mild over lean: sim ' + totalProjRuns.toFixed(2) + 'R vs line ' + actualLine + ' (+' + ftRunGap.toFixed(2) + 'R)', cls:'pos'});
+    }
+    const underGap = actualLine - totalProjRuns;
+    if (underGap >= 1.5) {
+      flags.push({l:'⬇ UNDER SIGNAL',c:'neg'});
+      points.push({t:'Under signal: sim only ' + totalProjRuns.toFixed(2) + 'R vs line ' + actualLine + ' (' + underGap.toFixed(2) + 'R under)', cls:'neg'});
+    }
+  }
+
   // ── 6. SIM WIN % vs MARKET VALUE GAP ────────────────────────
   const awayOdds = parseInt(g.awayML);
   const homeOdds = parseInt(g.homeML);
@@ -3668,6 +3821,7 @@ function switchTab(tab,btn) {
   if(tab==='history'){renderHistory();}
   if(tab==='trends'){renderTrends();}
   if(tab==='reports'){renderReports();}
+  if(tab==='strategy'){renderStrategy();}
   if(tab==='today'){
     document.getElementById('today-title').textContent=`Today's Slate — ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}`;
     renderTodayPicksSummary();
@@ -3983,6 +4137,313 @@ function importSnapshot(input) {
   };
   reader.readAsText(file);
   input.value = '';
+}
+
+// ============================================================
+// STRATEGY TAB
+// ============================================================
+function renderStrategy() {
+  var ap = allPicks();
+
+  function cg(arr) {
+    var w=0,l=0,p=0,u=0;
+    arr.forEach(function(v){ if(v===1){w++;u+=1;} else if(v===0){l++;u-=1.5;} else if(v===2){p++;} });
+    var tot=w+l;
+    return {w:w,l:l,p:p,units:u.toFixed(2),pct:tot>0?(w/tot*100).toFixed(1):'—',roi:tot>0?(u/(tot*1.5)*100).toFixed(1):'—',total:tot};
+  }
+
+  function bestStreak(picks, side) {
+    var best=0,cur=0;
+    picks.forEach(function(p){
+      if(p[side]===1){cur++;best=Math.max(best,cur);}
+      else if(p[side]===0){cur=0;}
+    });
+    return best;
+  }
+
+  // F5 ML picks
+  var f5ml = ap.filter(function(p){return p.type==='ml';});
+  var f5mlStats = cg(f5ml.map(function(p){return p.f5;}).filter(function(v){return v===0||v===1||v===2;}));
+  var f5mlStreak = bestStreak(f5ml,'f5');
+
+  // FT Overs picks
+  var ftov = ap.filter(function(p){return p.type==='over';});
+  var ftovStats = cg(ftov.map(function(p){return p.ft;}).filter(function(v){return v===0||v===1||v===2;}));
+  var ftovStreak = bestStreak(ftov,'ft');
+
+  // Combined strategy units
+  var combinedU = parseFloat(f5mlStats.units) + parseFloat(ftovStats.units);
+  var combinedTotal = f5mlStats.total + ftovStats.total;
+  var combinedRisk = combinedTotal * 1.5;
+  var combinedROI = combinedRisk > 0 ? (combinedU/combinedRisk*100).toFixed(1) : '—';
+  var combinedW = f5mlStats.w + ftovStats.w;
+  var combinedL = f5mlStats.l + ftovStats.l;
+  var combinedPct = (combinedW+combinedL)>0 ? (combinedW/(combinedW+combinedL)*100).toFixed(1) : '—';
+
+  function cu(u){return parseFloat(u)>=0?'var(--green)':'var(--red)';}
+  function cp(p){return p==='—'?'var(--muted)':parseFloat(p)>=55?'var(--green)':parseFloat(p)<45?'var(--red)':'var(--text2)';}
+  function fmt(s,u){return (parseFloat(u)>=0?'+':'')+u+'u';}
+
+  // Top metrics
+  function setText(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  function setColor(id,c2){var el=document.getElementById(id);if(el)el.style.color=c2;}
+
+  setText('strat-f5ml-rec', f5mlStats.w+'-'+f5mlStats.l);
+  setText('strat-f5ml-sub', f5mlStats.pct+'% · '+fmt('',f5mlStats.units));
+  setColor('strat-f5ml-rec', parseFloat(f5mlStats.units)>=0?'var(--green)':'var(--red)');
+
+  setText('strat-ftov-rec', ftovStats.w+'-'+ftovStats.l);
+  setText('strat-ftov-sub', ftovStats.pct+'% · '+fmt('',ftovStats.units));
+  setColor('strat-ftov-rec', parseFloat(ftovStats.units)>=0?'var(--green)':'var(--red)');
+
+  setText('strat-combined-units', (combinedU>=0?'+':'')+combinedU.toFixed(2)+'u');
+  setColor('strat-combined-units', combinedU>=0?'var(--green)':'var(--red)');
+  setText('strat-combined-roi', 'ROI '+combinedROI+'%');
+
+  setText('strat-winpct', combinedPct+(combinedPct!=='—'?'%':''));
+  setColor('strat-winpct', cp(combinedPct));
+  setText('strat-streak', combinedW+'-'+combinedL+' combined');
+
+  // Split panels
+  setText('strat-f5ml-wlp', f5mlStats.w+'-'+f5mlStats.l+'-'+f5mlStats.p);
+  setText('strat-f5ml-pct2', f5mlStats.pct+(f5mlStats.pct!=='—'?'%':''));
+  setText('strat-f5ml-units', fmt('',f5mlStats.units));
+  setColor('strat-f5ml-units', parseFloat(f5mlStats.units)>=0?'var(--green)':'var(--red)');
+  setText('strat-f5ml-roi', 'ROI '+f5mlStats.roi+'%');
+  setText('strat-f5ml-streak', f5mlStreak);
+
+  setText('strat-ftov-wlp', ftovStats.w+'-'+ftovStats.l+'-'+ftovStats.p);
+  setText('strat-ftov-pct2', ftovStats.pct+(ftovStats.pct!=='—'?'%':''));
+  setText('strat-ftov-units', fmt('',ftovStats.units));
+  setColor('strat-ftov-units', parseFloat(ftovStats.units)>=0?'var(--green)':'var(--red)');
+  setText('strat-ftov-roi', 'ROI '+ftovStats.roi+'%');
+  setText('strat-ftov-streak', ftovStreak);
+
+  // Comparison table
+  var f5ovStats = cg(ap.filter(function(p){return p.type==='over';}).map(function(p){return p.f5;}).filter(function(v){return v===0||v===1||v===2;}));
+  var ftunStats = cg(ap.filter(function(p){return p.type==='under';}).map(function(p){return p.ft;}).filter(function(v){return v===0||v===1||v===2;}));
+  var f5unStats = cg(ap.filter(function(p){return p.type==='under';}).map(function(p){return p.f5;}).filter(function(v){return v===0||v===1||v===2;}));
+  var ftmlStats = cg(ap.filter(function(p){return p.type==='ml';}).map(function(p){return p.ft;}).filter(function(v){return v===0||v===1||v===2;}));
+
+  function row(label, st, highlight) {
+    var bg = highlight ? 'background:var(--green-dim);' : '';
+    return '<tr style="'+bg+'">' +
+      '<td style="font-weight:'+(highlight?'700':'400')+';color:'+(highlight?'var(--green)':'var(--text2)')+'">'+label+'</td>' +
+      '<td style="color:var(--green)">'+st.w+'</td>' +
+      '<td style="color:var(--red)">'+st.l+'</td>' +
+      '<td style="color:var(--muted2)">'+st.p+'</td>' +
+      '<td style="color:'+cp(st.pct)+'">'+st.pct+(st.pct!=='—'?'%':'')+'</td>' +
+      '<td style="color:'+cu(st.units)+';font-weight:700">'+(parseFloat(st.units)>=0?'+':'')+st.units+'u</td>' +
+      '<td style="color:'+cu(st.units)+'">'+(st.roi!=='—'?(parseFloat(st.roi)>=0?'+':'')+st.roi+'%':'—')+'</td>' +
+      '</tr>';
+  }
+
+  var tbody = document.getElementById('strat-compare-tbody');
+  if (tbody) tbody.innerHTML =
+    row('⭐ F5 ML (strategy)', f5mlStats, true) +
+    row('⭐ FT Overs (strategy)', ftovStats, true) +
+    row('FT ML', ftmlStats, false) +
+    row('F5 Overs', f5ovStats, false) +
+    row('F5 Unders', f5unStats, false) +
+    row('FT Unders', ftunStats, false);
+
+  // Strategy picks log - ML (F5) and Overs (FT) together
+  var stratPicks = ap.filter(function(p){
+    return (p.type==='ml' && (p.f5===0||p.f5===1||p.f5===2)) ||
+           (p.type==='over' && (p.ft===0||p.ft===1||p.ft===2));
+  }).sort(function(a,b){return b.date-a.date;});
+
+  var logTbody = document.getElementById('strat-log-tbody');
+  if (logTbody) {
+    if (!stratPicks.length) {
+      logTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No strategy picks yet</td></tr>';
+      return;
+    }
+    var rb = function(v){return v===1?'<span class="badge badge-green">W</span>':v===0?'<span class="badge badge-red">L</span>':v===2?'<span class="badge badge-white">P</span>':'<span style="color:var(--muted)">—</span>';};
+    logTbody.innerHTML = stratPicks.map(function(p) {
+      var d = p.date>1e9?new Date(p.date):excelToDate(parseFloat(p.date));
+      var isML = p.type==='ml';
+      var u = isML ? (p.f5===1?'+1.0u':p.f5===0?'-1.5u':'—') : (p.ft===1?'+1.0u':p.ft===0?'-1.5u':'—');
+      var uc = isML ? (p.f5===1?'var(--green)':p.f5===0?'var(--red)':'var(--muted)') : (p.ft===1?'var(--green)':p.ft===0?'var(--red)':'var(--muted)');
+      var tb = isML?'<span class="badge badge-white">F5 ML</span>':'<span class="badge badge-yellow">FT OVER</span>';
+      return '<tr>' +
+        '<td class="td-mono">'+fmtDate(d)+'</td>' +
+        '<td style="font-weight:600;max-width:160px;white-space:normal">'+p.pick+'</td>' +
+        '<td>'+tb+'</td>' +
+        '<td>'+(isML?rb(p.f5):'<span style="color:var(--muted)">—</span>')+'</td>' +
+        '<td>'+(!isML?rb(p.ft):'<span style="color:var(--muted)">—</span>')+'</td>' +
+        '<td style="color:'+uc+';font-weight:700">'+u+'</td>' +
+        '<td style="color:var(--muted2);font-size:10px">'+( p.notes||'—')+'</td>' +
+        '</tr>';
+    }).join('');
+  }
+}
+
+
+// ============================================================
+// AI MORNING BRIEF
+// ============================================================
+function runAIBrief() {
+  if (!gameSimData.length) { showToast('⚠ Generate report first'); return; }
+
+  const panel = document.getElementById('ai-brief-panel');
+  const content = document.getElementById('ai-brief-content');
+  const subtitle = document.getElementById('ai-brief-subtitle');
+  panel.style.display = 'block';
+  content.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px">Analyzing ' + gameSimData.length + ' games...</div>';
+
+  // Learn from history
+  const ap = allPicks();
+  const mlWins = ap.filter(p => p.type==='ml' && p.f5===1).map(p => p.pick.toLowerCase());
+  const mlLoss = ap.filter(p => p.type==='ml' && p.f5===0).map(p => p.pick.toLowerCase());
+  const ovWins = ap.filter(p => p.type==='over' && p.ft===1).map(p => p.pick.toLowerCase());
+  const ovLoss = ap.filter(p => p.type==='over' && p.ft===0).map(p => p.pick.toLowerCase());
+
+  // Team fade list (hardcoded per Harri's rules)
+  const fadeTeams = ['mets','new york mets'];
+
+  // Overpricing detection: team with big ML favorite but sim doesn't agree
+  function isOverpriced(g) {
+    const awayOdds = parseInt(g.awayML);
+    const homeOdds = parseInt(g.homeML);
+    if (isNaN(awayOdds) || isNaN(homeOdds) || !g.awayWinPct) return false;
+    const favOdds = awayOdds < homeOdds ? awayOdds : homeOdds;
+    const favSim = awayOdds < homeOdds ? g.awayWinPct : g.homeWinPct;
+    const favImplied = favOdds < 0 ? ((-favOdds)/((-favOdds)+100)*100) : (100/(favOdds+100)*100);
+    // Overpriced: market prices them 10+ points higher than sim
+    return (favImplied - favSim) >= 10;
+  }
+
+  // History match score: how well does this game pattern match historical winners
+  function historyScore(pick, type, side) {
+    const pickL = pick.toLowerCase();
+    if (type === 'ml') {
+      const wins = mlWins.filter(p => p.includes(pickL) || pickL.includes(p.split(' ').slice(-1)[0])).length;
+      const losses = mlLoss.filter(p => p.includes(pickL) || pickL.includes(p.split(' ').slice(-1)[0])).length;
+      return wins - losses;
+    } else {
+      const wins = ovWins.filter(p => p.includes(pickL) || pickL.includes(p.split(' ').slice(-1)[0])).length;
+      const losses = ovLoss.filter(p => p.includes(pickL) || pickL.includes(p.split(' ').slice(-1)[0])).length;
+      return wins - losses;
+    }
+  }
+
+  // Score each game
+  const scored = gameSimData.map(g => {
+    const park = getPark ? getPark(g.away, g.home) : null;
+    const matchup = getMatchupSummary ? getMatchupSummary(g.away, g.home) : null;
+    const harri = harriAnalyze(g, park, matchup);
+
+    const winner = harri.rec.includes(g.away) ? g.away : harri.rec.includes(g.home) ? g.home : null;
+    const isFaded = fadeTeams.some(t => (g.away||'').toLowerCase().includes(t) || (g.home||'').toLowerCase().includes(t));
+    const overpriced = winner && isOverpriced(g);
+
+    // ML score (F5 strategy)
+    const mlScore = harri.isFlagged ? (harri.rec.includes('all signals') ? 3 : harri.rec.includes('strong') ? 2 : 1) : 0;
+    const histML = winner ? historyScore(winner, 'ml', 'f5') : 0;
+
+    // Over score (FT strategy)
+    const hasOverSignal = harri.flags.some(f => f.l && f.l.includes('OVER SIGNAL'));
+    const totalProjRuns = g.awayRuns + g.homeRuns;
+    const lineMatch = (g.totalLine||'').match(/(\d+\.?\d*)/);
+    const actualLine = lineMatch ? parseFloat(lineMatch[1]) : null;
+    const runGap = actualLine ? (totalProjRuns - actualLine) : 0;
+    const overScore = hasOverSignal ? 3 : runGap >= 1.5 ? 2 : runGap >= 1.0 ? 1 : 0;
+    const histOV = historyScore(g.away + ' ' + g.home, 'over', 'ft');
+
+    // Final adjusted scores
+    const adjML = isFaded ? 0 : overpriced ? Math.max(0, mlScore - 2) : mlScore + histML;
+    const adjOV = overScore + histOV;
+
+    // Determine recommendation
+    let mlPick = null, ovPick = null;
+    if (adjML >= 2 && winner) {
+      mlPick = {team: winner, score: adjML, overpriced, isFaded};
+    }
+    if (adjOV >= 2 && actualLine) {
+      ovPick = {line: actualLine, runGap: runGap.toFixed(2), score: adjOV};
+    }
+
+    return {g, harri, mlPick, ovPick, mlScore: adjML, ovScore: adjOV, isFaded, overpriced, winner, runGap, actualLine};
+  });
+
+  // Sort by combined score
+  scored.sort((a,b) => (b.mlScore + b.ovScore) - (a.mlScore + a.ovScore));
+
+  const flagged = scored.filter(s => s.mlPick || s.ovPick);
+  const passes = scored.filter(s => !s.mlPick && !s.ovPick);
+
+  subtitle.textContent = flagged.length + ' plays · ' + passes.length + ' passes · ' + gameSimData.length + ' total';
+
+  let html = '';
+
+  if (!flagged.length) {
+    html = '<div style="color:var(--muted);font-size:11px;padding:8px">No strong plays identified today. All scores below threshold.</div>';
+  }
+
+  // Flagged plays
+  flagged.forEach(s => {
+    const { g, harri, mlPick, ovPick, mlScore, ovScore } = s;
+    const matchup = g.awaySP && g.homeSP ? g.awaySP + ' vs ' + g.homeSP : '';
+    html += '<div style="border-bottom:1px solid var(--border);padding:14px 0">';
+    html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">';
+    html += '<div>';
+    html += '<div style="font-family:var(--font-display,monospace);font-size:16px;letter-spacing:1px">' + g.away + ' @ ' + g.home + '</div>';
+    html += '<div style="font-size:10px;color:var(--muted2)">' + (g.time||'') + (matchup?' · '+matchup:'') + '</div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:6px">';
+    if (mlPick) html += '<span style="background:var(--green-dim2);border:1px solid var(--green);color:var(--green);font-size:9px;font-weight:700;padding:3px 10px;letter-spacing:1px">F5 ML</span>';
+    if (ovPick) html += '<span style="background:rgba(255,200,0,0.1);border:1px solid var(--yellow);color:var(--yellow);font-size:9px;font-weight:700;padding:3px 10px;letter-spacing:1px">FT OVER</span>';
+    html += '</div></div>';
+
+    // ML play
+    if (mlPick) {
+      const scoreBar = '█'.repeat(Math.min(mlScore,5)) + '░'.repeat(Math.max(0,5-mlScore));
+      html += '<div style="margin-bottom:6px">';
+      html += '<span style="color:var(--green);font-size:11px;font-weight:700">▸ F5 ML: ' + mlPick.team + '</span>';
+      html += '<span style="color:var(--muted);font-size:10px;margin-left:8px">Score: ' + mlScore + '/5 ' + scoreBar + '</span>';
+      if (mlPick.overpriced) html += '<span style="color:var(--yellow);font-size:9px;margin-left:8px">⚠ opponent overpriced</span>';
+      html += '</div>';
+    }
+
+    // Over play
+    if (ovPick) {
+      const scoreBar = '█'.repeat(Math.min(ovScore,5)) + '░'.repeat(Math.max(0,5-ovScore));
+      html += '<div style="margin-bottom:6px">';
+      html += '<span style="color:var(--yellow);font-size:11px;font-weight:700">▸ FT Over ' + ovPick.line + '</span>';
+      html += '<span style="color:var(--muted);font-size:10px;margin-left:8px">Sim +' + ovPick.runGap + 'R above line · Score: ' + ovScore + '/5 ' + scoreBar + '</span>';
+      html += '</div>';
+    }
+
+    // Key signals
+    const keyPoints = harri.points.filter(p => p.cls === 'pos').slice(0,3);
+    if (keyPoints.length) {
+      html += '<div style="margin-top:6px">';
+      keyPoints.forEach(p => {
+        html += '<div style="font-size:10px;color:var(--muted2);padding-left:12px;position:relative"><span style="position:absolute;left:0;color:var(--green)">▸</span>' + p.t + '</div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+  });
+
+  // Pass section
+  if (passes.length) {
+    html += '<div style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border)">';
+    html += '<div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">PASS — ' + passes.length + ' games below threshold</div>';
+    passes.forEach(s => {
+      const reason = s.isFaded ? 'Mets — avoid' : s.overpriced ? 'Market overpriced' : 'Signals weak (ML:' + s.mlScore + ' OV:' + s.ovScore + ')';
+      html += '<div style="font-size:10px;color:var(--muted2);padding:3px 0;border-bottom:1px solid var(--border)">';
+      html += '<span style="color:var(--muted)">' + s.g.away + ' @ ' + s.g.home + '</span>';
+      html += '<span style="color:var(--muted);margin-left:12px">— ' + reason + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  content.innerHTML = html;
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 window.addEventListener('resize',()=>{
