@@ -1444,7 +1444,49 @@ select.filter-select:focus { border-color: var(--green); }
     </table>
   </div>
 
-  <!-- DAILY LOG -->
+  <!-- APPROACH COMPARISON -->
+  <div class="section-header" style="margin-top:24px">
+    <div class="section-title">Strategy Comparison</div>
+    <div style="font-size:10px;color:var(--muted2)">Same picks, different period combos — which approach wins</div>
+  </div>
+  <div class="table-wrap" style="margin-bottom:24px">
+    <table>
+      <thead>
+        <tr>
+          <th>Approach</th>
+          <th>ML Period</th>
+          <th>Over Period</th>
+          <th>W</th><th>L</th><th>P</th>
+          <th>Win%</th><th>Units</th><th>ROI%</th>
+        </tr>
+      </thead>
+      <tbody id="strat-approach-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- DAILY TRACKER -->
+  <div class="section-header">
+    <div class="section-title">Daily Strategy Log</div>
+    <div style="font-size:10px;color:var(--muted2)">Day-by-day breakdown of F5 ML + FT Over picks</div>
+  </div>
+  <div class="table-wrap" style="margin-bottom:24px">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortStratDaily('date')" style="cursor:pointer">Date ↕</th>
+          <th>ML Picks</th>
+          <th>Over Picks</th>
+          <th>F5 ML W</th><th>F5 ML L</th><th>F5 ML P</th>
+          <th>FT OV W</th><th>FT OV L</th><th>FT OV P</th>
+          <th onclick="sortStratDaily('units')" style="cursor:pointer">Units ↕</th>
+          <th>ROI%</th>
+        </tr>
+      </thead>
+      <tbody id="strat-daily-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- PICKS LOG -->
   <div class="section-header"><div class="section-title">Strategy Picks Log</div></div>
   <div class="table-wrap">
     <table>
@@ -2960,6 +3002,10 @@ function parseSimText(text) {
         if(/^[-+]\d{2,3}(\s+[-+]\d{2,3}){3,}/.test(l)){
           g.impliedOdds = l.split(/\s+/).filter(x=>/^[-+]\d+$/.test(x));
         }
+        // Also collect single-line odds values for implied table (BallparkPal alternate format)
+        if(/^[-+]\d{2,4}$/.test(l) && g.impliedOdds.length < 8) {
+          g.impliedOdds.push(l);
+        }
         if(l==='@'&&j>i+2) break;
         if(l==='Details'&&j>i+10) break;
         j++;
@@ -4145,105 +4191,159 @@ function renderStrategy() {
     var w=0,l=0,p=0,u=0;
     arr.forEach(function(v){ if(v===1){w++;u+=1;} else if(v===0){l++;u-=1.5;} else if(v===2){p++;} });
     var tot=w+l;
-    return {w:w,l:l,p:p,units:u.toFixed(2),pct:tot>0?(w/tot*100).toFixed(1):'—',roi:tot>0?(u/(tot*1.5)*100).toFixed(1):'—',total:tot};
+    return {w:w,l:l,p:p,units:u,pct:tot>0?(w/tot*100).toFixed(1):'—',roi:tot>0?(u/(tot*1.5)*100).toFixed(1):'—',total:tot};
+  }
+
+  function sr(picks, side) {
+    return cg(picks.map(function(p){return p[side];}).filter(function(v){return v===0||v===1||v===2;}));
   }
 
   function bestStreak(picks, side) {
     var best=0,cur=0;
-    picks.forEach(function(p){
-      if(p[side]===1){cur++;best=Math.max(best,cur);}
-      else if(p[side]===0){cur=0;}
-    });
+    picks.forEach(function(p){ if(p[side]===1){cur++;best=Math.max(best,cur);} else if(p[side]===0){cur=0;} });
     return best;
   }
 
-  // F5 ML picks
-  var f5ml = ap.filter(function(p){return p.type==='ml';});
-  var f5mlStats = cg(f5ml.map(function(p){return p.f5;}).filter(function(v){return v===0||v===1||v===2;}));
-  var f5mlStreak = bestStreak(f5ml,'f5');
-
-  // FT Overs picks
-  var ftov = ap.filter(function(p){return p.type==='over';});
-  var ftovStats = cg(ftov.map(function(p){return p.ft;}).filter(function(v){return v===0||v===1||v===2;}));
-  var ftovStreak = bestStreak(ftov,'ft');
-
-  // Combined strategy units
-  var combinedU = parseFloat(f5mlStats.units) + parseFloat(ftovStats.units);
-  var combinedTotal = f5mlStats.total + ftovStats.total;
-  var combinedRisk = combinedTotal * 1.5;
-  var combinedROI = combinedRisk > 0 ? (combinedU/combinedRisk*100).toFixed(1) : '—';
-  var combinedW = f5mlStats.w + ftovStats.w;
-  var combinedL = f5mlStats.l + ftovStats.l;
-  var combinedPct = (combinedW+combinedL)>0 ? (combinedW/(combinedW+combinedL)*100).toFixed(1) : '—';
-
   function cu(u){return parseFloat(u)>=0?'var(--green)':'var(--red)';}
   function cp(p){return p==='—'?'var(--muted)':parseFloat(p)>=55?'var(--green)':parseFloat(p)<45?'var(--red)':'var(--text2)';}
-  function fmt(s,u){return (parseFloat(u)>=0?'+':'')+u+'u';}
+  function setText(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  function setColor(id,col){var el=document.getElementById(id);if(el)el.style.color=col;}
+  function fmtU(u){return (u>=0?'+':'')+u.toFixed(2)+'u';}
+
+  var mlPicks = ap.filter(function(p){return p.type==='ml';});
+  var ovPicks = ap.filter(function(p){return p.type==='over';});
+
+  // Strategy: F5 ML + FT Overs
+  var f5mlSt = sr(mlPicks,'f5');
+  var ftovSt = sr(ovPicks,'ft');
+  var f5mlStreak = bestStreak(mlPicks,'f5');
+  var ftovStreak = bestStreak(ovPicks,'ft');
+
+  var combU = f5mlSt.units + ftovSt.units;
+  var combTot = f5mlSt.total + ftovSt.total;
+  var combRisk = combTot * 1.5;
+  var combROI = combRisk>0?(combU/combRisk*100).toFixed(1):'—';
+  var combW = f5mlSt.w + ftovSt.w;
+  var combL = f5mlSt.l + ftovSt.l;
+  var combPct = (combW+combL)>0?(combW/(combW+combL)*100).toFixed(1):'—';
 
   // Top metrics
-  function setText(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
-  function setColor(id,c2){var el=document.getElementById(id);if(el)el.style.color=c2;}
+  setText('strat-f5ml-rec', f5mlSt.w+'-'+f5mlSt.l);
+  setText('strat-f5ml-sub', f5mlSt.pct+(f5mlSt.pct!=='—'?'%':'')+' · '+fmtU(f5mlSt.units));
+  setColor('strat-f5ml-rec', cu(f5mlSt.units));
+  setText('strat-ftov-rec', ftovSt.w+'-'+ftovSt.l);
+  setText('strat-ftov-sub', ftovSt.pct+(ftovSt.pct!=='—'?'%':'')+' · '+fmtU(ftovSt.units));
+  setColor('strat-ftov-rec', cu(ftovSt.units));
+  setText('strat-combined-units', fmtU(combU));
+  setColor('strat-combined-units', cu(combU));
+  setText('strat-combined-roi', 'ROI '+combROI+'%');
+  setText('strat-winpct', combPct+(combPct!=='—'?'%':''));
+  setColor('strat-winpct', cp(combPct));
+  setText('strat-streak', combW+'-'+combL+' combined');
 
-  setText('strat-f5ml-rec', f5mlStats.w+'-'+f5mlStats.l);
-  setText('strat-f5ml-sub', f5mlStats.pct+'% · '+fmt('',f5mlStats.units));
-  setColor('strat-f5ml-rec', parseFloat(f5mlStats.units)>=0?'var(--green)':'var(--red)');
-
-  setText('strat-ftov-rec', ftovStats.w+'-'+ftovStats.l);
-  setText('strat-ftov-sub', ftovStats.pct+'% · '+fmt('',ftovStats.units));
-  setColor('strat-ftov-rec', parseFloat(ftovStats.units)>=0?'var(--green)':'var(--red)');
-
-  setText('strat-combined-units', (combinedU>=0?'+':'')+combinedU.toFixed(2)+'u');
-  setColor('strat-combined-units', combinedU>=0?'var(--green)':'var(--red)');
-  setText('strat-combined-roi', 'ROI '+combinedROI+'%');
-
-  setText('strat-winpct', combinedPct+(combinedPct!=='—'?'%':''));
-  setColor('strat-winpct', cp(combinedPct));
-  setText('strat-streak', combinedW+'-'+combinedL+' combined');
-
-  // Split panels
-  setText('strat-f5ml-wlp', f5mlStats.w+'-'+f5mlStats.l+'-'+f5mlStats.p);
-  setText('strat-f5ml-pct2', f5mlStats.pct+(f5mlStats.pct!=='—'?'%':''));
-  setText('strat-f5ml-units', fmt('',f5mlStats.units));
-  setColor('strat-f5ml-units', parseFloat(f5mlStats.units)>=0?'var(--green)':'var(--red)');
-  setText('strat-f5ml-roi', 'ROI '+f5mlStats.roi+'%');
+  setText('strat-f5ml-wlp', f5mlSt.w+'-'+f5mlSt.l+'-'+f5mlSt.p);
+  setText('strat-f5ml-pct2', f5mlSt.pct+(f5mlSt.pct!=='—'?'%':''));
+  setText('strat-f5ml-units', fmtU(f5mlSt.units));
+  setColor('strat-f5ml-units', cu(f5mlSt.units));
+  setText('strat-f5ml-roi', 'ROI '+f5mlSt.roi+'%');
   setText('strat-f5ml-streak', f5mlStreak);
-
-  setText('strat-ftov-wlp', ftovStats.w+'-'+ftovStats.l+'-'+ftovStats.p);
-  setText('strat-ftov-pct2', ftovStats.pct+(ftovStats.pct!=='—'?'%':''));
-  setText('strat-ftov-units', fmt('',ftovStats.units));
-  setColor('strat-ftov-units', parseFloat(ftovStats.units)>=0?'var(--green)':'var(--red)');
-  setText('strat-ftov-roi', 'ROI '+ftovStats.roi+'%');
+  setText('strat-ftov-wlp', ftovSt.w+'-'+ftovSt.l+'-'+ftovSt.p);
+  setText('strat-ftov-pct2', ftovSt.pct+(ftovSt.pct!=='—'?'%':''));
+  setText('strat-ftov-units', fmtU(ftovSt.units));
+  setColor('strat-ftov-units', cu(ftovSt.units));
+  setText('strat-ftov-roi', 'ROI '+ftovSt.roi+'%');
   setText('strat-ftov-streak', ftovStreak);
 
-  // Comparison table
-  var f5ovStats = cg(ap.filter(function(p){return p.type==='over';}).map(function(p){return p.f5;}).filter(function(v){return v===0||v===1||v===2;}));
-  var ftunStats = cg(ap.filter(function(p){return p.type==='under';}).map(function(p){return p.ft;}).filter(function(v){return v===0||v===1||v===2;}));
-  var f5unStats = cg(ap.filter(function(p){return p.type==='under';}).map(function(p){return p.f5;}).filter(function(v){return v===0||v===1||v===2;}));
-  var ftmlStats = cg(ap.filter(function(p){return p.type==='ml';}).map(function(p){return p.ft;}).filter(function(v){return v===0||v===1||v===2;}));
+  // ── COMPARISON TABLE ──
+  // 4 approaches using same picks
+  var f5mlStat = sr(mlPicks,'f5');   // F5 ML
+  var ftovStat = sr(ovPicks,'ft');   // FT Over
+  var ftmlStat = sr(mlPicks,'ft');   // FT ML
+  var f5ovStat = sr(ovPicks,'f5');   // F5 Over
 
-  function row(label, st, highlight) {
-    var bg = highlight ? 'background:var(--green-dim);' : '';
-    return '<tr style="'+bg+'">' +
-      '<td style="font-weight:'+(highlight?'700':'400')+';color:'+(highlight?'var(--green)':'var(--text2)')+'">'+label+'</td>' +
-      '<td style="color:var(--green)">'+st.w+'</td>' +
-      '<td style="color:var(--red)">'+st.l+'</td>' +
-      '<td style="color:var(--muted2)">'+st.p+'</td>' +
-      '<td style="color:'+cp(st.pct)+'">'+st.pct+(st.pct!=='—'?'%':'')+'</td>' +
-      '<td style="color:'+cu(st.units)+';font-weight:700">'+(parseFloat(st.units)>=0?'+':'')+st.units+'u</td>' +
-      '<td style="color:'+cu(st.units)+'">'+(st.roi!=='—'?(parseFloat(st.roi)>=0?'+':'')+st.roi+'%':'—')+'</td>' +
-      '</tr>';
+  // Combined stats for each approach
+  function combineStats(s1, s2) {
+    var w=s1.w+s2.w, l=s1.l+s2.l, p=s1.p+s2.p, u=s1.units+s2.units;
+    var tot=w+l;
+    return {w:w,l:l,p:p,units:u,pct:tot>0?(w/tot*100).toFixed(1):'—',roi:(w+l)>0?(u/((w+l)*1.5)*100).toFixed(1):'—'};
   }
 
-  var tbody = document.getElementById('strat-compare-tbody');
-  if (tbody) tbody.innerHTML =
-    row('⭐ F5 ML (strategy)', f5mlStats, true) +
-    row('⭐ FT Overs (strategy)', ftovStats, true) +
-    row('FT ML', ftmlStats, false) +
-    row('F5 Overs', f5ovStats, false) +
-    row('F5 Unders', f5unStats, false) +
-    row('FT Unders', ftunStats, false);
+  var approaches = [
+    {label:'⭐ YOUR STRATEGY',  ml:'F5', ov:'FT', st: combineStats(f5mlStat, ftovStat), star:true},
+    {label:'F5 Everything',    ml:'F5', ov:'F5', st: combineStats(f5mlStat, f5ovStat), star:false},
+    {label:'FT Everything',    ml:'FT', ov:'FT', st: combineStats(ftmlStat, ftovStat), star:false},
+    {label:'Flipped',          ml:'FT', ov:'F5', st: combineStats(ftmlStat, f5ovStat), star:false},
+  ];
 
-  // Strategy picks log - ML (F5) and Overs (FT) together
+  var apTbody = document.getElementById('strat-approach-tbody');
+  if (apTbody) {
+    apTbody.innerHTML = approaches.map(function(a) {
+      var highlight = a.star ? 'background:var(--green-dim);' : '';
+      var labelColor = a.star ? 'var(--green)' : 'var(--text2)';
+      var fw = a.star ? '700' : '400';
+      return '<tr style="'+highlight+'">' +
+        '<td style="font-weight:'+fw+';color:'+labelColor+'">'+a.label+'</td>' +
+        '<td style="color:var(--muted2);font-size:10px">'+a.ml+'</td>' +
+        '<td style="color:var(--muted2);font-size:10px">'+a.ov+'</td>' +
+        '<td style="color:var(--green)">'+a.st.w+'</td>' +
+        '<td style="color:var(--red)">'+a.st.l+'</td>' +
+        '<td style="color:var(--muted2)">'+a.st.p+'</td>' +
+        '<td style="color:'+cp(a.st.pct)+'">'+a.st.pct+(a.st.pct!=='—'?'%':'')+'</td>' +
+        '<td style="color:'+cu(a.st.units)+';font-weight:700">'+fmtU(a.st.units)+'</td>' +
+        '<td style="color:'+cu(a.st.units)+'">'+a.st.roi+(a.st.roi!=='—'?'%':'')+'</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // ── DAILY TRACKER ──
+  var dd = getDailyData(ap);
+  var dailyRows = Object.keys(dd).map(function(dk) {
+    var dayPicks = dd[dk];
+    var dayML = dayPicks.filter(function(p){return p.type==='ml';});
+    var dayOV = dayPicks.filter(function(p){return p.type==='over';});
+    var mlSt = sr(dayML,'f5');
+    var ovSt = sr(dayOV,'ft');
+    var dayU = mlSt.units + ovSt.units;
+    var dayTot = mlSt.total + ovSt.total;
+    var dayROI = dayTot>0?(dayU/(dayTot*1.5)*100).toFixed(1):'—';
+    return {dk:dk, dayML:dayML, dayOV:dayOV, mlSt:mlSt, ovSt:ovSt, dayU:dayU, dayTot:dayTot, dayROI:dayROI};
+  }).filter(function(r){
+    return r.dayML.length>0 || r.dayOV.length>0;
+  }).sort(function(a,b){return b.dk>a.dk?1:-1;});
+
+  var dTbody = document.getElementById('strat-daily-tbody');
+  if (dTbody) {
+    if (!dailyRows.length) {
+      dTbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:16px">No strategy picks yet</td></tr>';
+    } else {
+      // Running total
+      var runningU = 0;
+      dTbody.innerHTML = dailyRows.map(function(r) {
+        runningU += r.dayU;
+        var uColor = r.dayU>=0?'var(--green)':'var(--red)';
+        var mlCount = r.dayML.length;
+        var ovCount = r.dayOV.length;
+        var hasBoth = mlCount>0 && ovCount>0;
+        var bg = hasBoth ? 'background:var(--green-dim);' : '';
+        var d = new Date(r.dk+'T12:00:00Z');
+        return '<tr style="'+bg+'">' +
+          '<td class="td-mono" style="font-weight:'+(hasBoth?'700':'400')+';color:'+(hasBoth?'var(--green)':'var(--text2)')+'">'+fmtDate(d)+(hasBoth?' ★':'')+'</td>' +
+          '<td style="color:var(--muted2)">'+(mlCount>0?mlCount+' ML':'—')+'</td>' +
+          '<td style="color:var(--muted2)">'+(ovCount>0?ovCount+' OV':'—')+'</td>' +
+          '<td style="color:var(--green)">'+r.mlSt.w+'</td>' +
+          '<td style="color:var(--red)">'+r.mlSt.l+'</td>' +
+          '<td style="color:var(--muted2)">'+r.mlSt.p+'</td>' +
+          '<td style="color:var(--green)">'+r.ovSt.w+'</td>' +
+          '<td style="color:var(--red)">'+r.ovSt.l+'</td>' +
+          '<td style="color:var(--muted2)">'+r.ovSt.p+'</td>' +
+          '<td style="color:'+uColor+';font-weight:700">'+fmtU(r.dayU)+'</td>' +
+          '<td style="color:'+uColor+';font-size:10px">'+r.dayROI+(r.dayROI!=='—'?'%':'')+'</td>' +
+        '</tr>';
+      }).join('');
+    }
+  }
+
+  // ── PICKS LOG ──
   var stratPicks = ap.filter(function(p){
     return (p.type==='ml' && (p.f5===0||p.f5===1||p.f5===2)) ||
            (p.type==='over' && (p.ft===0||p.ft===1||p.ft===2));
@@ -4252,15 +4352,15 @@ function renderStrategy() {
   var logTbody = document.getElementById('strat-log-tbody');
   if (logTbody) {
     if (!stratPicks.length) {
-      logTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No strategy picks yet</td></tr>';
+      logTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No strategy picks with results yet</td></tr>';
       return;
     }
     var rb = function(v){return v===1?'<span class="badge badge-green">W</span>':v===0?'<span class="badge badge-red">L</span>':v===2?'<span class="badge badge-white">P</span>':'<span style="color:var(--muted)">—</span>';};
     logTbody.innerHTML = stratPicks.map(function(p) {
       var d = p.date>1e9?new Date(p.date):excelToDate(parseFloat(p.date));
       var isML = p.type==='ml';
-      var u = isML ? (p.f5===1?'+1.0u':p.f5===0?'-1.5u':'—') : (p.ft===1?'+1.0u':p.ft===0?'-1.5u':'—');
-      var uc = isML ? (p.f5===1?'var(--green)':p.f5===0?'var(--red)':'var(--muted)') : (p.ft===1?'var(--green)':p.ft===0?'var(--red)':'var(--muted)');
+      var u = isML?(p.f5===1?'+1.0u':p.f5===0?'-1.5u':'—'):(p.ft===1?'+1.0u':p.ft===0?'-1.5u':'—');
+      var uc = isML?(p.f5===1?'var(--green)':p.f5===0?'var(--red)':'var(--muted)'):(p.ft===1?'var(--green)':p.ft===0?'var(--red)':'var(--muted)');
       var tb = isML?'<span class="badge badge-white">F5 ML</span>':'<span class="badge badge-yellow">FT OVER</span>';
       return '<tr>' +
         '<td class="td-mono">'+fmtDate(d)+'</td>' +
@@ -4269,178 +4369,12 @@ function renderStrategy() {
         '<td>'+(isML?rb(p.f5):'<span style="color:var(--muted)">—</span>')+'</td>' +
         '<td>'+(!isML?rb(p.ft):'<span style="color:var(--muted)">—</span>')+'</td>' +
         '<td style="color:'+uc+';font-weight:700">'+u+'</td>' +
-        '<td style="color:var(--muted2);font-size:10px">'+( p.notes||'—')+'</td>' +
+        '<td style="color:var(--muted2);font-size:10px">'+(p.notes||'—')+'</td>' +
         '</tr>';
     }).join('');
   }
 }
 
-
-// ============================================================
-// AI MORNING BRIEF
-// ============================================================
-function runAIBrief() {
-  if (!gameSimData.length) { showToast('⚠ Generate report first'); return; }
-
-  const panel = document.getElementById('ai-brief-panel');
-  const content = document.getElementById('ai-brief-content');
-  const subtitle = document.getElementById('ai-brief-subtitle');
-  panel.style.display = 'block';
-  content.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px">Analyzing ' + gameSimData.length + ' games...</div>';
-
-  // Learn from history
-  const ap = allPicks();
-  const mlWins = ap.filter(p => p.type==='ml' && p.f5===1).map(p => p.pick.toLowerCase());
-  const mlLoss = ap.filter(p => p.type==='ml' && p.f5===0).map(p => p.pick.toLowerCase());
-  const ovWins = ap.filter(p => p.type==='over' && p.ft===1).map(p => p.pick.toLowerCase());
-  const ovLoss = ap.filter(p => p.type==='over' && p.ft===0).map(p => p.pick.toLowerCase());
-
-  // Team fade list (hardcoded per Harri's rules)
-  const fadeTeams = ['mets','new york mets'];
-
-  // Overpricing detection: team with big ML favorite but sim doesn't agree
-  function isOverpriced(g) {
-    const awayOdds = parseInt(g.awayML);
-    const homeOdds = parseInt(g.homeML);
-    if (isNaN(awayOdds) || isNaN(homeOdds) || !g.awayWinPct) return false;
-    const favOdds = awayOdds < homeOdds ? awayOdds : homeOdds;
-    const favSim = awayOdds < homeOdds ? g.awayWinPct : g.homeWinPct;
-    const favImplied = favOdds < 0 ? ((-favOdds)/((-favOdds)+100)*100) : (100/(favOdds+100)*100);
-    // Overpriced: market prices them 10+ points higher than sim
-    return (favImplied - favSim) >= 10;
-  }
-
-  // History match score: how well does this game pattern match historical winners
-  function historyScore(pick, type, side) {
-    const pickL = pick.toLowerCase();
-    if (type === 'ml') {
-      const wins = mlWins.filter(p => p.includes(pickL) || pickL.includes(p.split(' ').slice(-1)[0])).length;
-      const losses = mlLoss.filter(p => p.includes(pickL) || pickL.includes(p.split(' ').slice(-1)[0])).length;
-      return wins - losses;
-    } else {
-      const wins = ovWins.filter(p => p.includes(pickL) || pickL.includes(p.split(' ').slice(-1)[0])).length;
-      const losses = ovLoss.filter(p => p.includes(pickL) || pickL.includes(p.split(' ').slice(-1)[0])).length;
-      return wins - losses;
-    }
-  }
-
-  // Score each game
-  const scored = gameSimData.map(g => {
-    const park = getPark ? getPark(g.away, g.home) : null;
-    const matchup = getMatchupSummary ? getMatchupSummary(g.away, g.home) : null;
-    const harri = harriAnalyze(g, park, matchup);
-
-    const winner = harri.rec.includes(g.away) ? g.away : harri.rec.includes(g.home) ? g.home : null;
-    const isFaded = fadeTeams.some(t => (g.away||'').toLowerCase().includes(t) || (g.home||'').toLowerCase().includes(t));
-    const overpriced = winner && isOverpriced(g);
-
-    // ML score (F5 strategy)
-    const mlScore = harri.isFlagged ? (harri.rec.includes('all signals') ? 3 : harri.rec.includes('strong') ? 2 : 1) : 0;
-    const histML = winner ? historyScore(winner, 'ml', 'f5') : 0;
-
-    // Over score (FT strategy)
-    const hasOverSignal = harri.flags.some(f => f.l && f.l.includes('OVER SIGNAL'));
-    const totalProjRuns = g.awayRuns + g.homeRuns;
-    const lineMatch = (g.totalLine||'').match(/(\d+\.?\d*)/);
-    const actualLine = lineMatch ? parseFloat(lineMatch[1]) : null;
-    const runGap = actualLine ? (totalProjRuns - actualLine) : 0;
-    const overScore = hasOverSignal ? 3 : runGap >= 1.5 ? 2 : runGap >= 1.0 ? 1 : 0;
-    const histOV = historyScore(g.away + ' ' + g.home, 'over', 'ft');
-
-    // Final adjusted scores
-    const adjML = isFaded ? 0 : overpriced ? Math.max(0, mlScore - 2) : mlScore + histML;
-    const adjOV = overScore + histOV;
-
-    // Determine recommendation
-    let mlPick = null, ovPick = null;
-    if (adjML >= 2 && winner) {
-      mlPick = {team: winner, score: adjML, overpriced, isFaded};
-    }
-    if (adjOV >= 2 && actualLine) {
-      ovPick = {line: actualLine, runGap: runGap.toFixed(2), score: adjOV};
-    }
-
-    return {g, harri, mlPick, ovPick, mlScore: adjML, ovScore: adjOV, isFaded, overpriced, winner, runGap, actualLine};
-  });
-
-  // Sort by combined score
-  scored.sort((a,b) => (b.mlScore + b.ovScore) - (a.mlScore + a.ovScore));
-
-  const flagged = scored.filter(s => s.mlPick || s.ovPick);
-  const passes = scored.filter(s => !s.mlPick && !s.ovPick);
-
-  subtitle.textContent = flagged.length + ' plays · ' + passes.length + ' passes · ' + gameSimData.length + ' total';
-
-  let html = '';
-
-  if (!flagged.length) {
-    html = '<div style="color:var(--muted);font-size:11px;padding:8px">No strong plays identified today. All scores below threshold.</div>';
-  }
-
-  // Flagged plays
-  flagged.forEach(s => {
-    const { g, harri, mlPick, ovPick, mlScore, ovScore } = s;
-    const matchup = g.awaySP && g.homeSP ? g.awaySP + ' vs ' + g.homeSP : '';
-    html += '<div style="border-bottom:1px solid var(--border);padding:14px 0">';
-    html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">';
-    html += '<div>';
-    html += '<div style="font-family:var(--font-display,monospace);font-size:16px;letter-spacing:1px">' + g.away + ' @ ' + g.home + '</div>';
-    html += '<div style="font-size:10px;color:var(--muted2)">' + (g.time||'') + (matchup?' · '+matchup:'') + '</div>';
-    html += '</div>';
-    html += '<div style="display:flex;gap:6px">';
-    if (mlPick) html += '<span style="background:var(--green-dim2);border:1px solid var(--green);color:var(--green);font-size:9px;font-weight:700;padding:3px 10px;letter-spacing:1px">F5 ML</span>';
-    if (ovPick) html += '<span style="background:rgba(255,200,0,0.1);border:1px solid var(--yellow);color:var(--yellow);font-size:9px;font-weight:700;padding:3px 10px;letter-spacing:1px">FT OVER</span>';
-    html += '</div></div>';
-
-    // ML play
-    if (mlPick) {
-      const scoreBar = '█'.repeat(Math.min(mlScore,5)) + '░'.repeat(Math.max(0,5-mlScore));
-      html += '<div style="margin-bottom:6px">';
-      html += '<span style="color:var(--green);font-size:11px;font-weight:700">▸ F5 ML: ' + mlPick.team + '</span>';
-      html += '<span style="color:var(--muted);font-size:10px;margin-left:8px">Score: ' + mlScore + '/5 ' + scoreBar + '</span>';
-      if (mlPick.overpriced) html += '<span style="color:var(--yellow);font-size:9px;margin-left:8px">⚠ opponent overpriced</span>';
-      html += '</div>';
-    }
-
-    // Over play
-    if (ovPick) {
-      const scoreBar = '█'.repeat(Math.min(ovScore,5)) + '░'.repeat(Math.max(0,5-ovScore));
-      html += '<div style="margin-bottom:6px">';
-      html += '<span style="color:var(--yellow);font-size:11px;font-weight:700">▸ FT Over ' + ovPick.line + '</span>';
-      html += '<span style="color:var(--muted);font-size:10px;margin-left:8px">Sim +' + ovPick.runGap + 'R above line · Score: ' + ovScore + '/5 ' + scoreBar + '</span>';
-      html += '</div>';
-    }
-
-    // Key signals
-    const keyPoints = harri.points.filter(p => p.cls === 'pos').slice(0,3);
-    if (keyPoints.length) {
-      html += '<div style="margin-top:6px">';
-      keyPoints.forEach(p => {
-        html += '<div style="font-size:10px;color:var(--muted2);padding-left:12px;position:relative"><span style="position:absolute;left:0;color:var(--green)">▸</span>' + p.t + '</div>';
-      });
-      html += '</div>';
-    }
-
-    html += '</div>';
-  });
-
-  // Pass section
-  if (passes.length) {
-    html += '<div style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border)">';
-    html += '<div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">PASS — ' + passes.length + ' games below threshold</div>';
-    passes.forEach(s => {
-      const reason = s.isFaded ? 'Mets — avoid' : s.overpriced ? 'Market overpriced' : 'Signals weak (ML:' + s.mlScore + ' OV:' + s.ovScore + ')';
-      html += '<div style="font-size:10px;color:var(--muted2);padding:3px 0;border-bottom:1px solid var(--border)">';
-      html += '<span style="color:var(--muted)">' + s.g.away + ' @ ' + s.g.home + '</span>';
-      html += '<span style="color:var(--muted);margin-left:12px">— ' + reason + '</span>';
-      html += '</div>';
-    });
-    html += '</div>';
-  }
-
-  content.innerHTML = html;
-  panel.scrollIntoView({behavior:'smooth', block:'start'});
-}
 
 window.addEventListener('resize',()=>{
   if(document.getElementById('tab-dashboard').classList.contains('active')) drawPnlChart();
