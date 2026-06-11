@@ -1124,6 +1124,82 @@ select.filter-select:focus { border-color: var(--green); }
     </div>
   </div>
 
+
+  <!-- QUANT LAB -->
+  <div class="section-header" style="margin-top:24px">
+    <div class="section-title">Quant Lab</div>
+    <div style="font-size:10px;color:var(--muted2)">Equity curve · drawdown · risk-adjusted metrics · strategy legs</div>
+  </div>
+
+  <!-- EQUITY CURVE -->
+  <div style="background:var(--bg2);border:1px solid var(--border);padding:16px;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:2px">CUMULATIVE EQUITY — DAILY STRATEGY (F5 ML + FT OV)</div>
+      <div style="font-size:9px;color:var(--muted)" id="equity-legend"></div>
+    </div>
+    <canvas id="equity-canvas" style="width:100%;height:180px;display:block"></canvas>
+  </div>
+
+  <!-- RISK METRICS -->
+  <div class="metric-grid metric-grid-6" style="margin-bottom:16px">
+    <div class="metric">
+      <div class="metric-label">EV / Bet</div>
+      <div class="metric-value sm" id="q-ev">—</div>
+      <div class="metric-sub">expected units per pick</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Std Dev / Day</div>
+      <div class="metric-value sm" id="q-stdev">—</div>
+      <div class="metric-sub">daily unit volatility</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Sharpe (daily)</div>
+      <div class="metric-value sm" id="q-sharpe">—</div>
+      <div class="metric-sub">mean/σ of daily units</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Max Drawdown</div>
+      <div class="metric-value sm" id="q-maxdd">—</div>
+      <div class="metric-sub" id="q-maxdd-sub">peak to trough</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Win% needed</div>
+      <div class="metric-value sm" id="q-breakeven">60%</div>
+      <div class="metric-sub">breakeven at 1u/-1.5u</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Edge vs B/E</div>
+      <div class="metric-value sm" id="q-edge">—</div>
+      <div class="metric-sub" id="q-edge-sub">actual − breakeven</div>
+    </div>
+  </div>
+
+  <!-- ROLLING WINDOW -->
+  <div class="split-grid" style="margin-bottom:16px">
+    <div style="background:var(--bg2);border:1px solid var(--border);padding:16px">
+      <div style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:2px;margin-bottom:10px">ROLLING 7-DAY UNITS — F5 ML LEG</div>
+      <canvas id="roll-ml-canvas" style="width:100%;height:90px;display:block"></canvas>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);padding:16px">
+      <div style="font-size:9px;color:var(--yellow);font-weight:700;letter-spacing:2px;margin-bottom:10px">ROLLING 7-DAY UNITS — FT OVER LEG</div>
+      <canvas id="roll-ov-canvas" style="width:100%;height:90px;display:block"></canvas>
+    </div>
+  </div>
+
+  <!-- LEG DECOMPOSITION -->
+  <div class="table-wrap" style="margin-bottom:16px">
+    <table>
+      <thead>
+        <tr>
+          <th>Strategy Leg</th>
+          <th>N</th><th>W</th><th>L</th><th>P</th>
+          <th>Win%</th><th>Units</th><th>EV/bet</th><th>ROI%</th>
+          <th>Kelly f*</th>
+        </tr>
+      </thead>
+      <tbody id="q-legs-tbody"></tbody>
+    </table>
+  </div>
 </div>
 </div>
 
@@ -1716,7 +1792,27 @@ const SEED = [
 ];
 
 let todayPicks = JSON.parse(localStorage.getItem('harriPicks_v2') || '[]');
-let allPicks = () => [...SEED, ...todayPicks];
+// Pick edit overrides (notes/date changes for ANY pick incl. historical seed)
+let pickEdits = JSON.parse(localStorage.getItem('harriPickEdits') || '{}');
+
+function editKeyFor(p, seedIdx) {
+  return p.uid ? String(p.uid) : 'seed_' + seedIdx;
+}
+
+let allPicks = () => {
+  const seeded = SEED.map((p, i) => {
+    const key = 'seed_' + i;
+    const ov = pickEdits[key];
+    const out = ov ? Object.assign({}, p, ov) : p;
+    if (!out.uid) out._editKey = key;
+    return out;
+  });
+  const todays = todayPicks.map(p => {
+    const ov = pickEdits[String(p.uid)];
+    return ov ? Object.assign({}, p, ov) : p;
+  });
+  return [...seeded, ...todays];
+};
 
 // ============================================================
 // CALCULATIONS
@@ -2012,6 +2108,7 @@ function renderDashboard() {
   }
 
   renderDailyTable();
+  renderQuantLab();
   setTimeout(drawPnlChart, 50);
 }
 
@@ -2131,12 +2228,14 @@ function renderDailyTable() {
 function toggleDayDetail(safedk, dk) {
   var inner = document.getElementById('detail-inner-' + safedk);
   var icon = document.getElementById('icon-' + safedk);
+  var row = document.getElementById('detail-' + safedk);
   if (!inner) { console.log('No element: detail-inner-' + safedk); return; }
 
   // Toggle
   if (inner.dataset.open === '1') {
     inner.dataset.open = '0';
     inner.style.display = 'none';
+    if (row) row.classList.remove('open');
     if (icon) icon.textContent = '\u25bc';
     return;
   }
@@ -2149,6 +2248,7 @@ function toggleDayDetail(safedk, dk) {
     inner.innerHTML = '<div style="padding:12px 16px;color:var(--muted);font-size:11px">No picks found for ' + dk + '</div>';
     inner.dataset.open = '1';
     inner.style.display = 'block';
+    if (row) row.classList.add('open');
     if (icon) icon.textContent = '\u25b2';
     return;
   }
@@ -2252,6 +2352,7 @@ function toggleDayDetail(safedk, dk) {
   inner.innerHTML = html;
   inner.dataset.open = '1';
   inner.style.display = 'block';
+  if (row) row.classList.add('open');
   if (icon) icon.textContent = '\u25b2';
 }
 
@@ -2324,6 +2425,7 @@ function fireHistAction(id) {
   if (!a) return;
   if (a.side === 'del') { deletePick(a.uid, -1); }
   else if (a.side === 'date') { showDatePicker(a.uid); }
+  else if (a.side === 'edit') { showEditModal(a.uid); }
   else { setResult(a.uid, a.side, a.val); }
 }
 
@@ -2408,6 +2510,140 @@ function applyDateChange() {
   renderTodayPicksSummary();
   buildTicker();
   showToast('Date updated');
+}
+
+// ============================================================
+// UNIVERSAL PICK EDITOR (notes + date, any pick incl. seed)
+// ============================================================
+function showEditModal(editKey) {
+  // Find the pick: in todayPicks by uid, or in SEED by seed_N key
+  var pick = null;
+  if (String(editKey).startsWith('seed_')) {
+    var si = parseInt(String(editKey).replace('seed_',''));
+    if (!isNaN(si) && SEED[si]) pick = Object.assign({}, SEED[si], pickEdits[editKey] || {});
+  } else {
+    var base = todayPicks.find(function(p){ return String(p.uid) === String(editKey); });
+    if (base) pick = Object.assign({}, base, pickEdits[editKey] || {});
+  }
+  if (!pick) { showToast('Pick not found'); return; }
+
+  window._editKey = editKey;
+
+  var existing = document.getElementById('edit-modal');
+  if (existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'edit-modal';
+  modal.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:1px solid var(--green);padding:20px 24px;z-index:9999;min-width:300px;max-width:90vw;font-family:monospace;box-shadow:0 0 40px rgba(0,0,0,0.85);';
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-size:9px;color:var(--green);font-weight:700;letter-spacing:2px;margin-bottom:6px;text-transform:uppercase;';
+  title.textContent = 'Edit Pick';
+  modal.appendChild(title);
+
+  var pickName = document.createElement('div');
+  pickName.style.cssText = 'font-size:12px;color:var(--text);font-weight:700;margin-bottom:14px;';
+  pickName.textContent = pick.pick + ' (' + (pick.type||'').toUpperCase() + ')';
+  modal.appendChild(pickName);
+
+  // Date select
+  var dLabel = document.createElement('div');
+  dLabel.style.cssText = 'font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;';
+  dLabel.textContent = 'DATE';
+  modal.appendChild(dLabel);
+
+  var sel = document.createElement('select');
+  sel.id = 'edit-date-sel';
+  sel.style.cssText = 'width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:monospace;font-size:11px;padding:8px;margin-bottom:12px;outline:none;';
+  // current pick date
+  var curD = pick.date > 1e9 ? new Date(pick.date) : excelToDate(parseFloat(pick.date));
+  var curStr = curD ? (curD.getUTCMonth()+1)+'/'+curD.getUTCDate() : '?';
+  // options: keep current + last 21 days
+  var keepOpt = document.createElement('option');
+  keepOpt.value = 'keep';
+  keepOpt.textContent = 'Keep current (' + curStr + ')';
+  sel.appendChild(keepOpt);
+  for (var d = 0; d < 21; d++) {
+    var dt = new Date();
+    dt.setDate(dt.getDate() - d);
+    dt.setHours(12,0,0,0);
+    var o = document.createElement('option');
+    o.value = String(dt.getTime());
+    o.textContent = d===0?'Today':d===1?'Yesterday':dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    sel.appendChild(o);
+  }
+  modal.appendChild(sel);
+
+  // Notes
+  var nLabel = document.createElement('div');
+  nLabel.style.cssText = 'font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;';
+  nLabel.textContent = 'NOTES';
+  modal.appendChild(nLabel);
+
+  var ta = document.createElement('textarea');
+  ta.id = 'edit-notes-ta';
+  ta.value = pick.notes || '';
+  ta.rows = 3;
+  ta.style.cssText = 'width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:monospace;font-size:11px;padding:8px;margin-bottom:14px;outline:none;resize:vertical;box-sizing:border-box;';
+  modal.appendChild(ta);
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;';
+
+  var saveBtn = document.createElement('button');
+  saveBtn.textContent = 'SAVE';
+  saveBtn.style.cssText = 'flex:1;background:var(--green);color:#000;border:none;font-family:monospace;font-size:10px;font-weight:700;padding:8px;cursor:pointer;';
+  saveBtn.addEventListener('click', applyEdit);
+
+  var cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'CANCEL';
+  cancelBtn.style.cssText = 'flex:1;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:monospace;font-size:10px;padding:8px;cursor:pointer;';
+  cancelBtn.addEventListener('click', function(){ modal.remove(); });
+
+  btnRow.appendChild(saveBtn);
+  btnRow.appendChild(cancelBtn);
+  modal.appendChild(btnRow);
+  document.body.appendChild(modal);
+}
+
+function applyEdit() {
+  var key = window._editKey;
+  if (!key) return;
+  var sel = document.getElementById('edit-date-sel');
+  var ta = document.getElementById('edit-notes-ta');
+  var edit = pickEdits[key] || {};
+  if (sel && sel.value !== 'keep') edit.date = parseInt(sel.value);
+  if (ta) edit.notes = ta.value;
+  pickEdits[key] = edit;
+  localStorage.setItem('harriPickEdits', JSON.stringify(pickEdits));
+
+  // If it's a todayPicks pick, also write directly so backups carry it
+  if (!String(key).startsWith('seed_')) {
+    var p = todayPicks.find(function(x){ return String(x.uid) === String(key); });
+    if (p) {
+      if (sel && sel.value !== 'keep') p.date = parseInt(sel.value);
+      if (ta) p.notes = ta.value;
+      localStorage.setItem('harriPicks_v2', JSON.stringify(todayPicks));
+    }
+  }
+
+  var m = document.getElementById('edit-modal');
+  if (m) m.remove();
+  renderHistory();
+  renderDashboard();
+  renderTodayPicksSummary();
+  buildTicker();
+  showToast('Pick updated');
+}
+
+
+function buildSeedEditAction(p) {
+  // Historical (seed) pick: allow notes/date editing via override layer
+  var key = p._editKey || (p.uid ? String(p.uid) : null);
+  if (!key) return '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>';
+  var id = registerHistAction(key, 'edit', 0);
+  return '<span style="color:var(--muted);font-size:9px;margin-right:6px">HIST</span>' +
+    '<button id="' + id + '" style="background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:monospace;font-size:9px;padding:2px 6px;cursor:pointer" onclick="fireHistAction(this.id)">✎ EDIT</button>';
 }
 
 function buildHistoryActions(p) {
@@ -2519,7 +2755,7 @@ function renderHistory() {
       <td>${unitStr(p.ft)}</td>
       <td style="color:var(--muted2);font-size:10px;max-width:160px;white-space:normal">${p.notes||'—'}</td>
       <td class="hist-action-cell" data-uid="${p.uid}" data-istoday="${isToday}">
-        ${isToday ? buildHistoryActions(p) : '<span style="color:var(--muted);font-size:10px">HISTORICAL</span>'}
+        ${isToday ? buildHistoryActions(p) : buildSeedEditAction(p)}
       </td>
     </tr>`;
   }).join('') + `
@@ -4375,6 +4611,471 @@ function renderStrategy() {
   }
 }
 
+
+
+// ============================================================
+// QUANT LAB — advanced analytics
+// ============================================================
+function renderQuantLab() {
+  var ap = allPicks();
+  var dd = getDailyData(ap);
+  var dks = Object.keys(dd).sort();
+
+  // Daily strategy units per day (F5 ML + FT OV)
+  var dailyU = dks.map(function(dk) {
+    var u = 0;
+    dd[dk].forEach(function(p) {
+      if (p.type==='ml') { if(p.f5===1) u+=1; else if(p.f5===0) u-=1.5; }
+      if (p.type==='over') { if(p.ft===1) u+=1; else if(p.ft===0) u-=1.5; }
+    });
+    return {dk:dk, u:u};
+  }).filter(function(d){ return dd[d.dk].some(function(p){return p.type==='ml'||p.type==='over';}); });
+
+  // Equity curve + drawdown
+  var equity = [];
+  var cum = 0, peak = 0, maxDD = 0, maxDDdk = '';
+  dailyU.forEach(function(d) {
+    cum += d.u;
+    if (cum > peak) peak = cum;
+    var ddown = peak - cum;
+    if (ddown > maxDD) { maxDD = ddown; maxDDdk = d.dk; }
+    equity.push({dk:d.dk, cum:cum, peak:peak});
+  });
+
+  // Risk metrics
+  var n = dailyU.length;
+  var mean = n ? dailyU.reduce(function(a,d){return a+d.u;},0)/n : 0;
+  var variance = n>1 ? dailyU.reduce(function(a,d){return a+Math.pow(d.u-mean,2);},0)/(n-1) : 0;
+  var stdev = Math.sqrt(variance);
+  var sharpe = stdev>0 ? (mean/stdev) : 0;
+
+  // Per-bet EV
+  var stratBets = [];
+  ap.forEach(function(p){
+    if (p.type==='ml' && (p.f5===0||p.f5===1)) stratBets.push(p.f5===1?1:-1.5);
+    if (p.type==='over' && (p.ft===0||p.ft===1)) stratBets.push(p.ft===1?1:-1.5);
+  });
+  var ev = stratBets.length ? stratBets.reduce(function(a,b){return a+b;},0)/stratBets.length : 0;
+  var wins = stratBets.filter(function(b){return b>0;}).length;
+  var winPct = stratBets.length ? wins/stratBets.length*100 : 0;
+  var breakeven = 60; // 1.5/(1+1.5)
+  var edge = winPct - breakeven;
+
+  function setT(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  function setC(id,col){var el=document.getElementById(id);if(el)el.style.color=col;}
+
+  setT('q-ev', (ev>=0?'+':'')+ev.toFixed(3)+'u');
+  setC('q-ev', ev>=0?'var(--green)':'var(--red)');
+  setT('q-stdev', stdev.toFixed(2)+'u');
+  setT('q-sharpe', sharpe.toFixed(2));
+  setC('q-sharpe', sharpe>=0.3?'var(--green)':sharpe>=0?'var(--text2)':'var(--red)');
+  setT('q-maxdd', '-'+maxDD.toFixed(1)+'u');
+  setC('q-maxdd', 'var(--red)');
+  setT('q-maxdd-sub', maxDDdk ? 'trough '+maxDDdk : 'peak to trough');
+  setT('q-edge', (edge>=0?'+':'')+edge.toFixed(1)+'%');
+  setC('q-edge', edge>=0?'var(--green)':'var(--red)');
+  setT('q-edge-sub', winPct.toFixed(1)+'% actual vs 60% B/E');
+
+  // Equity canvas
+  drawEquityCurve(equity);
+
+  // Rolling 7-day per leg
+  var mlDaily = dks.map(function(dk){
+    var u=0; dd[dk].forEach(function(p){ if(p.type==='ml'){ if(p.f5===1)u+=1; else if(p.f5===0)u-=1.5; } });
+    return u;
+  });
+  var ovDaily = dks.map(function(dk){
+    var u=0; dd[dk].forEach(function(p){ if(p.type==='over'){ if(p.ft===1)u+=1; else if(p.ft===0)u-=1.5; } });
+    return u;
+  });
+  drawRolling('roll-ml-canvas', mlDaily, 'rgba(0,255,135,', dks);
+  drawRolling('roll-ov-canvas', ovDaily, 'rgba(255,200,0,', dks);
+
+  // Leg decomposition table
+  function legStats(picks, side) {
+    var w=0,l=0,p2=0;
+    picks.forEach(function(p){ var v=p[side]; if(v===1)w++; else if(v===0)l++; else if(v===2)p2++; });
+    var tot=w+l, u=w*1-l*1.5;
+    var pct=tot?w/tot*100:0;
+    var evb=tot?(u/tot):0;
+    var roi=tot?(u/(tot*1.5)*100):0;
+    // Kelly with b = 1/1.5 (win 1 risk 1.5): f* = p - q/b = p - q*1.5
+    var pw=tot?w/tot:0;
+    var kelly = pw - (1-pw)*1.5;
+    return {n:tot+p2,w:w,l:l,p:p2,pct:pct,u:u,evb:evb,roi:roi,kelly:kelly};
+  }
+  var mlLeg = legStats(ap.filter(function(p){return p.type==='ml';}),'f5');
+  var ovLeg = legStats(ap.filter(function(p){return p.type==='over';}),'ft');
+
+  function legRow(name, s, color) {
+    var uc = s.u>=0?'var(--green)':'var(--red)';
+    var kc = s.kelly>0?'var(--green)':'var(--red)';
+    return '<tr>'+
+      '<td style="font-weight:700;color:'+color+'">'+name+'</td>'+
+      '<td>'+s.n+'</td>'+
+      '<td style="color:var(--green)">'+s.w+'</td>'+
+      '<td style="color:var(--red)">'+s.l+'</td>'+
+      '<td style="color:var(--muted2)">'+s.p+'</td>'+
+      '<td>'+s.pct.toFixed(1)+'%</td>'+
+      '<td style="color:'+uc+';font-weight:700">'+(s.u>=0?'+':'')+s.u.toFixed(1)+'u</td>'+
+      '<td style="color:'+uc+'">'+(s.evb>=0?'+':'')+s.evb.toFixed(3)+'</td>'+
+      '<td style="color:'+uc+'">'+(s.roi>=0?'+':'')+s.roi.toFixed(1)+'%</td>'+
+      '<td style="color:'+kc+'">'+(s.kelly>0?(s.kelly*100).toFixed(1)+'%':'no bet')+'</td>'+
+      '</tr>';
+  }
+  var legsT = document.getElementById('q-legs-tbody');
+  if (legsT) legsT.innerHTML = legRow('⚡ F5 ML', mlLeg, 'var(--green)') + legRow('📈 FT OVER', ovLeg, 'var(--yellow)');
+
+  var legend = document.getElementById('equity-legend');
+  if (legend && equity.length) {
+    legend.textContent = equity.length + ' days · final ' + (cum>=0?'+':'') + cum.toFixed(1) + 'u · peak +' + peak.toFixed(1) + 'u · maxDD -' + maxDD.toFixed(1) + 'u';
+  }
+}
+
+function drawEquityCurve(equity) {
+  var cv = document.getElementById('equity-canvas');
+  if (!cv || !equity.length) return;
+  var dpr = window.devicePixelRatio || 1;
+  var W = cv.clientWidth, H = cv.clientHeight || 180;
+  cv.width = W*dpr; cv.height = H*dpr;
+  var ctx = cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  var vals = equity.map(function(e){return e.cum;});
+  var maxV = Math.max.apply(null, vals.concat([0]));
+  var minV = Math.min.apply(null, vals.concat([0]));
+  var pad = 12;
+  var range = (maxV-minV)||1;
+  function x(i){ return pad + i*(W-2*pad)/Math.max(1,equity.length-1); }
+  function y(v){ return H-pad - (v-minV)*(H-2*pad)/range; }
+
+  // zero line
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(pad, y(0)); ctx.lineTo(W-pad, y(0)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // drawdown shading (peak vs cum)
+  ctx.fillStyle = 'rgba(255,60,80,0.10)';
+  ctx.beginPath();
+  equity.forEach(function(e,i){ var px=x(i), py=y(e.peak); if(i===0)ctx.moveTo(px,py); else ctx.lineTo(px,py); });
+  for (var i=equity.length-1;i>=0;i--) ctx.lineTo(x(i), y(equity[i].cum));
+  ctx.closePath(); ctx.fill();
+
+  // equity area fill
+  ctx.fillStyle = 'rgba(0,255,135,0.07)';
+  ctx.beginPath();
+  ctx.moveTo(x(0), y(0));
+  equity.forEach(function(e,i){ ctx.lineTo(x(i), y(e.cum)); });
+  ctx.lineTo(x(equity.length-1), y(0));
+  ctx.closePath(); ctx.fill();
+
+  // equity line
+  ctx.strokeStyle = 'rgba(0,255,135,0.95)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  equity.forEach(function(e,i){ var px=x(i),py=y(e.cum); if(i===0)ctx.moveTo(px,py); else ctx.lineTo(px,py); });
+  ctx.stroke();
+
+  // dots
+  ctx.fillStyle = 'rgba(0,255,135,1)';
+  equity.forEach(function(e,i){ ctx.beginPath(); ctx.arc(x(i), y(e.cum), 2.2, 0, Math.PI*2); ctx.fill(); });
+
+  // date labels: first, mid, last
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '8px monospace';
+  if (equity.length>1) {
+    ctx.fillText(equity[0].dk.slice(5), pad, H-2);
+    ctx.fillText(equity[equity.length-1].dk.slice(5), W-pad-28, H-2);
+  }
+}
+
+function drawRolling(id, daily, rgbaPrefix, dks) {
+  var cv = document.getElementById(id);
+  if (!cv || !daily.length) return;
+  var win = 7;
+  var roll = daily.map(function(_,i){
+    var s = 0;
+    for (var j=Math.max(0,i-win+1); j<=i; j++) s += daily[j];
+    return s;
+  });
+  var dpr = window.devicePixelRatio || 1;
+  var W = cv.clientWidth, H = cv.clientHeight || 90;
+  cv.width = W*dpr; cv.height = H*dpr;
+  var ctx = cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  var maxV = Math.max.apply(null, roll.concat([0.5]));
+  var minV = Math.min.apply(null, roll.concat([-0.5]));
+  var pad = 8, range = (maxV-minV)||1;
+  function x(i){ return pad + i*(W-2*pad)/Math.max(1,roll.length-1); }
+  function y(v){ return H-pad - (v-minV)*(H-2*pad)/range; }
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(pad,y(0)); ctx.lineTo(W-pad,y(0)); ctx.stroke();
+  ctx.setLineDash([]);
+  // bars colored by sign
+  var bw = Math.max(2, (W-2*pad)/roll.length - 2);
+  roll.forEach(function(v,i){
+    ctx.fillStyle = v>=0 ? rgbaPrefix+'0.75)' : 'rgba(255,60,80,0.75)';
+    var py = y(v), py0 = y(0);
+    ctx.fillRect(x(i)-bw/2, Math.min(py,py0), bw, Math.abs(py0-py)||1);
+  });
+}
+
+// ============================================================
+// LEARNING ENGINE — derives your selection profile from
+// picks cross-referenced with saved daily reports
+// ============================================================
+function learnProfile() {
+  var reports = JSON.parse(localStorage.getItem('harriReports') || '[]');
+  var ap = allPicks();
+
+  function pickDateShort(p) {
+    var d = p.date > 1e9 ? new Date(p.date) : excelToDate(parseFloat(p.date));
+    if (!d) return null;
+    var mm = String(d.getUTCMonth()+1).padStart(2,'0');
+    var dd2 = String(d.getUTCDate()).padStart(2,'0');
+    var yy = String(d.getUTCFullYear()).slice(2);
+    return mm + '/' + dd2 + '/' + yy;
+  }
+
+  var mlPicked = [], mlPassed = [], ovPicked = [], ovPassed = [];
+
+  reports.forEach(function(rep) {
+    var games = rep.games || [];
+    var ds = rep.dateShort;
+    var dayPicks = ap.filter(function(p){ return pickDateShort(p) === ds; });
+    var pickedTeams = {};
+    dayPicks.forEach(function(p){ if(p.type==='ml') pickedTeams[p.pick.toLowerCase()] = p; });
+    var overPicks = dayPicks.filter(function(p){return p.type==='over';}).map(function(p){return p.pick.toLowerCase();});
+
+    games.forEach(function(g) {
+      ['away','home'].forEach(function(side) {
+        var team = g[side]; if (!team) return;
+        var opp = side==='away'?'home':'away';
+        var f5l = g[side+'F5Lead'], oppF5 = g[opp+'F5Lead'];
+        var sig = {
+          winpct: g[side+'WinPct'],
+          f5gap: (f5l!=null && oppF5!=null) ? (f5l - oppF5) : null,
+          rungap: (g[side+'Runs']!=null && g[opp+'Runs']!=null) ? (g[side+'Runs'] - g[opp+'Runs']) : null,
+          recMatch: (g.rec||'').indexOf(team) >= 0,
+          result: pickedTeams[team.toLowerCase()] ? (pickedTeams[team.toLowerCase()].f5) : null
+        };
+        if (pickedTeams[team.toLowerCase()]) mlPicked.push(sig);
+        else if (sig.winpct && sig.winpct > 50) mlPassed.push(sig);
+      });
+
+      var total = (g.awayRuns||0) + (g.homeRuns||0);
+      var lm = ((g.totalLine||'')+'').match(/(\d+\.?\d*)/);
+      var line = lm ? parseFloat(lm[1]) : null;
+      var isPicked = overPicks.some(function(op){
+        return op.indexOf((g.away||'').toLowerCase()) >= 0 && op.indexOf((g.home||'').toLowerCase()) >= 0;
+      });
+      var osig = {total: total, line: line, gap: line ? total - line : null};
+      if (isPicked) ovPicked.push(osig);
+      else if (line) ovPassed.push(osig);
+    });
+  });
+
+  function avg(arr, k) {
+    var v = arr.map(function(s){return s[k];}).filter(function(x){return x!=null && !isNaN(x);});
+    return v.length ? v.reduce(function(a,b){return a+b;},0)/v.length : null;
+  }
+  function median(arr, k) {
+    var v = arr.map(function(s){return s[k];}).filter(function(x){return x!=null && !isNaN(x);}).sort(function(a,b){return a-b;});
+    return v.length ? v[Math.floor(v.length/2)] : null;
+  }
+  function winRateWhere(arr, fn) {
+    var sel = arr.filter(function(s){ return s.result===0 || s.result===1; }).filter(fn);
+    if (!sel.length) return null;
+    return sel.filter(function(s){return s.result===1;}).length / sel.length * 100;
+  }
+
+  return {
+    sample: { mlPicked: mlPicked.length, mlPassed: mlPassed.length, ovPicked: ovPicked.length, ovPassed: ovPassed.length },
+    ml: {
+      pickedF5gapAvg: avg(mlPicked,'f5gap'), pickedF5gapMed: median(mlPicked,'f5gap'),
+      passedF5gapAvg: avg(mlPassed,'f5gap'),
+      pickedWinpct: avg(mlPicked,'winpct'), passedWinpct: avg(mlPassed,'winpct'),
+      pickedRungap: avg(mlPicked,'rungap'),
+      recMatchRate: mlPicked.length ? mlPicked.filter(function(s){return s.recMatch;}).length/mlPicked.length*100 : null,
+      winRateHighGap: winRateWhere(mlPicked, function(s){return s.f5gap!=null && s.f5gap >= 15;}),
+      winRateLowGap: winRateWhere(mlPicked, function(s){return s.f5gap!=null && s.f5gap < 15;})
+    },
+    ov: {
+      pickedTotalAvg: avg(ovPicked,'total'), passedTotalAvg: avg(ovPassed,'total'),
+      pickedGapAvg: avg(ovPicked,'gap'), passedGapAvg: avg(ovPassed,'gap'),
+      totalMed: median(ovPicked,'total')
+    }
+  };
+}
+
+// ============================================================
+// AI MORNING BRIEF — scores like Harri picks
+// ============================================================
+function runAIBrief() {
+  if (!gameSimData || !gameSimData.length) { showToast('\u26a0 Generate report first'); return; }
+
+  var panel = document.getElementById('ai-brief-panel');
+  var content = document.getElementById('ai-brief-content');
+  var subtitle = document.getElementById('ai-brief-subtitle');
+  if (!panel || !content) { showToast('Brief panel missing'); return; }
+  panel.style.display = 'block';
+  content.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px">Learning your profile + scoring ' + gameSimData.length + ' games...</div>';
+
+  var ap = allPicks();
+  var profile = learnProfile();
+
+  // Learned thresholds with fallbacks
+  var learnedF5Gap = (profile.ml.pickedF5gapMed != null && profile.sample.mlPicked >= 10) ? profile.ml.pickedF5gapMed * 0.7 : 12;
+  var learnedTotal = (profile.ov.pickedTotalAvg != null && profile.sample.ovPicked >= 8) ? profile.ov.pickedTotalAvg - 0.8 : 9.5;
+  var learnedOvGap = (profile.ov.pickedGapAvg != null && profile.sample.ovPicked >= 8) ? Math.max(0.4, profile.ov.pickedGapAvg * 0.7) : 0.5;
+
+  // Team-level history
+  var mlWins = ap.filter(function(p){return p.type==='ml' && p.f5===1;}).map(function(p){return p.pick.toLowerCase();});
+  var mlLoss = ap.filter(function(p){return p.type==='ml' && p.f5===0;}).map(function(p){return p.pick.toLowerCase();});
+  var fadeTeams = ['mets','new york mets'];
+
+  function teamHist(team) {
+    var t = (team||'').toLowerCase();
+    var w = mlWins.filter(function(x){return x===t;}).length;
+    var l = mlLoss.filter(function(x){return x===t;}).length;
+    return w - l;
+  }
+
+  function isOverpriced(g) {
+    var awayOdds = parseInt(g.awayML), homeOdds = parseInt(g.homeML);
+    if (isNaN(awayOdds) || isNaN(homeOdds) || !g.awayWinPct) return false;
+    var favOdds = awayOdds < homeOdds ? awayOdds : homeOdds;
+    var favSim = awayOdds < homeOdds ? g.awayWinPct : g.homeWinPct;
+    var favImplied = favOdds < 0 ? ((-favOdds)/((-favOdds)+100)*100) : (100/(favOdds+100)*100);
+    return (favImplied - favSim) >= 10;
+  }
+
+  var scored = gameSimData.map(function(g) {
+    var park = (typeof getPark === 'function') ? getPark(g.away, g.home) : null;
+    var matchup = (typeof getMatchupSummary === 'function') ? getMatchupSummary(g.away, g.home) : null;
+    var harri = harriAnalyze(g, park, matchup);
+
+    var isFaded = fadeTeams.some(function(t){
+      return (g.away||'').toLowerCase().indexOf(t) >= 0 || (g.home||'').toLowerCase().indexOf(t) >= 0;
+    });
+
+    // ── ML SIDE SELECTION: pick the side with the bigger F5 lead ──
+    var awayF5 = g.awayF5Lead || 0, homeF5 = g.homeF5Lead || 0;
+    var side = awayF5 >= homeF5 ? 'away' : 'home';
+    var opp = side === 'away' ? 'home' : 'away';
+    var winner = g[side];
+    var f5gap = (g[side+'F5Lead']||0) - (g[opp+'F5Lead']||0);
+    var rungap = (g[side+'Runs']||0) - (g[opp+'Runs']||0);
+    var winpct = g[side+'WinPct'] || 0;
+
+    var mlScore = 0;
+    var mlReasons = [];
+    if (f5gap >= learnedF5Gap * 1.5) { mlScore += 3; mlReasons.push('F5 gap +' + f5gap.toFixed(1) + ' — way above your median (' + learnedF5Gap.toFixed(0) + ')'); }
+    else if (f5gap >= learnedF5Gap) { mlScore += 2; mlReasons.push('F5 gap +' + f5gap.toFixed(1) + ' — fits your profile'); }
+    else if (f5gap >= learnedF5Gap * 0.6) { mlScore += 1; mlReasons.push('F5 gap +' + f5gap.toFixed(1) + ' — borderline'); }
+    if (rungap >= 0.8) { mlScore += 1; mlReasons.push('Run edge +' + rungap.toFixed(2) + 'R'); }
+    if (winpct >= 55) { mlScore += 1; mlReasons.push('Sim win ' + winpct.toFixed(1) + '%'); }
+    if ((harri.rec||'').indexOf(winner) >= 0) { mlScore += 1; mlReasons.push('Engine rec agrees'); }
+    var th = teamHist(winner);
+    if (th >= 2) { mlScore += 1; mlReasons.push('You are ' + th + ' net wins with ' + winner); }
+    else if (th <= -2) { mlScore -= 1; mlReasons.push('You are ' + th + ' net with ' + winner + ' — cold'); }
+
+    var overpriced = isOverpriced(g) && ((winner===g.away && parseInt(g.awayML)<0) || (winner===g.home && parseInt(g.homeML)<0));
+    if (overpriced) { mlScore = Math.max(0, mlScore - 2); mlReasons.push('\u26a0 Market overpriced vs sim'); }
+    if (isFaded) { mlScore = 0; mlReasons = ['Mets involved — auto-fade']; }
+
+    // ── OVER ──
+    var total = (g.awayRuns||0) + (g.homeRuns||0);
+    var lm = ((g.totalLine||'')+'').match(/(\d+\.?\d*)/);
+    var line = lm ? parseFloat(lm[1]) : null;
+    var gap = line ? total - line : null;
+    var ovScore = 0;
+    var ovReasons = [];
+    if (line) {
+      if (total >= learnedTotal) { ovScore += 2; ovReasons.push('Proj total ' + total.toFixed(2) + 'R — your zone (\u2265' + learnedTotal.toFixed(1) + ')'); }
+      else if (total >= learnedTotal - 1) { ovScore += 1; ovReasons.push('Proj total ' + total.toFixed(2) + 'R — close to your zone'); }
+      if (gap >= learnedOvGap * 2) { ovScore += 2; ovReasons.push('Sim +' + gap.toFixed(2) + 'R above line ' + line); }
+      else if (gap >= learnedOvGap) { ovScore += 1; ovReasons.push('Sim +' + gap.toFixed(2) + 'R above line ' + line); }
+      var hasOverFlag = (harri.flags||[]).some(function(f){return f.l && f.l.indexOf('OVER SIGNAL') >= 0;});
+      if (hasOverFlag) { ovScore += 1; ovReasons.push('Engine over signal'); }
+      var parkPct = parseFloat((g.parkPct||'').replace?.('%','') || g.parkPct) || 0;
+      if (parkPct >= 4) { ovScore += 1; ovReasons.push('Park +' + parkPct + '% runs'); }
+    }
+
+    return {g:g, winner:winner, mlScore:mlScore, ovScore:ovScore, mlReasons:mlReasons, ovReasons:ovReasons,
+            line:line, gap:gap, total:total, isFaded:isFaded, overpriced:overpriced, f5gap:f5gap};
+  });
+
+  scored.sort(function(a,b){ return (b.mlScore + b.ovScore) - (a.mlScore + a.ovScore); });
+
+  var MLTH = 4, OVTH = 4; // strict thresholds
+  var plays = scored.filter(function(s){ return s.mlScore >= MLTH || s.ovScore >= OVTH; });
+  var passes = scored.filter(function(s){ return s.mlScore < MLTH && s.ovScore < OVTH; });
+
+  subtitle.textContent = plays.length + ' plays \u00b7 ' + passes.length + ' passes \u00b7 thresholds learned from ' + profile.sample.mlPicked + ' ML / ' + profile.sample.ovPicked + ' OV picks';
+
+  var html = '';
+
+  // Learned profile header
+  html += '<div style="background:var(--bg3);border:1px solid var(--border);padding:10px 14px;margin-bottom:14px;font-size:10px;color:var(--muted2);line-height:1.7">';
+  html += '<span style="color:var(--green);font-weight:700;letter-spacing:1px">LEARNED PROFILE</span> ';
+  if (profile.sample.mlPicked >= 5) {
+    html += '\u00b7 Your ML picks avg F5 gap <span style="color:var(--text)">+' + (profile.ml.pickedF5gapAvg||0).toFixed(1) + '</span> (passed games: +' + (profile.ml.passedF5gapAvg||0).toFixed(1) + ')';
+    if (profile.ml.winRateHighGap != null) html += ' \u00b7 gap\u226515 wins <span style="color:var(--green)">' + profile.ml.winRateHighGap.toFixed(0) + '%</span>';
+    if (profile.ml.winRateLowGap != null) html += ' vs gap<15 <span style="color:var(--red)">' + profile.ml.winRateLowGap.toFixed(0) + '%</span>';
+    html += ' \u00b7 Overs: you bet totals \u2265<span style="color:var(--text)">' + (profile.ov.pickedTotalAvg||0).toFixed(1) + 'R</span> proj';
+  } else {
+    html += '\u00b7 Not enough matched pick/report data yet — using defaults (F5 gap 12+, total 9.5+)';
+  }
+  html += '</div>';
+
+  if (!plays.length) {
+    html += '<div style="color:var(--muted);font-size:11px;padding:8px">No plays meet your learned thresholds today. Discipline is a position.</div>';
+  }
+
+  plays.forEach(function(s) {
+    var g = s.g;
+    html += '<div style="border-bottom:1px solid var(--border);padding:14px 0">';
+    html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">';
+    html += '<div>';
+    html += '<div style="font-size:14px;font-weight:700;letter-spacing:0.5px">' + g.away + ' @ ' + g.home + '</div>';
+    html += '<div style="font-size:10px;color:var(--muted2)">' + (g.time||'') + (g.awaySP?' \u00b7 '+g.awaySP+' vs '+g.homeSP:'') + '</div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:6px">';
+    if (s.mlScore >= MLTH) html += '<span style="background:var(--green-dim2);border:1px solid var(--green);color:var(--green);font-size:9px;font-weight:700;padding:3px 10px;letter-spacing:1px">F5 ML ' + s.mlScore + '/7</span>';
+    if (s.ovScore >= OVTH) html += '<span style="background:rgba(255,200,0,0.1);border:1px solid var(--yellow);color:var(--yellow);font-size:9px;font-weight:700;padding:3px 10px;letter-spacing:1px">FT OVER ' + s.ovScore + '/7</span>';
+    html += '</div></div>';
+
+    if (s.mlScore >= MLTH) {
+      var bar = '\u2588'.repeat(Math.min(s.mlScore,7)) + '\u2591'.repeat(Math.max(0,7-s.mlScore));
+      html += '<div style="margin-bottom:4px"><span style="color:var(--green);font-size:11px;font-weight:700">\u25b8 F5 ML: ' + s.winner + '</span> <span style="color:var(--muted);font-size:10px;font-family:monospace">' + bar + '</span></div>';
+      s.mlReasons.forEach(function(r){ html += '<div style="font-size:10px;color:var(--muted2);padding-left:14px">\u00b7 ' + r + '</div>'; });
+    }
+    if (s.ovScore >= OVTH) {
+      var bar2 = '\u2588'.repeat(Math.min(s.ovScore,7)) + '\u2591'.repeat(Math.max(0,7-s.ovScore));
+      html += '<div style="margin:6px 0 4px"><span style="color:var(--yellow);font-size:11px;font-weight:700">\u25b8 FT OVER ' + s.line + '</span> <span style="color:var(--muted);font-size:10px;font-family:monospace">' + bar2 + '</span></div>';
+      s.ovReasons.forEach(function(r){ html += '<div style="font-size:10px;color:var(--muted2);padding-left:14px">\u00b7 ' + r + '</div>'; });
+    }
+    html += '</div>';
+  });
+
+  if (passes.length) {
+    html += '<div style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border)">';
+    html += '<div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">PASS \u2014 ' + passes.length + ' games (ML ' + MLTH + '+ or OV ' + OVTH + '+ required)</div>';
+    passes.forEach(function(s) {
+      var reason = s.isFaded ? 'Mets — auto-fade' : s.overpriced ? 'overpriced favorite' : 'ML ' + s.mlScore + ' / OV ' + s.ovScore + ' — below threshold';
+      html += '<div style="font-size:10px;color:var(--muted2);padding:3px 0;border-bottom:1px solid var(--border)">' + s.g.away + ' @ ' + s.g.home + ' <span style="color:var(--muted)">— ' + reason + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  content.innerHTML = html;
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+}
 
 window.addEventListener('resize',()=>{
   if(document.getElementById('tab-dashboard').classList.contains('active')) drawPnlChart();
